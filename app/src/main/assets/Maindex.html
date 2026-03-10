@@ -1,16 +1,63 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        html,body{
-            background-color: rgb(12, 71, 94);
-        }
-    </style>
+    <title>古明地こいしアプリ</title>
+    <link rel="icon" href="Img/epicenter.png">
+
+    <!-- 外部のCSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="Styles.css">
+
+    <!-- JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="MainScript.js"></script>
+    <script src="LeafletConnection.js"></script>
+
 </head>
+
 <body>
-    
+<!-- 現在時刻を表示 -->
+<h1 id="now_time" aria-live="polite">2000/01/01 00:00:00</h1>
+
+<!-- メッセージを表示するテキストエリア -->
+<textarea id="maintextarea" rows="1" readonly aria-label="メインテキストエリア"></textarea>
+
+<!-- 過去の情報をさかのぼるためのスライダー -->
+<input type="range" id="pagebar" min="0" max="0" value="0" aria-label="ページバー">
+
+<!-- キャラクター（こいしちゃん）の表示 -->
+<div class="koisiarrow_box" aria-label="こいしの吹き出し">古明地こいしだよ!!</div>
+<img src="Img/baclgroundimg.jpg" id="back" alt="背景画像">
+<img src="Img/hyoujyou_bishou_koisi.png" id="koisi" alt="古明地こいし">
+
+<!-- メニュー画面 -->
+<nav id="menu" aria-label="メインメニュー">
+    <h2>メニュー</h2>
+    <a id="linker" target="_blank" rel="noopener noreferrer" href="settings.html">設定</a>
+    <hr>
+    <div class="connection-status">
+        <h4>P2P地震情報 API</h4>
+        <span id="p2pStatusIndicator" class="status-indicator status-disconnected" aria-hidden="true"></span>
+        <span id="p2pStatusText">切断</span>
+    </div>
+</nav>
+
+<!-- 情報メニュー -->
+<aside id="infomenu" aria-label="情報メニュー">
+    <h2>情報メニュー</h2>
+</aside>
+
+<!-- 操作ボタン -->
+<button id="toggleMenuBtn" aria-label="メニューを開閉" aria-expanded="false">☰</button>
+<button id="toggleinfoMenuBtn" aria-label="情報メニューを開閉" aria-expanded="false">☰</button>
+<button id="MapChange" aria-label="地図表示切替">🗺️</button>
+
+<!-- 地図を表示するエリア -->
+<div id="LeafletMap" role="application" aria-label="地図"></div>
+
 </body>
+
 </html>

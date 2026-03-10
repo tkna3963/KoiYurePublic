@@ -1,0 +1,271 @@
+/* 全体共通 */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+/* 現在時刻表示 */
+#now_time {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    color: black;
+    padding: 0 5px;
+    margin: 0;
+    line-height: 1;
+    border: 2px solid black;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    font-size: 25px;
+    z-index: 50;
+    background-color: rgb(26, 175, 138);
+}
+
+/* メインテキストエリア */
+#maintextarea {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 35vh;
+    background-color: rgb(228, 148, 61);
+    z-index: 1;
+    border: none;
+    resize: none;
+    padding: 10px;
+    font-size: 18px;
+    color: #000;
+}
+
+#maintextarea:focus {
+    height: 70vh;
+    background-color: rgba(228, 148, 61, 0.9);
+    z-index: 3;
+}
+
+/* ページバー（スライダー） */
+#pagebar {
+    position: fixed;
+    left: 0;
+    top: 32%;
+    width: 99%;
+    height: 15px;
+    border: 1px solid #282424;
+    background: linear-gradient(90deg, 
+        #dc5fd7 0%, #dc5fd7 25%, 
+        #3fd304 25%, #3fd304 75%, 
+        #dc5fd7 75%, #dc5fd7 100%);
+    cursor: pointer;
+    z-index: 15;
+
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* ツマミ */
+#pagebar::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    background: #2ed91d;
+    cursor: pointer;
+}
+
+#pagebar::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    background: #2ed91d;
+    cursor: pointer;
+}
+
+/* 背景画像 */
+#back{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 65vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    z-index: 0;
+}
+
+#LeafletMap {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 65vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    z-index: 0;
+    display: none;
+}
+
+
+/* こいし画像 */
+#koisi {
+    width: auto;
+    height: 55vh;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+}
+
+/* こいし矢印ボックス */
+.koisiarrow_box {
+    position: absolute;
+    width: 91%;
+    height: 27px;
+    top: 35%;
+    background: #83FF39;
+    text-align: center;
+    border: 5px solid #E6FF82;
+    color: #F6FFFE;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 36px;
+    z-index: 2;
+    display: block; /* ←初期状態を明示 */
+}
+
+
+.koisiarrow_box:after,
+.koisiarrow_box:before {
+    border: solid transparent;
+    content: '';
+    height: 0;
+    width: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 100%;
+    left: 70%;
+}
+
+.koisiarrow_box:after {
+    border-color: rgba(131, 255, 57, 0);
+    border-top-width: 20px;
+    border-bottom-width: 20px;
+    border-left-width: 15px;
+    border-right-width: 15px;
+    margin-left: -15px;
+    border-top-color: #83FF39;
+}
+
+.koisiarrow_box:before {
+    border-color: rgba(230, 255, 130, 0);
+    border-top-width: 26px;
+    border-bottom-width: 26px;
+    border-left-width: 20px;
+    border-right-width: 20px;
+    margin-left: -20px;
+    margin-top: 5px;
+    border-top-color: #E6FF82;
+}
+
+/* メニュー */
+#menu, #infomenu {
+    position: fixed;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    color: white;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    padding: 20px;
+    transition: 0.3s ease;
+}
+
+#menu {
+    right: -300px;
+    z-index: 20;
+}
+#menu.open { right: 0; }
+
+#infomenu {
+    left: -300px;
+    z-index: 20; /* menuと同じレイヤー */
+}
+#infomenu.open { left: 0; }
+
+/* ボタン */
+button {
+    position: fixed;
+    bottom: 30px;
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10; /* メニューより下に */
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+}
+
+#toggleMenuBtn { right: 0; z-index: 30;}
+#toggleinfoMenuBtn { left: 0; z-index: 30;}
+
+#MapChange{ left: 0%;  bottom: 8%; z-index: 30; }
+
+button:hover { background-color: #444; } 
+
+/* 特殊リンク */
+#linker { 
+    background-color: #0dbf95; 
+    display: inline-block;
+    margin: 5px 0;
+    padding: 5px 10px;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+#linker:hover {
+    background-color: #0aa07c;
+}
+
+/* WebSocket ステータスインジケーター */
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+    border: 1px solid #555; /* 枠線を追加して視認性を向上 */
+}
+
+.status-connected {
+    background-color: limegreen; /* 接続中は緑 */
+}
+
+.status-disconnected {
+    background-color: crimson; /* 切断中は赤 */
+}
+
+/* メッセージログコンテナ */
+.log-container {
+    border: 1px solid #555;
+    background-color: #444;
+    height: 100px; /* 高さ制限 */
+    overflow-y: scroll; /* スクロール可能にする */
+    margin-top: 5px;
+    padding: 5px;
+    font-size: 12px;
+    color: #eee;
+}
+
+.log-container p {
+    margin: 2px 0;
+    white-space: nowrap; /* テキストの折り返しを防ぐ */
+    overflow: hidden;    /* はみ出したテキストを非表示に */
+    text-overflow: ellipsis; /* はみ出したテキストを...で表示 */
+}
