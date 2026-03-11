@@ -15,10 +15,10 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="MainScript.js"></script>
     <script src="LeafletConnection.js"></script>
-
 </head>
 
 <body>
+
 <!-- 現在時刻を表示 -->
 <h1 id="now_time" aria-live="polite">2000/01/01 00:00:00</h1>
 
@@ -29,20 +29,79 @@
 <input type="range" id="pagebar" min="0" max="0" value="0" aria-label="ページバー">
 
 <!-- キャラクター（こいしちゃん）の表示 -->
-<div class="koisiarrow_box" aria-label="こいしの吹き出し">古明地こいしだよ!!</div>
+<div class="koisiarrow_box" aria-label="こいしの吹き出し">
+    <span id="koishiText">古明地こいしだよ!!</span>
+</div>
 <img src="Img/baclgroundimg.jpg" id="back" alt="背景画像">
 <img src="Img/hyoujyou_bishou_koisi.png" id="koisi" alt="古明地こいし">
 
-<!-- メニュー画面 -->
+<!-- ──────────────────────────────────────────────
+     メニュー
+     ────────────────────────────────────────────── -->
 <nav id="menu" aria-label="メインメニュー">
     <h2>メニュー</h2>
-    <a id="linker" target="_blank" rel="noopener noreferrer" href="settings.html">設定</a>
+
+    <!-- Service 起動 / 停止 -->
+    <section class="menu-section" aria-label="バックグラウンド制御">
+        <h3>バックグラウンド</h3>
+        <div class="btn-row">
+            <button id="startServiceBtn"
+                    aria-label="バックグラウンド受信を開始"
+                    aria-pressed="false">
+                ▶ 開始
+            </button>
+            <button id="stopServiceBtn"
+                    aria-label="バックグラウンド受信を停止"
+                    aria-pressed="false"
+                    disabled>
+                ■ 停止
+            </button>
+        </div>
+    </section>
+
     <hr>
-    <div class="connection-status">
-        <h4>P2P地震情報 API</h4>
-        <span id="p2pStatusIndicator" class="status-indicator status-disconnected" aria-hidden="true"></span>
-        <span id="p2pStatusText">切断</span>
-    </div>
+
+    <!-- TTS / 通知 トグル -->
+    <section class="menu-section" aria-label="通知設定">
+        <h3>通知設定</h3>
+
+        <label class="toggle-label">
+            <span>読み上げ (TTS)</span>
+            <input type="checkbox" id="ttsToggle" checked aria-label="読み上げのON/OFF">
+            <span class="toggle-slider" aria-hidden="true"></span>
+        </label>
+
+        <label class="toggle-label">
+            <span>プッシュ通知</span>
+            <input type="checkbox" id="notifToggle" checked aria-label="通知のON/OFF">
+            <span class="toggle-slider" aria-hidden="true"></span>
+        </label>
+    </section>
+
+    <hr>
+
+    <!-- P2P接続状態 -->
+    <section class="menu-section connection-status" aria-label="接続状態">
+        <h3>P2P地震情報 API</h3>
+        <div class="status-row">
+            <span id="p2pStatusIndicator"
+                  class="status-indicator status-disconnected"
+                  aria-hidden="true"></span>
+            <span id="p2pStatusText">切断</span>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- 現在地 -->
+    <section class="menu-section" aria-label="現在地">
+        <h3>現在地</h3>
+        <p id="NowLocate">取得中…</p>
+    </section>
+
+    <hr>
+
+    <a id="linker" target="_blank" rel="noopener noreferrer" href="settings.html">設定ページ</a>
 </nav>
 
 <!-- 情報メニュー -->
@@ -51,13 +110,12 @@
 </aside>
 
 <!-- 操作ボタン -->
-<button id="toggleMenuBtn" aria-label="メニューを開閉" aria-expanded="false">☰</button>
-<button id="toggleinfoMenuBtn" aria-label="情報メニューを開閉" aria-expanded="false">☰</button>
-<button id="MapChange" aria-label="地図表示切替">🗺️</button>
+<button id="toggleMenuBtn"     aria-label="メニューを開閉"      aria-expanded="false">☰</button>
+<button id="toggleinfoMenuBtn" aria-label="情報メニューを開閉"  aria-expanded="false">☰</button>
+<button id="MapChange"         aria-label="地図表示切替">🗺️</button>
 
 <!-- 地図を表示するエリア -->
 <div id="LeafletMap" role="application" aria-label="地図"></div>
 
 </body>
-
 </html>

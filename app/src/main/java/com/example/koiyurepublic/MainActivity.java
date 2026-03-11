@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
             spinalCord = lb.getService();
             spinalCord.setUICallback(MainActivity.this);
             bound = true;
-            // HTML側にService起動状態を通知
             runJs("window.onServiceStateChanged && window.onServiceStateChanged(true)");
         }
 
@@ -47,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
             spinalCord = null;
-            // HTML側にService停止状態を通知
             runJs("window.onServiceStateChanged && window.onServiceStateChanged(false)");
         }
     };
@@ -74,12 +72,12 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         ws.setAllowFileAccess(true);
         ws.setDomStorageEnabled(true);
 
+        // JavascriptInterface名: "AndroidBridge"（MainScript.js の Bridge クラスに対応）
         webView.addJavascriptInterface(new JsBridge(), "AndroidBridge");
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // ページ読み込み完了後に現在のService状態をHTML側に通知
                 runJs("window.onServiceStateChanged && window.onServiceStateChanged(" + bound + ")");
             }
         });
@@ -101,12 +99,9 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     @Override
     protected void onStart() {
         super.onStart();
-        // Serviceが実行中ならBindのみ、停止中なら起動してBind
         Intent intent = new Intent(this, SpinalCord.class);
         if (SpinalCord.isRunning) {
             bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        } else {
-            // ユーザーが意図的に停止していた場合は自動起動しない
         }
     }
 
@@ -126,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
 
     @Override
     public void onEarthquakeMessage(String json) {
+        // JSON文字列をJS文字列リテラルとして安全にエスケープ
         String escaped = json
                 .replace("\\", "\\\\")
                 .replace("'", "\\'")
@@ -141,31 +137,23 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     }
 
     // ──────────────────────────────────────────────
-    //  JavascriptInterface — WebViewからJavaへのコールバック
+    //  JsBridge — WebViewからJavaへのコールバック
+    //  JavascriptInterface名: "AndroidBridge"
     // ──────────────────────────────────────────────
 
     private class JsBridge {
 
         @JavascriptInterface
-        public void notifyReady() {
-            // ページの準備完了通知
-        }
+        public void notifyReady() { /* ページ準備完了通知（将来用） */ }
 
-        /**
-         * バックグラウンド実行を停止する。
-         * WatchdogAlarmも解除するため、OSによる自動再起動もなくなる。
-         * HTML側: AndroidBridge.stopBackground()
-         * ※ Context.stopService(Intent) との名前衝突を避けるため stopBackground に命名
-         */
+        /** Service停止。HTML側: AndroidBridge.stopBackground() */
         @JavascriptInterface
         public void stopBackground() {
             mainHandler.post(() -> {
                 android.util.Log.d("JsBridge", "stopBackground called from JS");
 
-                // 意図的停止フラグを立ててから止める（onDestroy内の自己再起動を抑制）
                 if (spinalCord != null) spinalCord.stopIntentionally();
 
-                // Bindを解除
                 if (bound) {
                     if (spinalCord != null) spinalCord.clearUICallback();
                     unbindService(connection);
@@ -173,23 +161,16 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
                     spinalCord = null;
                 }
 
-                // WatchdogAlarmを解除（再起動ループを止める）
                 SpinalCord.cancelWatchdog(MainActivity.this);
 
-                // Serviceを停止（Context.stopService(Intent) を明示的に呼ぶ）
                 Intent intent = new Intent(MainActivity.this, SpinalCord.class);
                 MainActivity.this.stopService(intent);
 
-                // HTML側に停止完了を通知
                 runJs("window.onServiceStateChanged && window.onServiceStateChanged(false)");
             });
         }
 
-        /**
-         * バックグラウンド実行を開始する。
-         * HTML側: AndroidBridge.startBackground()
-         * ※ Context.startForegroundService(Intent) との名前衝突を避けるため startBackground に命名
-         */
+        /** Service起動。HTML側: AndroidBridge.startBackground() */
         @JavascriptInterface
         public void startBackground() {
             mainHandler.post(() -> {
@@ -198,31 +179,95 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
                 Intent intent = new Intent(MainActivity.this, SpinalCord.class);
                 MainActivity.this.startForegroundService(intent);
 
-                // 少し待ってからBind（Service起動完了を待つ）
                 mainHandler.postDelayed(() -> {
-                    if (!bound) {
-                        bindService(intent, connection, Context.BIND_AUTO_CREATE);
-                    }
+                    if (!bound) bindService(intent, connection, Context.BIND_AUTO_CREATE);
                 }, 500);
             });
         }
 
-        /**
-         * 現在のService実行状態を返す（同期取得用）。
-         * HTML側: const running = AndroidBridge.isServiceRunning()
-         */
+        /** Service実行中かを返す。HTML側: AndroidBridge.isServiceRunning() */
         @JavascriptInterface
         public boolean isServiceRunning() {
             return SpinalCord.isRunning;
         }
 
+        // ──────────────────────────────────────────
+        //  TTS 制御
+        // ──────────────────────────────────────────
+
+        /**
+         * 読み上げ（TTS）をON/OFFする。
+         * HTML側: AndroidBridge.setTtsEnabled(true/false)
+         */
         @JavascriptInterface
-        public void requestReconnect() {
-            if (bound && spinalCord != null) {
-                // 将来: spinalCord.reconnect();
-            }
+        public void setTtsEnabled(boolean enabled) {
+            mainHandler.post(() -> {
+                if (spinalCord != null) spinalCord.setTtsEnabled(enabled);
+                android.util.Log.d("JsBridge", "setTtsEnabled=" + enabled);
+            });
         }
 
+        /**
+         * TTS が有効かを返す。
+         * HTML側: AndroidBridge.isTtsEnabled()
+         */
+        @JavascriptInterface
+        public boolean isTtsEnabled() {
+            return spinalCord != null && spinalCord.isTtsEnabled();
+        }
+
+        /**
+         * TTS の読み上げ速度を設定する（0.5〜2.0 推奨）。
+         * HTML側: AndroidBridge.setTtsSpeechRate(1.0)
+         */
+        @JavascriptInterface
+        public void setTtsSpeechRate(float rate) {
+            mainHandler.post(() -> {
+                if (spinalCord != null) spinalCord.setTtsSpeechRate(rate);
+            });
+        }
+
+        /**
+         * TTS の音程を設定する（0.5〜2.0 推奨）。
+         * HTML側: AndroidBridge.setTtsPitch(1.3)
+         */
+        @JavascriptInterface
+        public void setTtsPitch(float pitch) {
+            mainHandler.post(() -> {
+                if (spinalCord != null) spinalCord.setTtsPitch(pitch);
+            });
+        }
+
+        // ──────────────────────────────────────────
+        //  通知 制御
+        // ──────────────────────────────────────────
+
+        /**
+         * プッシュ通知をON/OFFする。
+         * HTML側: AndroidBridge.setNotificationEnabled(true/false)
+         */
+        @JavascriptInterface
+        public void setNotificationEnabled(boolean enabled) {
+            mainHandler.post(() -> {
+                if (spinalCord != null) spinalCord.setNotificationEnabled(enabled);
+                android.util.Log.d("JsBridge", "setNotificationEnabled=" + enabled);
+            });
+        }
+
+        /**
+         * プッシュ通知が有効かを返す。
+         * HTML側: AndroidBridge.isNotificationEnabled()
+         */
+        @JavascriptInterface
+        public boolean isNotificationEnabled() {
+            return spinalCord != null && spinalCord.isNotificationEnabled();
+        }
+
+        // ──────────────────────────────────────────
+        //  デバッグ
+        // ──────────────────────────────────────────
+
+        /** JSからAndroidのLogcatにログを出力する。HTML側: AndroidBridge.log("msg") */
         @JavascriptInterface
         public void log(String message) {
             android.util.Log.d("WebView/JS", message);
@@ -233,6 +278,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     //  ヘルパー
     // ──────────────────────────────────────────────
 
+    /** UIスレッドでJSを実行する */
     private void runJs(String js) {
         mainHandler.post(() -> {
             if (webView != null) webView.evaluateJavascript(js, null);

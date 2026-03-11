@@ -272,12 +272,18 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         if (tts != null) {
             String fullText = P2PConverts.toFullMessage(json);
             // EEW・EEW検出は割り込み読み上げ
+            if(code==555){
+                //読み上げない
+                return;
+            }
+
             if (code == 556 || code == 554) {
                 tts.speakNow(fullText);
             } else {
                 tts.speak(fullText);
             }
         }
+
 
         // --- UIコールバック ---
         if (uiCallback != null) uiCallback.onEarthquakeMessage(json);
