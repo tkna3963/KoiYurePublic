@@ -2,11 +2,31 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- ネットワーク -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- フォアグラウンドService -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- 通知 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- 端末再起動後の自動起動 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- WakeLock（CPUスリープ防止） -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!--
+        正確なAlarm（Doze中でも発火）
+        Android 12以降: SCHEDULE_EXACT_ALARM または USE_EXACT_ALARM が必要。
+        USE_EXACT_ALARM はシステムが自動付与（地震など安全・緊急情報アプリ向け）。
+        通常は SCHEDULE_EXACT_ALARM + ユーザーへの権限付与誘導を組み合わせる。
+    -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        tools:ignore="ExactAlarm" />
 
     <application
         android:allowBackup="true"
@@ -18,6 +38,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KoiYurePublic">
 
+        <!-- ────────────── Activity ────────────── -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -27,11 +48,36 @@
             </intent-filter>
         </activity>
 
-        <!-- SpinalCord ForegroundService -->
+        <!-- ────────────── SpinalCord ForegroundService ────────────── -->
         <service
             android:name=".SpinalCord"
             android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:foregroundServiceType="dataSync"
+            android:stopWithTask="false" />
+        <!--
+            stopWithTask="false":
+            タスク一覧からアプリを消しても Service が止まらないようにする。
+            Xiaomi などはこれがないとスワイプ削除で即 kill される。
+        -->
+
+        <!-- ────────────── WatchdogReceiver（定期Alarm） ────────────── -->
+        <receiver
+            android:name=".WatchdogReceiver"
+            android:exported="false" />
+
+        <!-- ────────────── BootReceiver（端末再起動後の自動起動） ────────────── -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <!-- exported=true が RECEIVE_BOOT_COMPLETED 受信に必要 -->
+            <intent-filter>
+                <!-- 通常の再起動 -->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!-- Xiaomi / OPPO の高速起動 -->
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
 
     </application>
 
