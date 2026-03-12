@@ -115,7 +115,6 @@ public class NotifiConnection {
             case 552: postTsunami(title, message);      break;
             case 551: postQuake(title, message);        break;
             case 9611:postUserquakeEval(title, message);break;
-            case 555:
             case 561: postInfo(title, message);         break;
             default:  postInfo(title, message);         break;
         }

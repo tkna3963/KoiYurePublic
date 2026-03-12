@@ -1,0 +1,119 @@
+/* ==============================================
+   Styles_addon.css
+   既存の Styles.css にこのブロックを追記してください
+   ============================================== */
+
+/* ──────────────────────────────────────────
+   スライダーエリア（pagebarArea）
+   ────────────────────────────────────────── */
+#pagebarArea {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba(0,0,0,0.45);
+    border-radius: 6px;
+    /* 既存の #pagebar と同じ位置に置いてください */
+}
+
+#pagebar {
+    flex: 1;
+    min-width: 0;
+}
+
+#prevBtn,
+#nextBtn,
+#latestBtn {
+    padding: 2px 8px;
+    font-size: 0.85em;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#prevBtn:disabled,
+#nextBtn:disabled,
+#latestBtn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+#pagebarLabel {
+    font-size: 0.8em;
+    color: #ccc;
+    white-space: nowrap;
+    min-width: 3.5em;
+    text-align: right;
+}
+
+/* 受信件数バッジ */
+.data-count-badge {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 1px 5px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.75em;
+    text-align: center;
+    font-weight: bold;
+    line-height: 1.4;
+}
+
+/* ──────────────────────────────────────────
+   情報メニュー 受信履歴リスト
+   ────────────────────────────────────────── */
+#infomenuList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
+}
+
+.info-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 6px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.15s;
+}
+
+.info-entry:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+/* コード別ボーダー色 */
+.info-entry[data-code="551"] { border-left-color: #f1c40f; }
+.info-entry[data-code="552"] { border-left-color: #3498db; }
+.info-entry[data-code="554"] { border-left-color: #e74c3c; }
+.info-entry[data-code="556"] { border-left-color: #e74c3c; }
+.info-entry[data-code="561"] { border-left-color: #2ecc71; }
+.info-entry[data-code="9611"]{ border-left-color: #2ecc71; }
+
+.info-entry-label {
+    font-size: 0.82em;
+    font-weight: bold;
+    color: #eee;
+}
+
+.info-entry-time {
+    font-size: 0.72em;
+    color: #aaa;
+}
+
+.info-entry-detail {
+    font-size: 0.78em;
+    color: #ccc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

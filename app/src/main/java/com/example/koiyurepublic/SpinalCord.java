@@ -277,6 +277,11 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
                 return;
             }
 
+            if(code==9611 && fullText.contains("非表示")){
+                //読み上げない
+                return;
+            }
+
             if (code == 556 || code == 554) {
                 tts.speakNow(fullText);
             } else {

@@ -6,12 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>古明地こいしアプリ</title>
     <link rel="icon" href="Img/epicenter.png">
-
-    <!-- 外部のCSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="stylesheet" href="Styles.css">
-
-    <!-- JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="MainScript.js"></script>
     <script src="LeafletConnection.js"></script>
@@ -19,16 +15,24 @@
 
 <body>
 
-<!-- 現在時刻を表示 -->
+<!-- 現在時刻 -->
 <h1 id="now_time" aria-live="polite">2000/01/01 00:00:00</h1>
 
-<!-- メッセージを表示するテキストエリア -->
+<!-- メインテキストエリア -->
 <textarea id="maintextarea" rows="1" readonly aria-label="メインテキストエリア"></textarea>
 
-<!-- 過去の情報をさかのぼるためのスライダー -->
-<input type="range" id="pagebar" min="0" max="0" value="0" aria-label="ページバー">
+<!-- スライダーエリア（ラベル＋スライダー＋ナビボタン） -->
+<div id="pagebarArea" aria-label="過去データ閲覧">
+    <button id="prevBtn"   aria-label="前のデータ"  title="前へ">◀</button>
+    <input  type="range" id="pagebar" min="0" max="0" value="0" aria-label="ページバー">
+    <button id="nextBtn"   aria-label="次のデータ"  title="次へ">▶</button>
+    <button id="latestBtn" aria-label="最新データへ" title="最新へ">⏩</button>
+    <span   id="pagebarLabel" aria-live="polite">0 / 0</span>
+    <!-- 受信件数バッジ -->
+    <span id="dataCountBadge" class="data-count-badge" title="受信件数">0</span>
+</div>
 
-<!-- キャラクター（こいしちゃん）の表示 -->
+<!-- こいしちゃん -->
 <div class="koisiarrow_box" aria-label="こいしの吹き出し">
     <span id="koishiText">古明地こいしだよ!!</span>
 </div>
@@ -36,41 +40,28 @@
 <img src="Img/hyoujyou_bishou_koisi.png" id="koisi" alt="古明地こいし">
 
 <!-- ──────────────────────────────────────────────
-     メニュー
+     メインメニュー
      ────────────────────────────────────────────── -->
 <nav id="menu" aria-label="メインメニュー">
     <h2>メニュー</h2>
 
-    <!-- Service 起動 / 停止 -->
     <section class="menu-section" aria-label="バックグラウンド制御">
         <h3>バックグラウンド</h3>
         <div class="btn-row">
-            <button id="startServiceBtn"
-                    aria-label="バックグラウンド受信を開始"
-                    aria-pressed="false">
-                ▶ 開始
-            </button>
-            <button id="stopServiceBtn"
-                    aria-label="バックグラウンド受信を停止"
-                    aria-pressed="false"
-                    disabled>
-                ■ 停止
-            </button>
+            <button id="startServiceBtn" aria-label="バックグラウンド受信を開始" aria-pressed="false">▶ 開始</button>
+            <button id="stopServiceBtn"  aria-label="バックグラウンド受信を停止" aria-pressed="false" disabled>■ 停止</button>
         </div>
     </section>
 
     <hr>
 
-    <!-- TTS / 通知 トグル -->
     <section class="menu-section" aria-label="通知設定">
         <h3>通知設定</h3>
-
         <label class="toggle-label">
             <span>読み上げ (TTS)</span>
             <input type="checkbox" id="ttsToggle" checked aria-label="読み上げのON/OFF">
             <span class="toggle-slider" aria-hidden="true"></span>
         </label>
-
         <label class="toggle-label">
             <span>プッシュ通知</span>
             <input type="checkbox" id="notifToggle" checked aria-label="通知のON/OFF">
@@ -80,20 +71,16 @@
 
     <hr>
 
-    <!-- P2P接続状態 -->
     <section class="menu-section connection-status" aria-label="接続状態">
         <h3>P2P地震情報 API</h3>
         <div class="status-row">
-            <span id="p2pStatusIndicator"
-                  class="status-indicator status-disconnected"
-                  aria-hidden="true"></span>
+            <span id="p2pStatusIndicator" class="status-indicator status-disconnected" aria-hidden="true"></span>
             <span id="p2pStatusText">切断</span>
         </div>
     </section>
 
     <hr>
 
-    <!-- 現在地 -->
     <section class="menu-section" aria-label="現在地">
         <h3>現在地</h3>
         <p id="NowLocate">取得中…</p>
@@ -104,9 +91,15 @@
     <a id="linker" target="_blank" rel="noopener noreferrer" href="settings.html">設定ページ</a>
 </nav>
 
-<!-- 情報メニュー -->
+<!-- ──────────────────────────────────────────────
+     情報メニュー（受信履歴リスト）
+     ────────────────────────────────────────────── -->
 <aside id="infomenu" aria-label="情報メニュー">
-    <h2>情報メニュー</h2>
+    <h2>受信履歴</h2>
+    <!-- ここに addInfomenuEntry() でエントリが追加される -->
+    <div id="infomenuList" aria-label="受信データリスト">
+        <p id="infomenuEmpty" style="color:#888;font-size:0.85em;padding:8px;">まだデータがありません</p>
+    </div>
 </aside>
 
 <!-- 操作ボタン -->
@@ -114,7 +107,7 @@
 <button id="toggleinfoMenuBtn" aria-label="情報メニューを開閉"  aria-expanded="false">☰</button>
 <button id="MapChange"         aria-label="地図表示切替">🗺️</button>
 
-<!-- 地図を表示するエリア -->
+<!-- 地図 -->
 <div id="LeafletMap" role="application" aria-label="地図"></div>
 
 </body>
