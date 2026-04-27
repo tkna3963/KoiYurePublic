@@ -6,8 +6,11 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -96,39 +99,47 @@ public class EpspArea {
         if (table != null) return;
         Map<Integer, Entry> tmp = new HashMap<>();
         int count = 0;
+        int parseErrors = 0;
         try {
-            InputStream is = context.getAssets().open(CSV_PATH);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            String line;
-            boolean first = true;
-            while ((line = br.readLine()) != null) {
-                if (first) { first = false; continue; }  // ヘッダースキップ
-                line = line.trim();
-                if (line.isEmpty()) continue;
+            try (
+                    InputStream is = context.getAssets().open(CSV_PATH);
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
+            ) {
+                String line;
+                boolean first = true;
+                while ((line = br.readLine()) != null) {
+                    if (first) { first = false; continue; }  // ヘッダースキップ
+                    line = line.trim();
+                    if (line.isEmpty()) continue;
 
-                String[] cols = splitCsv(line);
-                if (cols.length < 7) continue;
+                    String[] cols = splitCsv(line);
+                    if (cols.length < 7) {
+                        parseErrors++;
+                        continue;
+                    }
 
-                try {
-                    int    code    = parseInt(cols[1]);   // 数値型コード
-                    String region  = cols[2].trim();
-                    String pref    = cols[3].trim();
-                    String area    = cols[4].trim();
-                    double lat     = parseDouble(cols[5]);
-                    double lon     = parseDouble(cols[6]);
-                    int    subCode = cols.length > 7 ? parseIntSafe(cols[7]) : -1;
-                    String subName = cols.length > 8 ? cols[8].trim() : "";
+                    try {
+                        int    code    = parseInt(cols[1]);   // 数値型コード
+                        String region  = cols[2].trim();
+                        String pref    = cols[3].trim();
+                        String area    = cols[4].trim();
+                        double lat     = parseDouble(cols[5]);
+                        double lon     = parseDouble(cols[6]);
+                        int    subCode = cols.length > 7 ? parseIntSafe(cols[7]) : -1;
+                        String subName = cols.length > 8 ? cols[8].trim() : "";
 
-                    tmp.put(code, new Entry(code, region, pref, area, lat, lon, subCode, subName));
-                    count++;
-                } catch (Exception ignored) {}
+                        tmp.put(code, new Entry(code, region, pref, area, lat, lon, subCode, subName));
+                        count++;
+                    } catch (Exception e) {
+                        parseErrors++;
+                    }
+                }
             }
-            br.close();
         } catch (Exception e) {
             Log.e(TAG, "CSV読み込み失敗: " + e.getMessage());
         }
         table = Collections.unmodifiableMap(tmp);
-        Log.d(TAG, "EpspArea 初期化完了: " + count + " 件");
+        Log.d(TAG, "EpspArea 初期化完了: " + count + " 件, parseErrors=" + parseErrors);
     }
 
     // ──────────────────────────────────────────────
@@ -168,7 +179,28 @@ public class EpspArea {
 
     /** カンマ区切りをダブルクォート考慮で分割 */
     private static String[] splitCsv(String line) {
-        return line.split(",", -1);
+        List<String> cols = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuote = false;
+
+        for (int i = 0; i < line.length(); i++) {
+            char ch = line.charAt(i);
+            if (ch == '"') {
+                if (inQuote && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    current.append('"');
+                    i++;
+                } else {
+                    inQuote = !inQuote;
+                }
+            } else if (ch == ',' && !inQuote) {
+                cols.add(current.toString());
+                current.setLength(0);
+            } else {
+                current.append(ch);
+            }
+        }
+        cols.add(current.toString());
+        return cols.toArray(new String[0]);
     }
 
     private static int parseInt(String s) {

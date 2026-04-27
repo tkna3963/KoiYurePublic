@@ -38,6 +38,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     // フォアグラウンド通知（常駐用）は NotifiConnection とは別チャンネルで管理
     private static final String CHANNEL_FG  = "koiyure_ws_channel";
     private static final int    NOTIF_FG_ID = 1;
+    private static final long   SELF_RESTART_DELAY_MS = 1500L;
 
     public static final long WATCHDOG_INTERVAL_MS = 60_000L;
 
@@ -61,6 +62,10 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     private void acquireWakeLock() {
         if (wakeLock != null && wakeLock.isHeld()) return;
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (pm == null) {
+            Log.w(TAG, "WakeLock取得失敗: PowerManagerがnull");
+            return;
+        }
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "KoiYure:SpinalCordLock");
         wakeLock.setReferenceCounted(false);
         wakeLock.acquire();
@@ -81,6 +86,10 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     @SuppressLint("ScheduleExactAlarm")
     private void scheduleWatchdog() {
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (am == null) {
+            Log.w(TAG, "Watchdog設定失敗: AlarmManagerがnull");
+            return;
+        }
         PendingIntent pi = getWatchdogPendingIntent(this);
         am.cancel(pi);
         am.setExactAndAllowWhileIdle(
@@ -92,6 +101,10 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     public static void cancelWatchdog(Context ctx) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) {
+            Log.w(TAG, "Watchdogキャンセル失敗: AlarmManagerがnull");
+            return;
+        }
         am.cancel(getWatchdogPendingIntent(ctx));
         Log.d(TAG, "Watchdog cancelled");
     }
@@ -102,6 +115,35 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
                 ctx, 0, i,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
+    }
+
+    private PendingIntent getSelfRestartPendingIntent() {
+        Intent restartIntent = new Intent(getApplicationContext(), SpinalCord.class);
+        return PendingIntent.getService(
+                getApplicationContext(),
+                1,
+                restartIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
+    @SuppressLint("ScheduleExactAlarm")
+    private void scheduleSelfRestart(String reason) {
+        if (isIntentionallyStopped) {
+            Log.d(TAG, reason + " — 意図的停止中のため再起動しない");
+            return;
+        }
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (am == null) {
+            Log.w(TAG, reason + " — AlarmManager取得失敗");
+            return;
+        }
+        am.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + SELF_RESTART_DELAY_MS,
+                getSelfRestartPendingIntent()
+        );
+        Log.d(TAG, reason + " — 自己再起動をスケジュール");
     }
 
     // ──────────────────────────────────────────────
@@ -189,6 +231,12 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     public void onRebind(Intent intent) { Log.d(TAG, "onRebind"); }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        scheduleSelfRestart("onTaskRemoved");
+        super.onTaskRemoved(rootIntent);
+    }
+
+    @Override
     public void onDestroy() {
         isRunning = false;
 
@@ -200,19 +248,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         P2PQuakeWebSocketClient.removeListener(this);
         releaseWakeLock();
 
-        // 意図的な停止でなければ自己再起動
-        if (!isIntentionallyStopped) {
-            Intent restartIntent = new Intent(getApplicationContext(), SpinalCord.class);
-            PendingIntent pi = PendingIntent.getService(
-                    getApplicationContext(), 1, restartIntent,
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
-            );
-            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000, pi);
-            Log.d(TAG, "自己再起動をスケジュール");
-        } else {
-            Log.d(TAG, "意図的停止 — 再起動しない");
-        }
+        scheduleSelfRestart("onDestroy");
 
         super.onDestroy();
     }
@@ -272,19 +308,10 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         if (tts != null) {
             String fullText = P2PConverts.toFullMessage(json);
             // EEW・EEW検出は割り込み読み上げ
-            if(code==555){
-                //読み上げない
-                return;
-            }
-
-            if(code==9611 && fullText.contains("非表示")){
-                //読み上げない
-                return;
-            }
-
-            if (code == 556 || code == 554) {
+            boolean skipTts = (code == 555) || (code == 9611 && fullText.contains("非表示"));
+            if (!skipTts && (code == 556 || code == 554)) {
                 tts.speakNow(fullText);
-            } else {
+            } else if (!skipTts) {
                 tts.speak(fullText);
             }
         }
@@ -356,12 +383,17 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     // ──────────────────────────────────────────────
 
     private void createForegroundChannel() {
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        if (nm == null) {
+            Log.w(TAG, "Foreground通知チャンネル作成失敗: NotificationManagerがnull");
+            return;
+        }
         NotificationChannel ch = new NotificationChannel(
                 CHANNEL_FG, "地震情報WebSocket接続",
                 NotificationManager.IMPORTANCE_LOW  // 音なし・常駐用
         );
         ch.setDescription("P2PQuake WebSocket接続を維持します");
-        getSystemService(NotificationManager.class).createNotificationChannel(ch);
+        nm.createNotificationChannel(ch);
     }
 
     private Notification buildForegroundNotification(String text) {
@@ -380,7 +412,11 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     }
 
     private void updateForegroundNotification(String text) {
-        getSystemService(NotificationManager.class)
-                .notify(NOTIF_FG_ID, buildForegroundNotification(text));
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        if (nm == null) {
+            Log.w(TAG, "Foreground通知更新失敗: NotificationManagerがnull");
+            return;
+        }
+        nm.notify(NOTIF_FG_ID, buildForegroundNotification(text));
     }
 }

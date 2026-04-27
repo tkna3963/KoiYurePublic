@@ -58,6 +58,10 @@ public class NotifiConnection {
     }
 
     private void createChannels() {
+        if (nm == null) {
+            Log.w(TAG, "通知チャンネル作成失敗: NotificationManagerがnull");
+            return;
+        }
         // 緊急地震速報チャンネル（最高重要度）
         NotificationChannel eew = new NotificationChannel(
                 CHANNEL_EEW, "緊急地震速報・大津波警報",
@@ -108,6 +112,10 @@ public class NotifiConnection {
      */
     public void notify(int code, String title, String message) {
         if (!enabled) return;
+        if (nm == null) {
+            Log.w(TAG, "通知発行失敗: NotificationManagerがnull");
+            return;
+        }
 
         switch (code) {
             case 556: postEEW(title, message);          break;
@@ -208,12 +216,14 @@ public class NotifiConnection {
 
     /** 津波予報解除時に呼ぶ */
     public void cancelTsunami() {
+        if (nm == null) return;
         nm.cancel(NOTIF_TSUNAMI);
         Log.d(TAG, "津波通知キャンセル");
     }
 
     /** EEW取消時に呼ぶ */
     public void cancelEEW() {
+        if (nm == null) return;
         nm.cancel(NOTIF_EEW);
         nm.cancel(NOTIF_EEW_DET);
         Log.d(TAG, "EEW通知キャンセル");

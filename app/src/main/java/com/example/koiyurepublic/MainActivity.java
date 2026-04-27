@@ -4,10 +4,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PowerManager;
+import android.provider.Settings;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -21,6 +26,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity implements SpinalCord.UICallback {
+
+    private static final String TAG = "MainActivity";
+    private static final String PREFS = "startup_prefs";
+    private static final String KEY_BATTERY_OPT_ASKED = "battery_opt_asked";
 
     private WebView webView;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -82,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
             }
         });
         webView.loadUrl("file:///android_asset/Maindex.html");
+        requestBatteryOptimizationWhitelistIfNeeded();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -283,5 +293,32 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         mainHandler.post(() -> {
             if (webView != null) webView.evaluateJavascript(js, null);
         });
+    }
+
+    private void requestBatteryOptimizationWhitelistIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+
+        boolean asked = getSharedPreferences(PREFS, MODE_PRIVATE)
+                .getBoolean(KEY_BATTERY_OPT_ASKED, false);
+        if (asked) return;
+
+        PowerManager pm = getSystemService(PowerManager.class);
+        if (pm == null) return;
+        if (pm.isIgnoringBatteryOptimizations(getPackageName())) return;
+
+        Intent i = new Intent(
+                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                Uri.parse("package:" + getPackageName())
+        );
+        if (i.resolveActivity(getPackageManager()) == null) {
+            Log.w(TAG, "バッテリー最適化除外の設定画面が見つからない");
+            return;
+        }
+
+        getSharedPreferences(PREFS, MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_BATTERY_OPT_ASKED, true)
+                .apply();
+        startActivity(i);
     }
 }

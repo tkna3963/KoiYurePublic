@@ -48,6 +48,10 @@ public class WatchdogReceiver extends BroadcastReceiver {
     /** 次のAlarmをセット */
     private void scheduleNext(Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) {
+            Log.w(TAG, "次のWatchdog設定失敗: AlarmManagerがnull");
+            return;
+        }
         Intent i = new Intent(context, WatchdogReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(
                 context, 0, i,
