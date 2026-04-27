@@ -54,6 +54,26 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     }
 
     // ──────────────────────────────────────────────
+    //  WebSocket 接続状態（初期状態通知用）
+    // ──────────────────────────────────────────────
+    
+    private volatile boolean wsConnected = false;
+    private volatile boolean wsWillReconnect = false;
+    
+    private synchronized void setConnectionState(boolean connected, boolean willReconnect) {
+        wsConnected = connected;
+        wsWillReconnect = willReconnect;
+    }
+    
+    private synchronized boolean isWSConnected() {
+        return wsConnected;
+    }
+    
+    private synchronized boolean isWSWillReconnect() {
+        return wsWillReconnect;
+    }
+
+    // ──────────────────────────────────────────────
     //  子コンポーネント
     // ──────────────────────────────────────────────
 
@@ -170,8 +190,13 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     private final IBinder binder     = new LocalBinder();
     private UICallback    uiCallback = null;
 
-    public synchronized void setUICallback(UICallback cb) { 
-        this.uiCallback = cb; 
+    public synchronized void setUICallback(UICallback cb) {
+        this.uiCallback = cb;
+        // UICallback をセットされた直後に、現在の接続状態を通知
+        if (cb != null) {
+            cb.onConnectionStateChanged(isWSConnected(), isWSWillReconnect());
+            Log.d(TAG, "UI Callback初期化: onConnectionStateChanged(" + isWSConnected() + ", " + isWSWillReconnect() + ")");
+        }
     }
     
     public synchronized void clearUICallback()            { 
@@ -277,17 +302,25 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     @Override
     public void onConnected() {
         Log.d(TAG, "WS接続完了");
+        setConnectionState(true, false);
         updateForegroundNotification("● 接続済み — 地震情報受信中");
         UICallback cb = getUICallback();
-        if (cb != null) cb.onConnectionStateChanged(true, false);
+        if (cb != null) {
+            cb.onConnectionStateChanged(true, false);
+            Log.d(TAG, "UI Callback: onConnectionStateChanged(true, false)");
+        }
     }
 
     @Override
     public void onDisconnected(boolean willReconnect) {
         Log.d(TAG, "WS切断 willReconnect=" + willReconnect);
+        setConnectionState(false, willReconnect);
         updateForegroundNotification(willReconnect ? "○ 切断 — 再接続中…" : "✕ 切断");
         UICallback cb = getUICallback();
-        if (cb != null) cb.onConnectionStateChanged(false, willReconnect);
+        if (cb != null) {
+            cb.onConnectionStateChanged(false, willReconnect);
+            Log.d(TAG, "UI Callback: onConnectionStateChanged(false, " + willReconnect + ")");
+        }
     }
 
     /**

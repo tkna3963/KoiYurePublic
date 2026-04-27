@@ -87,11 +87,24 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                runJs("window.onServiceStateChanged && window.onServiceStateChanged(" + bound + ")");
+                runJs("window.onServiceStateChanged && window.onServiceStateChanged(" + SpinalCord.isServiceRunning() + ")");
             }
         });
         webView.loadUrl("file:///android_asset/Maindex.html");
         requestBatteryOptimizationWhitelistIfNeeded();
+        
+        // ═══════════════════════════════════════
+        // 🟢 アプリ起動時に Service を自動開始
+        // ═══════════════════════════════════════
+        if (!SpinalCord.isServiceRunning()) {
+            Log.d(TAG, "Service not running → auto-start");
+            Intent serviceIntent = new Intent(this, SpinalCord.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -110,7 +123,16 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, SpinalCord.class);
-        if (SpinalCord.isServiceRunning()) {
+        // 必ず Service が起動していることを確認
+        if (!SpinalCord.isServiceRunning()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
+        }
+        // bind する
+        if (!bound) {
             bindService(intent, connection, Context.BIND_AUTO_CREATE);
         }
     }

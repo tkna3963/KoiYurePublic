@@ -46,9 +46,13 @@
     <h2>メニュー</h2>
 
     <section class="menu-section" aria-label="バックグラウンド制御">
-        <h3>バックグラウンド</h3>
+        <h3>🟢 バックグラウンド受信</h3>
+        <div id="serviceStatus" class="service-status-box" aria-live="polite" aria-atomic="true">
+            <span id="serviceStatusIndicator" class="status-indicator status-connected"></span>
+            <span id="serviceStatusText">初期化中…</span>
+        </div>
         <div class="btn-row">
-            <button id="startServiceBtn" aria-label="バックグラウンド受信を開始" aria-pressed="false">▶ 開始</button>
+            <button id="startServiceBtn" aria-label="バックグラウンド受信を開始" aria-pressed="true">▶ 開始</button>
             <button id="stopServiceBtn"  aria-label="バックグラウンド受信を停止" aria-pressed="false" disabled>■ 停止</button>
         </div>
     </section>
@@ -72,10 +76,13 @@
     <hr>
 
     <section class="menu-section connection-status" aria-label="接続状態">
-        <h3>P2P地震情報 API</h3>
+        <h3>P2P地震情報 API 接続状態</h3>
         <div class="status-row">
             <span id="p2pStatusIndicator" class="status-indicator status-disconnected" aria-hidden="true"></span>
-            <span id="p2pStatusText">切断</span>
+            <div class="status-text-box">
+                <div id="p2pStatusText" class="status-text-main">初期化中…</div>
+                <div id="p2pStatusDetail" class="status-text-detail">サーバーに接続しています</div>
+            </div>
         </div>
     </section>
 

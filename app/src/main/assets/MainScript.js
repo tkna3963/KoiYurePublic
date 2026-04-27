@@ -27,10 +27,13 @@ function cacheElements() {
     elements.koisiarrow        = document.querySelector('.koisiarrow_box');
     elements.p2pIndicator      = document.getElementById('p2pStatusIndicator');
     elements.p2pText           = document.getElementById('p2pStatusText');
+    elements.p2pDetail         = document.getElementById('p2pStatusDetail');
     elements.nowLocate         = document.getElementById('NowLocate');
 
     elements.startBtn          = document.getElementById('startServiceBtn');
     elements.stopBtn           = document.getElementById('stopServiceBtn');
+    elements.serviceIndicator  = document.getElementById('serviceStatusIndicator');
+    elements.serviceText       = document.getElementById('serviceStatusText');
     elements.ttsToggle         = document.getElementById('ttsToggle');
     elements.notifToggle       = document.getElementById('notifToggle');
     elements.koishiText        = document.getElementById('koishiText');
@@ -76,14 +79,15 @@ window.onEarthquakeData = function (jsonStr) {
 
 window.onConnectionStateChanged = function (connected, willReconnect) {
     Bridge.log('[onConnectionStateChanged] connected=' + connected + ' willReconnect=' + willReconnect);
-    updateConnectionStatus(elements.p2pIndicator, elements.p2pText, connected, willReconnect);
+    updateConnectionStatusDetailed(elements.p2pIndicator, elements.p2pText, elements.p2pDetail, connected, willReconnect);
 };
 
 window.onServiceStateChanged = function (running) {
     Bridge.log('[onServiceStateChanged] running=' + running);
+    updateServiceStatus(running);
     syncServiceButtons(running);
     if (!running) {
-        updateConnectionStatus(elements.p2pIndicator, elements.p2pText, false, false);
+        updateConnectionStatusDetailed(elements.p2pIndicator, elements.p2pText, elements.p2pDetail, false, false);
     }
 };
 
@@ -497,30 +501,54 @@ function confidenceLabel(c) {
 }
 
 // ========================================
-// 接続状態表示更新
+// Service 状態表示更新
 // ========================================
-function updateConnectionStatus(indicator, textElement, isConnected, willReconnect = false) {
+function updateServiceStatus(isRunning) {
+    if (!elements.serviceIndicator || !elements.serviceText) return;
+    
+    elements.serviceIndicator.classList.toggle('status-connected', isRunning);
+    elements.serviceIndicator.classList.toggle('status-disconnected', !isRunning);
+    elements.serviceText.textContent = isRunning ? '● バックグラウンド実行中' : '○ 停止中';
+    
+    Bridge.log('[updateServiceStatus] running=' + isRunning);
+}
+
+// ========================================
+// P2P API 接続状態表示更新（詳細版）
+// ========================================
+function updateConnectionStatusDetailed(indicator, textElement, detailElement, isConnected, willReconnect = false) {
     if (!indicator || !textElement) return;
+    
     indicator.classList.toggle('status-connected',    isConnected);
     indicator.classList.toggle('status-disconnected', !isConnected);
     indicator.classList.toggle('status-reconnecting', !isConnected && willReconnect);
 
-    if (isConnected)           textElement.textContent = '接続中';
-    else if (willReconnect)    textElement.textContent = '再接続中…';
-    else                       textElement.textContent = '切断';
+    if (isConnected) {
+        textElement.textContent = '● 接続中';
+        if (detailElement) detailElement.textContent = 'P2Pサーバーに接続済み';
+    } else if (willReconnect) {
+        textElement.textContent = '○ 再接続中…';
+        if (detailElement) detailElement.textContent = '接続を再試行中です';
+    } else {
+        textElement.textContent = '✕ 切断';
+        if (detailElement) detailElement.textContent = 'サーバーに接続できていません';
+    }
 }
 
 // ========================================
 // Service ボタン同期
 // ========================================
 function syncServiceButtons(running) {
+    // デフォルトは running = true（自動起動）
     if (elements.startBtn) {
         elements.startBtn.disabled = running;
         elements.startBtn.setAttribute('aria-pressed', String(!running));
+        elements.startBtn.style.opacity = running ? '0.5' : '1.0';
     }
     if (elements.stopBtn) {
         elements.stopBtn.disabled = !running;
         elements.stopBtn.setAttribute('aria-pressed', String(running));
+        elements.stopBtn.style.opacity = running ? '1.0' : '0.5';
     }
 }
 
@@ -676,18 +704,24 @@ function initializeApp() {
     if (Bridge.available()) {
         const running = Bridge.isRunning();
         syncServiceButtons(running);
-        updateConnectionStatus(elements.p2pIndicator, elements.p2pText, running);
+        updateServiceStatus(running);
+        // 初期状態は Java/Service から通知されるので、ここではクリア状態を表示（すぐに上書きされる）
+        if (!running) {
+            updateConnectionStatusDetailed(elements.p2pIndicator, elements.p2pText, elements.p2pDetail, false, false);
+        }
 
         if (elements.startBtn) {
             elements.startBtn.addEventListener('click', () => {
+                Bridge.log('[UI] startServiceBtn clicked');
                 Bridge.start();
-                elements.startBtn.disabled = true;
             });
         }
         if (elements.stopBtn) {
             elements.stopBtn.addEventListener('click', () => {
-                Bridge.stop();
-                elements.stopBtn.disabled = true;
+                Bridge.log('[UI] stopServiceBtn clicked');
+                if (confirm('バックグラウンド受信を停止してもよろしいですか？')) {
+                    Bridge.stop();
+                }
             });
         }
 
@@ -705,6 +739,7 @@ function initializeApp() {
     } else {
         console.warn('AndroidBridge is not available — running in browser mode');
         if (elements.p2pText) elements.p2pText.textContent = 'ブラウザモード';
+        if (elements.p2pDetail) elements.p2pDetail.textContent = 'Android Bridge が利用できません';
         if (elements.startBtn) elements.startBtn.disabled = false;
         if (elements.stopBtn)  elements.stopBtn.disabled  = true;
 
