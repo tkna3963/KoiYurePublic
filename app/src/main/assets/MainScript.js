@@ -51,12 +51,14 @@ const Bridge = {
     available() {
         return typeof AndroidBridge !== 'undefined' && AndroidBridge !== null;
     },
-    isRunning()       { return this.available() ? AndroidBridge.isServiceRunning()   : false; },
+    isRunning()       { return this.available() && typeof AndroidBridge.isServiceRunning === 'function' ? AndroidBridge.isServiceRunning() : false; },
     start()           { if (this.available()) AndroidBridge.startBackground(); },
     stop()            { if (this.available()) AndroidBridge.stopBackground(); },
     log(msg)          { if (this.available()) AndroidBridge.log(msg); },
-    setTts(enabled)   { if (this.available() && AndroidBridge.setTtsEnabled)          AndroidBridge.setTtsEnabled(enabled); },
-    setNotif(enabled) { if (this.available() && AndroidBridge.setNotificationEnabled) AndroidBridge.setNotificationEnabled(enabled); },
+    setTts(enabled)   { if (this.available() && typeof AndroidBridge.setTtsEnabled === 'function') AndroidBridge.setTtsEnabled(enabled); },
+    setNotif(enabled) { if (this.available() && typeof AndroidBridge.setNotificationEnabled === 'function') AndroidBridge.setNotificationEnabled(enabled); },
+    isTtsEnabled()    { return this.available() && typeof AndroidBridge.isTtsEnabled === 'function' ? AndroidBridge.isTtsEnabled() : true; },
+    isNotifEnabled()  { return this.available() && typeof AndroidBridge.isNotificationEnabled === 'function' ? AndroidBridge.isNotificationEnabled() : true; },
 };
 
 // ========================================
@@ -255,8 +257,16 @@ function format556(d) {
 // ── 561: 地震感知情報 ──
 function format561(d) {
     const area = d.area ?? -1;
-    const areaName = area >= 0 ? (typeof EpspArea !== 'undefined' ? EpspArea.nameOf(area) : `コード${area}`) : '不明';
-    return `【地震感知情報】\n受信日時 : ${d.time ?? ''}\n地　　域 : ${areaName} (コード: ${area})`;
+    let areaName = '不明';
+    
+    // Java EpspArea が利用可能なら使用
+    if (typeof EpspArea !== 'undefined' && EpspArea !== null && typeof EpspArea.nameOf === 'function') {
+        areaName = EpspArea.nameOf(area);
+    } else if (area >= 0) {
+        areaName = `地域コード${area}`;
+    }
+    
+    return `【地震感知情報】\n受信日時 : ${d.time ?? ''}\n地　　域 : ${areaName}`;
 }
 
 // ── 9611: 感知解析 ──
@@ -274,8 +284,14 @@ function format9611(d) {
         s += '\n【地域別信頼度】\n';
         for (const key of keys) {
             const ac = areaConf[key] ?? {};
-            const code = parseFloat(key);
-            const areaName = (typeof EpspArea !== 'undefined') ? EpspArea.nameOf(Math.round(code)) : `コード${key}`;
+            const code = Math.round(parseFloat(key));
+            let areaName = `コード${key}`;
+            
+            // Java EpspArea が利用可能なら使用
+            if (typeof EpspArea !== 'undefined' && EpspArea !== null && typeof EpspArea.nameOf === 'function') {
+                areaName = EpspArea.nameOf(code);
+            }
+            
             s += `  ${areaName} : ${ac.display ?? '-'} (${ac.count ?? 0}件)\n`;
         }
     }
@@ -291,7 +307,7 @@ function updatePagebar() {
     elements.pagebar.max = maxIndex;
 
     // 最新データを見ている場合は追従、さかのぼり中は固定
-    const isAtLatest = (currentIndex < 0 || currentIndex === parseInt(elements.pagebar.max) - 1);
+    const isAtLatest = (currentIndex < 0 || currentIndex === maxIndex);
     if (isAtLatest) {
         elements.pagebar.value = maxIndex;
     }
@@ -327,7 +343,7 @@ function onP2PMessage(msg) {
     if (typeof P2PMap === 'function') P2PMap(msg);
 
     // 最新を常に表示（さかのぼり中は追従しない）
-    const isAtLatest = currentIndex < 0 || currentIndex === AllWebsocketData.length - 2;
+    const isAtLatest = currentIndex < 0 || currentIndex === AllWebsocketData.length - 1;
     if (isAtLatest) {
         currentIndex = AllWebsocketData.length - 1;
         elements.pagebar.value = currentIndex;
@@ -475,8 +491,8 @@ function confidenceLabel(c) {
     if (c <= 0)       return '非表示';
     if (c >= 0.98052) return 'レベル4';
     if (c >= 0.97024) return 'レベル3';
-    if (c >= 0.97015) return 'レベル1';
     if (c >= 0.96774) return 'レベル2';
+    if (c >= 0.97015) return 'レベル1';
     return 'レベル不明';
 }
 
@@ -677,12 +693,12 @@ function initializeApp() {
 
         setupToggle(
             elements.ttsToggle,
-            () => AndroidBridge.isTtsEnabled ? AndroidBridge.isTtsEnabled() : true,
+            () => Bridge.isTtsEnabled(),
             v  => Bridge.setTts(v)
         );
         setupToggle(
             elements.notifToggle,
-            () => AndroidBridge.isNotificationEnabled ? AndroidBridge.isNotificationEnabled() : true,
+            () => Bridge.isNotifEnabled(),
             v  => Bridge.setNotif(v)
         );
 

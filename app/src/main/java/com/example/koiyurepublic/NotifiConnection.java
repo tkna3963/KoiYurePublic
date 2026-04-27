@@ -110,7 +110,7 @@ public class NotifiConnection {
      * @param title     通知タイトル
      * @param message   通知本文（P2PConverts.toBriefMessage() の戻り値を推奨）
      */
-    public void notify(int code, String title, String message) {
+    public synchronized void notify(int code, String title, String message) {
         if (!enabled) return;
         if (nm == null) {
             Log.w(TAG, "通知発行失敗: NotificationManagerがnull");
@@ -215,14 +215,14 @@ public class NotifiConnection {
     // ──────────────────────────────────────────────
 
     /** 津波予報解除時に呼ぶ */
-    public void cancelTsunami() {
+    public synchronized void cancelTsunami() {
         if (nm == null) return;
         nm.cancel(NOTIF_TSUNAMI);
         Log.d(TAG, "津波通知キャンセル");
     }
 
     /** EEW取消時に呼ぶ */
-    public void cancelEEW() {
+    public synchronized void cancelEEW() {
         if (nm == null) return;
         nm.cancel(NOTIF_EEW);
         nm.cancel(NOTIF_EEW_DET);
@@ -234,12 +234,14 @@ public class NotifiConnection {
     // ──────────────────────────────────────────────
 
     /** 通知全体のON/OFFを切り替える */
-    public void setEnabled(boolean enabled) {
+    public synchronized void setEnabled(boolean enabled) {
         this.enabled = enabled;
         Log.d(TAG, "通知 enabled=" + enabled);
     }
 
-    public boolean isEnabled() { return enabled; }
+    public synchronized boolean isEnabled() { 
+        return enabled; 
+    }
 
     // ──────────────────────────────────────────────
     //  ヘルパー
@@ -258,6 +260,6 @@ public class NotifiConnection {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pi)
-                .setOnlyAlertOnce(false);
+                .setOnlyAlertOnce(true);
     }
 }

@@ -573,8 +573,8 @@ public class P2PConverts {
         if (c <= 0)          return "非表示";
         if (c >= 0.98052)    return "レベル4";
         if (c >= 0.97024)    return "レベル3";
-        if (c >= 0.97015)    return "レベル1";  // 仕様通り
         if (c >= 0.96774)    return "レベル2";
+        if (c >= 0.97015)    return "レベル1";
         return "レベル不明";
     }
 }

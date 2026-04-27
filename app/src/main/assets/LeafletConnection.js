@@ -58,14 +58,14 @@ async function toggleMapMode() {
 
         // 地図の初期化（初回のみ）
         if (!LeafletMapSet && typeof L !== 'undefined') {
-            LeafletMapSet = L.map('LeafletMap').setView([35.681236, 139.767125], 5);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(LeafletMapSet);
-
-            // GeoJSONデータの読み込み
             try {
+                LeafletMapSet = L.map('LeafletMap').setView([35.681236, 139.767125], 5);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(LeafletMapSet);
+
+                // GeoJSONデータの読み込み
                 PrefArea    = await fetch("Item/Pref.geojson").then(res => res.json());
                 SaibunArea  = await fetch("Item/Saibun.geojson").then(res => res.json());
                 TsunamiArea = await fetch("Item/Tsunami.geojson").then(res => res.json());
@@ -73,15 +73,20 @@ async function toggleMapMode() {
                 PrefGeoJSON    = L.geoJSON(PrefArea,    { style: { color: "green", fillOpacity: 0.0 } }).addTo(LeafletMapSet);
                 SaibunGeoJSON  = L.geoJSON(SaibunArea,  { style: { color: "red",   fillOpacity: 0.0 } }).addTo(LeafletMapSet);
                 TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue",  fillOpacity: 0.0 } }).addTo(LeafletMapSet);
+                
+                addUserLocationMarker();
             } catch (error) {
-                console.error("GeoJSONデータの読み込みに失敗:", error);
+                console.error("地図初期化エラー:", error);
+                LeafletMapSet = null;  // エラー時は初期化状態をリセット
             }
-
-            addUserLocationMarker();
 
         } else if (LeafletMapSet) {
             // 既に初期化済みの場合はマーカーだけ更新
-            addUserLocationMarker();
+            try {
+                addUserLocationMarker();
+            } catch (error) {
+                console.error("マーカー追加エラー:", error);
+            }
         }
 
     } else {
@@ -101,5 +106,53 @@ async function toggleMapMode() {
 // P2P地震情報を地図に反映
 // ========================================
 function P2PMap(msg) {
-    // TODO: 地震情報の受信に応じてマーカーや色を更新する処理をここに実装
+    if (!LeafletMapSet) return;
+    
+    const code = msg.code;
+    
+    // 地震情報（551）: 震源マーカーを配置
+    if (code === 551) {
+        const quake = msg.earthquake ?? {};
+        const hypo = quake.hypocenter ?? {};
+        const lat = hypo.latitude;
+        const lon = hypo.longitude;
+        
+        if (lat && lon && lat > -100) {
+            // 既存のマーカーを削除（最新のもののみ表示）
+            if (EpicenterMarker) {
+                LeafletMapSet.removeLayer(EpicenterMarker);
+            }
+            
+            const name = hypo.name ?? '不明な震源';
+            const mag = hypo.magnitude ?? '?';
+            EpicenterMarker = L.marker([lat, lon])
+                .addTo(LeafletMapSet)
+                .bindPopup(`${name}<br>M${mag}`)
+                .openPopup();
+        }
+    }
+    
+    // 感知情報（561/9611）: 地域マーカーを配置
+    if (code === 9611) {
+        const areaConf = msg.area_confidences ?? {};
+        
+        // 古いマーカーを削除
+        marker9611Map.forEach(m => LeafletMapSet.removeLayer(m));
+        marker9611Map.clear();
+        
+        // 新しいマーカーを追加
+        for (const [key, ac] of Object.entries(areaConf)) {
+            const areaCode = Math.round(parseFloat(key));
+            if (typeof EpspArea !== 'undefined') {
+                const latLon = EpspArea.latLonOf(areaCode);
+                if (latLon) {
+                    const areaName = EpspArea.nameOf(areaCode);
+                    const marker = L.marker([latLon[0], latLon[1]], { opacity: 0.6 })
+                        .addTo(LeafletMapSet)
+                        .bindPopup(`${areaName}<br>${ac.display ?? '-'}`);
+                    marker9611Map.set(areaCode, marker);
+                }
+            }
+        }
+    }
 }

@@ -90,7 +90,7 @@ public class TTSConnection {
      *
      * @param text 読み上げるテキスト
      */
-    public void speak(String text) {
+    public synchronized void speak(String text) {
         if (!enabled) return;
         if (!initialized) {
             pendingQueue.offer(text);
@@ -103,7 +103,7 @@ public class TTSConnection {
     /**
      * 現在の読み上げを中断して即座に読む（緊急地震速報など優先度の高い情報向け）。
      */
-    public void speakNow(String text) {
+    public synchronized void speakNow(String text) {
         if (!enabled) return;
         if (!initialized) {
             pendingQueue.clear();       // 緊急なので旧キューを破棄
@@ -117,7 +117,7 @@ public class TTSConnection {
     private void doSpeak(String text) {
         if (tts == null) return;
         String uid = "utt_" + System.currentTimeMillis();
-        tts.speak(text, TextToSpeech.QUEUE_ADD, null, uid);
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, uid);
     }
 
     private void flushPendingQueue() {
@@ -131,7 +131,7 @@ public class TTSConnection {
     // ──────────────────────────────────────────────
 
     /** TTS のON/OFFを切り替える。OFFにすると読み上げをスキップする */
-    public void setEnabled(boolean enabled) {
+    public synchronized void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (!enabled && tts != null) tts.stop();
         Log.d(TAG, "TTS enabled=" + enabled);

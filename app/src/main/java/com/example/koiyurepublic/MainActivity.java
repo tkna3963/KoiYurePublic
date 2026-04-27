@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, SpinalCord.class);
-        if (SpinalCord.isRunning) {
+        if (SpinalCord.isServiceRunning()) {
             bindService(intent, connection, Context.BIND_AUTO_CREATE);
         }
     }
@@ -162,10 +162,12 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
             mainHandler.post(() -> {
                 android.util.Log.d("JsBridge", "stopBackground called from JS");
 
-                if (spinalCord != null) spinalCord.stopIntentionally();
+                if (spinalCord != null) {
+                    spinalCord.stopIntentionally();
+                    spinalCord.clearUICallback();
+                }
 
                 if (bound) {
-                    if (spinalCord != null) spinalCord.clearUICallback();
                     unbindService(connection);
                     bound = false;
                     spinalCord = null;
@@ -185,6 +187,15 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         public void startBackground() {
             mainHandler.post(() -> {
                 android.util.Log.d("JsBridge", "startBackground called from JS");
+
+                if (SpinalCord.isServiceRunning()) {
+                    // Already running
+                    if (!bound) {
+                        Intent intent = new Intent(MainActivity.this, SpinalCord.class);
+                        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                    }
+                    return;
+                }
 
                 Intent intent = new Intent(MainActivity.this, SpinalCord.class);
                 MainActivity.this.startForegroundService(intent);

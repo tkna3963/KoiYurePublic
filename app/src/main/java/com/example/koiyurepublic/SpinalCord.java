@@ -43,7 +43,15 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     public static final long WATCHDOG_INTERVAL_MS = 60_000L;
 
     /** MainActivity 側から現在の起動状態を確認するためのフラグ */
-    public static volatile boolean isRunning = false;
+    static volatile boolean isRunning = false;
+    
+    private static synchronized void setRunning(boolean running) {
+        isRunning = running;
+    }
+    
+    public static synchronized boolean isServiceRunning() {
+        return isRunning;
+    }
 
     // ──────────────────────────────────────────────
     //  子コンポーネント
@@ -162,8 +170,17 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     private final IBinder binder     = new LocalBinder();
     private UICallback    uiCallback = null;
 
-    public void setUICallback(UICallback cb) { this.uiCallback = cb; }
-    public void clearUICallback()            { this.uiCallback = null; }
+    public synchronized void setUICallback(UICallback cb) { 
+        this.uiCallback = cb; 
+    }
+    
+    public synchronized void clearUICallback()            { 
+        this.uiCallback = null; 
+    }
+    
+    private synchronized UICallback getUICallback() {
+        return uiCallback;
+    }
 
     // ──────────────────────────────────────────────
     //  意図的停止フラグ
@@ -183,7 +200,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     @Override
     public void onCreate() {
         super.onCreate();
-        isRunning              = true;
+        setRunning(true);
         isIntentionallyStopped = false;
 
         // ① フォアグラウンド通知（常駐用）を先に立てる
@@ -238,7 +255,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     @Override
     public void onDestroy() {
-        isRunning = false;
+        setRunning(false);
 
         // 子コンポーネントを先に解放
         if (tts    != null) { tts.shutdown();  tts    = null; }
@@ -261,14 +278,16 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     public void onConnected() {
         Log.d(TAG, "WS接続完了");
         updateForegroundNotification("● 接続済み — 地震情報受信中");
-        if (uiCallback != null) uiCallback.onConnectionStateChanged(true, false);
+        UICallback cb = getUICallback();
+        if (cb != null) cb.onConnectionStateChanged(true, false);
     }
 
     @Override
     public void onDisconnected(boolean willReconnect) {
         Log.d(TAG, "WS切断 willReconnect=" + willReconnect);
         updateForegroundNotification(willReconnect ? "○ 切断 — 再接続中…" : "✕ 切断");
-        if (uiCallback != null) uiCallback.onConnectionStateChanged(false, willReconnect);
+        UICallback cb = getUICallback();
+        if (cb != null) cb.onConnectionStateChanged(false, willReconnect);
     }
 
     /**
@@ -294,31 +313,33 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         String title  = codeToTitle(code);
 
         // --- 通知 ---
-        if (notifi != null) {
+        NotifiConnection notifiRef = notifi;
+        if (notifiRef != null) {
             // 津波解除 / EEW取消は既存通知をキャンセル
             if (code == 552 && brief.contains("解除")) {
-                notifi.cancelTsunami();
+                notifiRef.cancelTsunami();
             } else if (code == 556 && brief.contains("取消")) {
-                notifi.cancelEEW();
+                notifiRef.cancelEEW();
             }
-            notifi.notify(code, title, brief);
+            notifiRef.notify(code, title, brief);
         }
 
         // --- 読み上げ ---
-        if (tts != null) {
+        TTSConnection ttsRef = tts;
+        if (ttsRef != null) {
             String fullText = P2PConverts.toFullMessage(json);
             // EEW・EEW検出は割り込み読み上げ
             boolean skipTts = (code == 555) || (code == 9611 && fullText.contains("非表示"));
             if (!skipTts && (code == 556 || code == 554)) {
-                tts.speakNow(fullText);
+                ttsRef.speakNow(fullText);
             } else if (!skipTts) {
-                tts.speak(fullText);
+                ttsRef.speak(fullText);
             }
         }
 
-
         // --- UIコールバック ---
-        if (uiCallback != null) uiCallback.onEarthquakeMessage(json);
+        UICallback cb = getUICallback();
+        if (cb != null) cb.onEarthquakeMessage(json);
     }
 
     // ──────────────────────────────────────────────
