@@ -7,6 +7,108 @@ let userLocation = null;
 let currentIndex = -1; // 現在表示中のインデックス
 
 // ========================================
+// ローカル WebSocket（Java ↔ JS 超高速通信）
+// ========================================
+let localWs = null;
+let localWsReconnectAttempts = 0;
+const LOCAL_WS_URL = 'ws://127.0.0.1:9001';
+
+function connectLocalWebSocket() {
+    try {
+        localWs = new WebSocket(LOCAL_WS_URL);
+        
+        localWs.onopen = function() {
+            Bridge.log('[LocalWS] 接続完了');
+            localWsReconnectAttempts = 0;
+        };
+        
+        localWs.onmessage = function(event) {
+            try {
+                const msg = JSON.parse(event.data);
+                handleLocalWsMessage(msg);
+            } catch (e) {
+                console.error('[LocalWS] JSON パースエラー:', e);
+            }
+        };
+        
+        localWs.onerror = function(error) {
+            console.warn('[LocalWS] エラー:', error);
+        };
+        
+        localWs.onclose = function() {
+            Bridge.log('[LocalWS] 切断');
+            // 再接続（指数バックオフ）
+            if (localWsReconnectAttempts < 5) {
+                const delay = Math.min(1000 * Math.pow(2, localWsReconnectAttempts), 10000);
+                localWsReconnectAttempts++;
+                setTimeout(connectLocalWebSocket, delay);
+            }
+        };
+    } catch (e) {
+        console.error('[LocalWS] 接続エラー:', e);
+    }
+}
+
+/**
+ * ローカル WebSocket からのメッセージ処理（超高速）
+ */
+function handleLocalWsMessage(msg) {
+    try {
+        if (!msg.type) return;
+        
+        switch (msg.type) {
+            case 'connectionStateChanged':
+                // P2P API の接続状態（即座に反映）
+                updateConnectionStatusDetailed(
+                    elements.p2pIndicator, 
+                    elements.p2pText, 
+                    elements.p2pDetail, 
+                    msg.connected ?? false, 
+                    msg.willReconnect ?? false
+                );
+                Bridge.log('[LocalWS] 接続状態更新: ' + JSON.stringify(msg));
+                break;
+                
+            case 'serviceStateChanged':
+                // Service の起動/停止状態（即座に反映）
+                updateServiceStatus(msg.running ?? false);
+                syncServiceButtons(msg.running ?? false);
+                Bridge.log('[LocalWS] Service 状態更新: ' + JSON.stringify(msg));
+                break;
+                
+            case 'earthquakeData':
+                // 地震データ（即座に反映）
+                if (msg.data) {
+                    onP2PMessage(msg.data);
+                    Bridge.log('[LocalWS] 地震データ受信');
+                }
+                break;
+                
+            case 'ttsStatus':
+                // TTS 有効状態
+                if (elements.ttsToggle) {
+                    elements.ttsToggle.checked = msg.enabled ?? true;
+                }
+                Bridge.log('[LocalWS] TTS 状態: ' + msg.enabled);
+                break;
+                
+            case 'notifStatus':
+                // 通知 有効状態
+                if (elements.notifToggle) {
+                    elements.notifToggle.checked = msg.enabled ?? true;
+                }
+                Bridge.log('[LocalWS] 通知状態: ' + msg.enabled);
+                break;
+                
+            default:
+                console.warn('[LocalWS] 未知のメッセージタイプ:', msg.type);
+        }
+    } catch (e) {
+        console.error('[LocalWS] メッセージ処理エラー:', e, msg);
+    }
+}
+
+// ========================================
 // DOM要素のキャッシュ
 // ========================================
 const elements = {};
@@ -561,6 +663,22 @@ function setupToggle(toggleEl, getter, setter) {
     toggleEl.addEventListener('change', () => {
         setter(toggleEl.checked);
         Bridge.log('[toggle] ' + toggleEl.id + '=' + toggleEl.checked);
+
+        // 設定を自動保存
+        try {
+            const saved = localStorage.getItem('koiyure_settings') || '{}';
+            const settings = JSON.parse(saved);
+
+            if (toggleEl.id === 'ttsToggle') {
+                settings.ttsEnabled = toggleEl.checked;
+            } else if (toggleEl.id === 'notifToggle') {
+                settings.notifEnabled = toggleEl.checked;
+            }
+
+            localStorage.setItem('koiyure_settings', JSON.stringify(settings));
+        } catch (e) {
+            console.error('設定自動保存エラー:', e);
+        }
     });
 }
 
@@ -643,8 +761,52 @@ function injectDemoData() {
 // ========================================
 // アプリ初期化
 // ========================================
+
+// 設定値の読み込みと適用
+function applyStoredSettings() {
+    try {
+        const saved = localStorage.getItem('koiyure_settings');
+        if (!saved) return;
+
+        const settings = JSON.parse(saved);
+
+        // TTS 有効状態
+        if (settings.ttsEnabled !== undefined && elements.ttsToggle) {
+            elements.ttsToggle.checked = settings.ttsEnabled;
+        }
+
+        // 通知有効状態
+        if (settings.notifEnabled !== undefined && elements.notifToggle) {
+            elements.notifToggle.checked = settings.notifEnabled;
+        }
+
+        // Java に通知
+        if (Bridge.available()) {
+            if (settings.ttsEnabled !== undefined) {
+                Bridge.setTts(settings.ttsEnabled);
+            }
+            if (settings.notifEnabled !== undefined) {
+                Bridge.setNotif(settings.notifEnabled);
+            }
+            if (settings.ttsSpeechRate !== undefined && typeof AndroidBridge.setTtsSpeechRate === 'function') {
+                AndroidBridge.setTtsSpeechRate(settings.ttsSpeechRate);
+            }
+            if (settings.ttsPitch !== undefined && typeof AndroidBridge.setTtsPitch === 'function') {
+                AndroidBridge.setTtsPitch(settings.ttsPitch);
+            }
+        }
+
+        Bridge.log('[Settings] 設定を読み込みました');
+    } catch (e) {
+        console.error('設定読み込みエラー:', e);
+    }
+}
+
 function initializeApp() {
     cacheElements();
+
+    // 設定を読み込んで適用
+    applyStoredSettings();
 
     updateTime();
     timeUpdateInterval = setInterval(updateTime, 1000);
@@ -700,12 +862,16 @@ function initializeApp() {
         elements.mapChangeBtn.addEventListener('click', toggleMapMode);
     }
 
-    // AndroidBridge 連携
+    // ローカル WebSocket 接続（超高速 Java ↔ JS 通信）
+    connectLocalWebSocket();
+
+    // AndroidBridge 連携（バックアップ用）
     if (Bridge.available()) {
         const running = Bridge.isRunning();
         syncServiceButtons(running);
         updateServiceStatus(running);
-        // 初期状態は Java/Service から通知されるので、ここではクリア状態を表示（すぐに上書きされる）
+        // 初期状態は ローカル WebSocket または Java/Service から通知されるので、
+        // ここではクリア状態を表示（すぐに上書きされる）
         if (!running) {
             updateConnectionStatusDetailed(elements.p2pIndicator, elements.p2pText, elements.p2pDetail, false, false);
         }

@@ -196,6 +196,9 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         if (cb != null) {
             cb.onConnectionStateChanged(isWSConnected(), isWSWillReconnect());
             Log.d(TAG, "UI Callback初期化: onConnectionStateChanged(" + isWSConnected() + ", " + isWSWillReconnect() + ")");
+            // ローカル WebSocket にも初期状態を配信（初回接続時）
+            LocalWebSocketServer.getInstance().broadcastConnectionState(isWSConnected(), isWSWillReconnect());
+            LocalWebSocketServer.getInstance().broadcastServiceState(true);
         }
     }
     
@@ -251,6 +254,10 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         P2PQuakeWebSocketClient.addListener(this);
         wsClient.connect();
 
+        // ⑦ ローカル WebSocket サーバー起動（JavaScript との超高速通信用）
+        LocalWebSocketServer localWs = LocalWebSocketServer.getInstance();
+        localWs.start();
+
         Log.d(TAG, "SpinalCord onCreate 完了");
     }
 
@@ -282,6 +289,9 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     public void onDestroy() {
         setRunning(false);
 
+        // ローカル WebSocket サーバー停止
+        LocalWebSocketServer.getInstance().stop();
+
         // 子コンポーネントを先に解放
         if (tts    != null) { tts.shutdown();  tts    = null; }
         if (notifi != null) {                  notifi = null; }
@@ -304,6 +314,10 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         Log.d(TAG, "WS接続完了");
         setConnectionState(true, false);
         updateForegroundNotification("● 接続済み — 地震情報受信中");
+        
+        // ローカル WebSocket に配信（超高速）
+        LocalWebSocketServer.getInstance().broadcastConnectionState(true, false);
+        
         UICallback cb = getUICallback();
         if (cb != null) {
             cb.onConnectionStateChanged(true, false);
@@ -316,6 +330,10 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         Log.d(TAG, "WS切断 willReconnect=" + willReconnect);
         setConnectionState(false, willReconnect);
         updateForegroundNotification(willReconnect ? "○ 切断 — 再接続中…" : "✕ 切断");
+        
+        // ローカル WebSocket に配信（超高速）
+        LocalWebSocketServer.getInstance().broadcastConnectionState(false, willReconnect);
+        
         UICallback cb = getUICallback();
         if (cb != null) {
             cb.onConnectionStateChanged(false, willReconnect);
@@ -370,9 +388,12 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
             }
         }
 
-        // --- UIコールバック ---
+        // --- UIコールバック（従来の JavaScriptInterface）---
         UICallback cb = getUICallback();
         if (cb != null) cb.onEarthquakeMessage(json);
+        
+        // --- ローカル WebSocket に配信（超高速）---
+        LocalWebSocketServer.getInstance().broadcastEarthquakeData(json);
     }
 
     // ──────────────────────────────────────────────
@@ -382,10 +403,14 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     public void setTtsEnabled(boolean enabled) {
         if (tts != null) tts.setEnabled(enabled);
+        // ローカル WebSocket に配信
+        LocalWebSocketServer.getInstance().broadcastTtsStatus(enabled);
     }
 
     public void setNotificationEnabled(boolean enabled) {
         if (notifi != null) notifi.setEnabled(enabled);
+        // ローカル WebSocket に配信
+        LocalWebSocketServer.getInstance().broadcastNotifStatus(enabled);
     }
 
     public void setTtsSpeechRate(float rate) {

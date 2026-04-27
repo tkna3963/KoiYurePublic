@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KoiYure 設定</title>
+    <link rel="stylesheet" href="Styles.css">
+    <style>
+        /* 設定ページ専用スタイル */
+        body {
+            background-color: #1a1a2e;
+            color: #eee;
+        }
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .settings-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .settings-header h1 {
+            color: #0dbf95;
+            font-size: 24px;
+            margin: 0;
+        }
+        .settings-header p {
+            color: #aaa;
+            font-size: 12px;
+            margin: 5px 0 0 0;
+        }
+
+        .settings-section {
+            background-color: #222;
+            border-left: 4px solid #0dbf95;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .settings-section h2 {
+            color: #0dbf95;
+            font-size: 16px;
+            margin: 0 0 15px 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .setting-label-main {
+            font-weight: bold;
+            font-size: 14px;
+            color: #fff;
+        }
+        .setting-label-sub {
+            font-size: 11px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        /* トグルスイッチ */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #444;
+            transition: .3s;
+            border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #0dbf95;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* スライダー */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .slider-value {
+            min-width: 40px;
+            text-align: right;
+            font-weight: bold;
+            color: #0dbf95;
+            font-size: 12px;
+        }
+        input[type="range"] {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: #444;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #0dbf95;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #0dbf95;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* コード選択グリッド */
+        .code-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .code-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background-color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .code-checkbox:hover {
+            background-color: #444;
+        }
+        .code-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #0dbf95;
+        }
+        .code-checkbox label {
+            cursor: pointer;
+            font-size: 13px;
+            flex: 1;
+        }
+        .code-name {
+            font-weight: bold;
+            color: #fff;
+        }
+        .code-desc {
+            font-size: 10px;
+            color: #888;
+        }
+
+        /* ボタン */
+        .settings-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-save {
+            background-color: #0dbf95;
+            color: #000;
+        }
+        .btn-save:hover {
+            background-color: #0a9978;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(13, 191, 149, 0.4);
+        }
+        .btn-reset {
+            background-color: #555;
+            color: #fff;
+        }
+        .btn-reset:hover {
+            background-color: #666;
+        }
+        .btn-back {
+            background-color: #333;
+            color: #fff;
+        }
+        .btn-back:hover {
+            background-color: #444;
+        }
+
+        /* メッセージ */
+        .message {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .message.success {
+            background-color: rgba(13, 191, 149, 0.2);
+            color: #0dbf95;
+            border-left: 4px solid #0dbf95;
+        }
+        .message.error {
+            background-color: rgba(255, 23, 68, 0.2);
+            color: #ff1744;
+            border-left: 4px solid #ff1744;
+        }
+
+        /* デバッグセクション */
+        .debug-info {
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #0f0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <div class="settings-header">
+            <h1>⚙️ 設定</h1>
+            <p>KoiYure 地震情報アラート設定</p>
+        </div>
+
+        <div id="settingsMessage"></div>
+
+        <!-- TTS（読み上げ）設定 -->
+        <div class="settings-section">
+            <h2>🔊 読み上げ（TTS）設定</h2>
+
+            <!-- 全体有効/無効 -->
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-label-main">読み上げ機能</div>
+                    <div class="setting-label-sub">すべての読み上げを有効/無効</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="ttsEnabled" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- コード別設定 -->
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-label-main">読み上げるコード</div>
+                    <div class="setting-label-sub">チェックしたものを読み上げます</div>
+                </div>
+            </div>
+            <div class="code-selection">
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code551_tts" checked>
+                    <label for="code551_tts">
+                        <div class="code-name">551</div>
+                        <div class="code-desc">地震情報</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code552_tts" checked>
+                    <label for="code552_tts">
+                        <div class="code-name">552</div>
+                        <div class="code-desc">津波予報</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code556_tts" checked>
+                    <label for="code556_tts">
+                        <div class="code-name">556</div>
+                        <div class="code-desc">EEW</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code554_tts" checked>
+                    <label for="code554_tts">
+                        <div class="code-name">554</div>
+                        <div class="code-desc">EEW 検出</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code555_tts" checked>
+                    <label for="code555_tts">
+                        <div class="code-name">555</div>
+                        <div class="code-desc">高速震度</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code561_tts" checked>
+                    <label for="code561_tts">
+                        <div class="code-name">561</div>
+                        <div class="code-desc">ユーザー地震</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code9611_tts" checked>
+                    <label for="code9611_tts">
+                        <div class="code-name">9611</div>
+                        <div class="code-desc">ユーザーお知らせ</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code1112_tts" checked>
+                    <label for="code1112_tts">
+                        <div class="code-name">1112</div>
+                        <div class="code-desc">訓練/テスト</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 音声速度 -->
+            <div class="setting-item" style="flex-direction: column; align-items: flex-start;">
+                <div class="setting-label">
+                    <div class="setting-label-main">音声速度</div>
+                    <div class="setting-label-sub">読み上げのスピードを調整</div>
+                </div>
+                <div class="slider-container" style="width: 100%; margin-top: 8px;">
+                    <span style="min-width: 30px;">0.5x</span>
+                    <input type="range" id="ttsSpeechRate" min="0.5" max="2.0" step="0.1" value="1.0">
+                    <span class="slider-value" id="ttsSpeechRateValue">1.0x</span>
+                </div>
+            </div>
+
+            <!-- ピッチ -->
+            <div class="setting-item" style="flex-direction: column; align-items: flex-start;">
+                <div class="setting-label">
+                    <div class="setting-label-main">ピッチ（声の高さ）</div>
+                    <div class="setting-label-sub">低～高に調整</div>
+                </div>
+                <div class="slider-container" style="width: 100%; margin-top: 8px;">
+                    <span style="min-width: 30px;">低</span>
+                    <input type="range" id="ttsPitch" min="0.5" max="2.0" step="0.1" value="1.3">
+                    <span class="slider-value" id="ttsPitchValue">1.3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 通知設定 -->
+        <div class="settings-section">
+            <h2>🔔 通知設定</h2>
+
+            <!-- 全体有効/無効 -->
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-label-main">プッシュ通知</div>
+                    <div class="setting-label-sub">すべての通知を有効/無効</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="notifEnabled" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- コード別設定 -->
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-label-main">通知するコード</div>
+                    <div class="setting-label-sub">チェックしたものを通知します</div>
+                </div>
+            </div>
+            <div class="code-selection">
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code551_notif" checked>
+                    <label for="code551_notif">
+                        <div class="code-name">551</div>
+                        <div class="code-desc">地震情報</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code552_notif" checked>
+                    <label for="code552_notif">
+                        <div class="code-name">552</div>
+                        <div class="code-desc">津波予報</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code556_notif" checked>
+                    <label for="code556_notif">
+                        <div class="code-name">556</div>
+                        <div class="code-desc">EEW</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code554_notif" checked>
+                    <label for="code554_notif">
+                        <div class="code-name">554</div>
+                        <div class="code-desc">EEW 検出</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code555_notif" checked>
+                    <label for="code555_notif">
+                        <div class="code-name">555</div>
+                        <div class="code-desc">高速震度</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code561_notif" checked>
+                    <label for="code561_notif">
+                        <div class="code-name">561</div>
+                        <div class="code-desc">ユーザー地震</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code9611_notif" checked>
+                    <label for="code9611_notif">
+                        <div class="code-name">9611</div>
+                        <div class="code-desc">ユーザーお知らせ</div>
+                    </label>
+                </div>
+                <div class="code-checkbox">
+                    <input type="checkbox" id="code1112_notif" checked>
+                    <label for="code1112_notif">
+                        <div class="code-name">1112</div>
+                        <div class="code-desc">訓練/テスト</div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- その他設定 -->
+        <div class="settings-section">
+            <h2>⚙️ その他設定</h2>
+
+            <!-- マップ自動更新 -->
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-label-main">マップ自動更新</div>
+                    <div class="setting-label-sub">地震データでマップを自動更新</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="mapAutoUpdate" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- ログ出力レベル -->
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-label-main">ログ出力レベル</div>
+                    <div class="setting-label-sub">デバッグ情報の詳細度</div>
+                </div>
+                <select id="logLevel" style="padding: 6px; background-color: #333; color: #fff; border: 1px solid #555; border-radius: 4px; cursor: pointer;">
+                    <option value="info">基本情報</option>
+                    <option value="debug">デバッグ</option>
+                    <option value="trace">トレース</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- デバッグセクション -->
+        <div class="settings-section">
+            <h2>🐛 デバッグ情報</h2>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-label-main">ローカル WebSocket ステータス</div>
+                    <div id="debugWsStatus" style="color: #ff1744; margin-top: 5px; font-size: 12px;">接続中...</div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-label-main">受信データ統計</div>
+                </div>
+            </div>
+            <div class="debug-info" id="debugStats">初期化中...</div>
+
+            <div class="setting-item" style="border-bottom: none;">
+                <div class="setting-label">
+                    <div class="setting-label-main">最新ログ（最大10件）</div>
+                </div>
+            </div>
+            <div class="debug-info" id="debugLogs">ログ表示開始...</div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="settings-buttons">
+            <button class="btn btn-back" onclick="goBack()">← 戻る</button>
+            <button class="btn btn-reset" onclick="resetSettings()">リセット</button>
+            <button class="btn btn-save" onclick="saveSettings()">💾 保存</button>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // 設定値の保存/読み込み
+        // ========================================
+        const STORAGE_KEY = 'koiyure_settings';
+
+        function loadSettings() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) return;
+
+            const settings = JSON.parse(saved);
+
+            // TTS 設定
+            if (settings.ttsEnabled !== undefined) document.getElementById('ttsEnabled').checked = settings.ttsEnabled;
+            if (settings.ttsSpeechRate !== undefined) {
+                document.getElementById('ttsSpeechRate').value = settings.ttsSpeechRate;
+                document.getElementById('ttsSpeechRateValue').textContent = settings.ttsSpeechRate.toFixed(1) + 'x';
+            }
+            if (settings.ttsPitch !== undefined) {
+                document.getElementById('ttsPitch').value = settings.ttsPitch;
+                document.getElementById('ttsPitchValue').textContent = settings.ttsPitch.toFixed(1);
+            }
+
+            // TTS コード別
+            ['551', '552', '556', '554', '555', '561', '9611', '1112'].forEach(code => {
+                const elem = document.getElementById(`code${code}_tts`);
+                if (elem && settings[`code${code}_tts`] !== undefined) {
+                    elem.checked = settings[`code${code}_tts`];
+                }
+            });
+
+            // 通知設定
+            if (settings.notifEnabled !== undefined) document.getElementById('notifEnabled').checked = settings.notifEnabled;
+
+            // 通知コード別
+            ['551', '552', '556', '554', '555', '561', '9611', '1112'].forEach(code => {
+                const elem = document.getElementById(`code${code}_notif`);
+                if (elem && settings[`code${code}_notif`] !== undefined) {
+                    elem.checked = settings[`code${code}_notif`];
+                }
+            });
+
+            // その他
+            if (settings.mapAutoUpdate !== undefined) document.getElementById('mapAutoUpdate').checked = settings.mapAutoUpdate;
+            if (settings.logLevel !== undefined) document.getElementById('logLevel').value = settings.logLevel;
+        }
+
+        function saveSettings() {
+            const settings = {
+                ttsEnabled: document.getElementById('ttsEnabled').checked,
+                ttsSpeechRate: parseFloat(document.getElementById('ttsSpeechRate').value),
+                ttsPitch: parseFloat(document.getElementById('ttsPitch').value),
+                notifEnabled: document.getElementById('notifEnabled').checked,
+                mapAutoUpdate: document.getElementById('mapAutoUpdate').checked,
+                logLevel: document.getElementById('logLevel').value,
+            };
+
+            // コード別設定
+            ['551', '552', '556', '554', '555', '561', '9611', '1112'].forEach(code => {
+                settings[`code${code}_tts`] = document.getElementById(`code${code}_tts`).checked;
+                settings[`code${code}_notif`] = document.getElementById(`code${code}_notif`).checked;
+            });
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+
+            // Java に通知（設定変更をアプリに反映）
+            if (typeof AndroidBridge !== 'undefined' && AndroidBridge) {
+                AndroidBridge.setTtsEnabled(settings.ttsEnabled);
+                AndroidBridge.setNotificationEnabled(settings.notifEnabled);
+                if (typeof AndroidBridge.setTtsSpeechRate === 'function') {
+                    AndroidBridge.setTtsSpeechRate(settings.ttsSpeechRate);
+                }
+                if (typeof AndroidBridge.setTtsPitch === 'function') {
+                    AndroidBridge.setTtsPitch(settings.ttsPitch);
+                }
+            }
+
+            showMessage('設定を保存しました！', 'success');
+        }
+
+        function resetSettings() {
+            if (!confirm('設定をリセットしてもよろしいですか？')) return;
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+
+        function goBack() {
+            history.back();
+        }
+
+        // ========================================
+        // スライダーの値表示更新
+        // ========================================
+        document.getElementById('ttsSpeechRate').addEventListener('input', (e) => {
+            document.getElementById('ttsSpeechRateValue').textContent = parseFloat(e.target.value).toFixed(1) + 'x';
+        });
+
+        document.getElementById('ttsPitch').addEventListener('input', (e) => {
+            document.getElementById('ttsPitchValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        // ========================================
+        // メッセージ表示
+        // ========================================
+        function showMessage(text, type = 'success') {
+            const msgEl = document.getElementById('settingsMessage');
+            msgEl.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => {
+                msgEl.innerHTML = '';
+            }, 3000);
+        }
+
+        // ========================================
+        // デバッグ情報更新
+        // ========================================
+        let debugLogs = [];
+
+        function addDebugLog(msg) {
+            const now = new Date().toLocaleTimeString('ja-JP');
+            debugLogs.unshift(`[${now}] ${msg}`);
+            if (debugLogs.length > 10) debugLogs.pop();
+            updateDebugLogs();
+        }
+
+        function updateDebugLogs() {
+            const logsEl = document.getElementById('debugLogs');
+            logsEl.textContent = debugLogs.join('\n') || 'ログなし';
+            logsEl.scrollTop = logsEl.scrollHeight;
+        }
+
+        function updateDebugStats() {
+            const statsEl = document.getElementById('debugStats');
+            const info = {
+                '受信データ総数': window.AllWebsocketData ? window.AllWebsocketData.length : 0,
+                'LocalStorage 使用量': (new Blob(Object.values(localStorage)).size / 1024).toFixed(2) + ' KB',
+                'WebSocket 接続状態': typeof localWs !== 'undefined' && localWs && localWs.readyState === 1 ? '接続中' : '切断',
+            };
+            statsEl.textContent = Object.entries(info)
+                .map(([k, v]) => `${k}: ${v}`)
+                .join('\n');
+        }
+
+        // ページ読み込み時
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            updateDebugStats();
+            setInterval(updateDebugStats, 2000);
+            addDebugLog('設定ページ読み込み完了');
+        });
+
+        // グローバル関数（他のスクリプトから呼び出し可能）
+        window.settingsDebugLog = addDebugLog;
+    </script>
+</body>
+</html>
