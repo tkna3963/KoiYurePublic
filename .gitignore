@@ -1,15 +1,33 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+# OS
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+Thumbs.db
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Build
+/build/
+/app/build/
+
+# Gradle
+.gradle/
 local.properties
+
+# Logs
+*.log
+
+# Firebase / Google Secrets
+google-services.json
+
+# Keystore
+*.jks
+*.keystore
+
+# Env files
+.env
+.env.*
+
+# Temporary
+*.tmp
