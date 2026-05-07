@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
             }
         });
         webView.loadUrl("file:///android_asset/Maindex.html");
+        requestNotificationPermissionIfNeeded();
         requestBatteryOptimizationWhitelistIfNeeded();
         
         // ═══════════════════════════════════════
@@ -353,5 +355,14 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
                 .putBoolean(KEY_BATTERY_OPT_ASKED, true)
                 .apply();
         startActivity(i);
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;
+        if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
     }
 }

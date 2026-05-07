@@ -77,7 +77,10 @@ public class LocalWebSocketServer extends WebSocketServer {
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-        Log.e(TAG, "エラー: " + conn.getRemoteSocketAddress(), ex);
+        String who = (conn != null && conn.getRemoteSocketAddress() != null)
+                ? conn.getRemoteSocketAddress().toString()
+                : "server";
+        Log.e(TAG, "エラー: " + who, ex);
     }
 
     @Override
@@ -185,6 +188,7 @@ public class LocalWebSocketServer extends WebSocketServer {
         try {
             clients.clear();
             super.stop();
+            isRunning = false;
             Log.d(TAG, "サーバー停止");
         } catch (Exception e) {
             Log.e(TAG, "サーバー停止エラー", e);
