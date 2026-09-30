@@ -537,6 +537,96 @@
 
     <script>
         // ========================================
+        // 設定ページ用 Local WebSocket
+        // ========================================
+        let localWs = null;
+        let localWsUrl = 'ws://localhost:9001';
+        let localWsReconnectAttempts = 0;
+        let localWsReconnectTimer = null;
+
+        function resolveLocalWebSocketUrl() {
+            try {
+                if (typeof AndroidBridge !== 'undefined'
+                        && AndroidBridge
+                        && typeof AndroidBridge.getLocalWebSocketUrl === 'function') {
+                    const url = AndroidBridge.getLocalWebSocketUrl();
+                    if (url) localWsUrl = url;
+                }
+            } catch (error) {
+                addDebugLog('LocalWS接続先取得失敗: ' + error);
+            }
+            return localWsUrl;
+        }
+
+        function updateLocalWebSocketStatus(text, connected) {
+            const status = document.getElementById('debugWsStatus');
+            if (!status) return;
+            status.textContent = text;
+            status.style.color = connected ? '#00e676' : '#ff1744';
+        }
+
+        function connectLocalWebSocket() {
+            if (localWs && (localWs.readyState === WebSocket.OPEN
+                    || localWs.readyState === WebSocket.CONNECTING)) {
+                return;
+            }
+
+            const url = resolveLocalWebSocketUrl();
+            updateLocalWebSocketStatus('接続中… ' + url, false);
+            if (typeof AndroidBridge !== 'undefined' && AndroidBridge
+                    && typeof AndroidBridge.log === 'function') {
+                AndroidBridge.log('[Settings/LocalWS] 接続開始 url=' + url
+                        + ' attempt=' + localWsReconnectAttempts);
+            }
+
+            try {
+                localWs = new WebSocket(url);
+                localWs.onopen = () => {
+                    localWsReconnectAttempts = 0;
+                    updateLocalWebSocketStatus('接続済み ' + localWsUrl, true);
+                    addDebugLog('LocalWS接続完了: ' + localWsUrl);
+                };
+                localWs.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        if (message.type === 'ttsStatus' && message.enabled !== undefined) {
+                            document.getElementById('ttsEnabled').checked = message.enabled;
+                        } else if (message.type === 'notifStatus' && message.enabled !== undefined) {
+                            document.getElementById('notifEnabled').checked = message.enabled;
+                        }
+                        addDebugLog('LocalWS受信: ' + (message.type || 'unknown'));
+                    } catch (error) {
+                        addDebugLog('LocalWS JSON解析失敗');
+                    }
+                };
+                localWs.onerror = () => {
+                    updateLocalWebSocketStatus('接続エラー ' + localWsUrl, false);
+                    addDebugLog('LocalWS接続エラー');
+                };
+                localWs.onclose = (event) => {
+                    updateLocalWebSocketStatus(
+                        `切断 code=${event.code} ${localWsUrl}`, false);
+                    addDebugLog(`LocalWS切断 code=${event.code}`);
+                    if (localWsReconnectAttempts < 5 && !localWsReconnectTimer) {
+                        const delay = Math.min(
+                            1000 * Math.pow(2, localWsReconnectAttempts), 10000);
+                        localWsReconnectAttempts++;
+                        localWsReconnectTimer = setTimeout(() => {
+                            localWsReconnectTimer = null;
+                            connectLocalWebSocket();
+                        }, delay);
+                    }
+                };
+            } catch (error) {
+                updateLocalWebSocketStatus('接続例外 ' + localWsUrl, false);
+                addDebugLog('LocalWS接続例外');
+            }
+        }
+
+        // ========================================
+        // 設定値の保存/読み込み
+        // ========================================
+        // ========================================
         // 設定値の保存/読み込み
         // ========================================
         const STORAGE_KEY = 'koiyure_settings';
@@ -694,6 +784,7 @@
         // ページ読み込み時
         document.addEventListener('DOMContentLoaded', () => {
             loadSettings();
+            connectLocalWebSocket();
             updateDebugStats();
             setInterval(updateDebugStats, 2000);
             addDebugLog('設定ページ読み込み完了');

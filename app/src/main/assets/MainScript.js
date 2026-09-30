@@ -11,11 +11,29 @@ let currentIndex = -1; // 現在表示中のインデックス
 // ========================================
 let localWs = null;
 let localWsReconnectAttempts = 0;
-const LOCAL_WS_URL = 'ws://localhost:9001';
+let localWsUrl = 'ws://localhost:9001';
+
+function resolveLocalWebSocketUrl() {
+    try {
+        if (typeof AndroidBridge !== 'undefined'
+                && AndroidBridge
+                && typeof AndroidBridge.getLocalWebSocketUrl === 'function') {
+            const url = AndroidBridge.getLocalWebSocketUrl();
+            if (url) {
+                localWsUrl = url;
+            }
+        }
+    } catch (e) {
+        console.warn('[LocalWS] 接続先取得失敗:', e);
+    }
+    return localWsUrl;
+}
 
 function connectLocalWebSocket() {
     try {
-        localWs = new WebSocket(LOCAL_WS_URL);
+        const url = resolveLocalWebSocketUrl();
+        Bridge.log('[LocalWS] 接続開始 url=' + url + ' attempt=' + localWsReconnectAttempts);
+        localWs = new WebSocket(url);
         
         localWs.onopen = function() {
             Bridge.log('[LocalWS] 接続完了');
@@ -36,7 +54,7 @@ function connectLocalWebSocket() {
                 ? error.message
                 : 'WebSocket接続に失敗しました';
             console.warn('[LocalWS] エラー:', detail, {
-                url: LOCAL_WS_URL,
+                url: localWsUrl,
                 readyState: localWs ? localWs.readyState : 'unknown'
             });
         };

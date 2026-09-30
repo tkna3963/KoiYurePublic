@@ -127,7 +127,9 @@ Java側の`SharedPreferences`が通知・TTS処理の正本である。LocalStor
 
 ### 3.1 接続先
 
-通常のアプリ内接続先は次の通り。
+通常は9001番ポートへ接続するが、9001番ポートが別プロセスなどで使用中の場合、
+Java側が9010番ポートまでの空きポートへ自動退避する。WebViewは固定値を直接
+信頼せず、`AndroidBridge.getLocalWebSocketUrl()`で実際の接続先を取得する。
 
 ```text
 ws://localhost:9001
@@ -320,7 +322,7 @@ PC上のSandbox Serverの8080番ポートとは別問題である。
 
 ## 9. 現在の制約
 
-- Local WebSocketの接続先は現在`localhost:9001`に固定されている
+- Local WebSocketは9001番ポートを優先するが、使用中の場合は9010番ポートまで退避する
 - WebViewの履歴配列と履歴DOMに上限がない
 - WebViewからLocal WebSocketへ送信したコマンド処理は未実装
 - LocalStorageとSharedPreferencesに設定が分かれている

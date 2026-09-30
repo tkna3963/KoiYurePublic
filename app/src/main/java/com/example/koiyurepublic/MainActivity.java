@@ -154,6 +154,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy bound=" + bound);
+        if (bound) {
+            unbindService(serviceConnection);
+            bound = false;
+            spinalCord = null;
+        }
+        if (webView != null) {
+            webView.stopLoading();
+            webView.removeJavascriptInterface("AndroidBridge");
+            webView.destroy();
+            webView = null;
+        }
         super.onDestroy();
     }
 
@@ -186,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
                 SpinalCord.cancelWatchdog(MainActivity.this);
                 Intent serviceIntent = new Intent(MainActivity.this, SpinalCord.class);
                 MainActivity.this.stopService(serviceIntent);
-                MainActivity.this.stopService(serviceIntent);
             });
         }
 
@@ -218,6 +228,17 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public boolean isServiceRunning() {
             return SpinalCord.isRunning;
+        }
+
+        /**
+         * Local WebSocketの実際の接続先を返す。
+         * 9001番ポートが使用中の場合はLocalWebSocketServerが別ポートへ退避する。
+         */
+        @JavascriptInterface
+        public String getLocalWebSocketUrl() {
+            String url = LocalWebSocketServer.getWebSocketUrl();
+            Log.d("JsBridge", "getLocalWebSocketUrl=" + url);
+            return url;
         }
 
         // ──────────────────────────────────────────

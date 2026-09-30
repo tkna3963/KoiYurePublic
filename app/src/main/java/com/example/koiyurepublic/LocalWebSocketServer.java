@@ -6,7 +6,10 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * LocalWebSocketServer
@@ -20,12 +23,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *   - 地震データの配信
  *   - TTS/通知設定の同期
  *
- * ポート: 9001 (localhost)
- * URL: ws://127.0.0.1:9001
+ * ポート: 9001を優先し、使用中なら9010まで自動退避する (localhost)
  */
 public class LocalWebSocketServer extends WebSocketServer {
     private static final String TAG = "LocalWebSocketServer";
-    private static final int PORT = 9001;
+    private static final int DEFAULT_PORT = 9001;
+    private static final int MAX_PORT = 9010;
 
     // 接続中の全クライアント
     private static final CopyOnWriteArraySet<WebSocket> connectedClients = new CopyOnWriteArraySet<>();
@@ -38,16 +41,45 @@ public class LocalWebSocketServer extends WebSocketServer {
     private volatile boolean notificationEnabled = true;
 
     private static LocalWebSocketServer instance;
+    private final int port;
 
-    private LocalWebSocketServer() {
-        super(new InetSocketAddress("127.0.0.1", PORT));
+    private LocalWebSocketServer(int port) {
+        super(new InetSocketAddress("127.0.0.1", port));
+        this.port = port;
     }
 
     public static synchronized LocalWebSocketServer getInstance() {
         if (instance == null) {
-            instance = new LocalWebSocketServer();
+            instance = new LocalWebSocketServer(findAvailablePort());
         }
         return instance;
+    }
+
+    /**
+     * WebViewが接続すべき現在のURLを返す。
+     * 9001が他プロセスに使用されていても、アプリ内で別ポートへ退避できる。
+     */
+    public static synchronized String getWebSocketUrl() {
+        return getInstance().getUrl();
+    }
+
+    private String getUrl() {
+        return "ws://localhost:" + port;
+    }
+
+    private static int findAvailablePort() {
+        for (int candidate = DEFAULT_PORT; candidate <= MAX_PORT; candidate++) {
+            try (ServerSocket probe = new ServerSocket()) {
+                probe.setReuseAddress(true);
+                probe.bind(new InetSocketAddress("127.0.0.1", candidate));
+                Log.d(TAG, "使用可能なLocal WebSocketポートを検出: " + candidate);
+                return candidate;
+            } catch (Exception e) {
+                Log.w(TAG, "Local WebSocketポート使用中: " + candidate);
+            }
+        }
+        Log.e(TAG, "Local WebSocketに使用可能なポートがありません");
+        return DEFAULT_PORT;
     }
 
     // ──────────────────────────────────────────────
@@ -104,7 +136,7 @@ public class LocalWebSocketServer extends WebSocketServer {
             isRunning = true;
             startRequested = false;
         }
-        Log.d(TAG, "ローカル WebSocket サーバー起動: ws://127.0.0.1:" + PORT);
+        Log.d(TAG, "ローカル WebSocket サーバー起動: " + getUrl());
     }
 
     // ──────────────────────────────────────────────
@@ -140,6 +172,16 @@ public class LocalWebSocketServer extends WebSocketServer {
      * メッセージ形式: { "type": "earthquakeData", "data": {...} }
      */
     public synchronized void broadcastEarthquakeData(String jsonData) {
+        if (jsonData == null || jsonData.trim().isEmpty()) {
+            Log.w(TAG, "地震データ配信をスキップ: payloadが空");
+            return;
+        }
+        try {
+            new JSONObject(jsonData);
+        } catch (JSONException e) {
+            Log.w(TAG, "地震データ配信をスキップ: JSONが不正", e);
+            return;
+        }
         String msg = "{\"type\":\"earthquakeData\",\"data\":" + jsonData + "}";
         sendToAllClients(msg);
         Log.d(TAG, "配信: 地震データ(" + jsonData.length() + " bytes)");
@@ -217,7 +259,7 @@ public class LocalWebSocketServer extends WebSocketServer {
         }
         try {
             startRequested = true;
-            Log.d(TAG, "サーバー開始要求: ws://127.0.0.1:" + PORT);
+            Log.d(TAG, "サーバー開始要求: " + getUrl());
             super.start();
         } catch (Exception e) {
             startRequested = false;
@@ -234,6 +276,9 @@ public class LocalWebSocketServer extends WebSocketServer {
             if (isRunning || startRequested) super.stop();
             isRunning = false;
             startRequested = false;
+            if (instance == this) {
+                instance = null;
+            }
             Log.d(TAG, "サーバー停止");
         } catch (Exception e) {
             Log.e(TAG, "サーバー停止エラー", e);
