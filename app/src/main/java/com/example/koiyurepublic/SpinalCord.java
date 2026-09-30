@@ -39,9 +39,6 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     private static final String CHANNEL_FOREGROUND = "koiyure_ws_channel";
     private static final int    NOTIF_FOREGROUND_ID = 1;
     private static final long   SELF_RESTART_DELAY_MS = 1500L;
-    private static final String PREFS = "koiyure_settings";
-    private static final String KEY_TTS_CODE_PREFIX = "code_tts_";
-    private static final String KEY_NOTIFICATION_CODE_PREFIX = "code_notif_";
 
     public static final long WATCHDOG_INTERVAL_MS = 60_000L;
 
@@ -83,6 +80,8 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     private final P2PQuakeWebSocketClient p2pQuakeWsClient = new P2PQuakeWebSocketClient();
     private TTSConnection    ttsConnection    = null;
     private NotifiConnection notifConnection  = null;
+    private SettingsRepository settingsRepository;
+    private EarthquakeMessageCoordinator messageCoordinator;
 
     // ──────────────────────────────────────────────
     //  WakeLock
@@ -235,10 +234,18 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         EpspArea.init(this);          // 地域コードCSVを読み込む
         ttsConnection   = new TTSConnection(this);
         notifConnection = new NotifiConnection(this);
+        settingsRepository = new SettingsRepository(this);
+        EarthquakePolicy policy = new EarthquakePolicy(settingsRepository);
+        messageCoordinator = new EarthquakeMessageCoordinator(
+                policy,
+                new NotificationDispatcher(notifConnection, policy),
+                new TtsDispatcher(ttsConnection, policy));
 
-        // ⑤ こいしちゃんらしい高めの声に設定（お好みで調整）
-        ttsConnection.setSpeechRate(1.0f);
-        ttsConnection.setPitch(1.3f);
+        // ⑤ 保存済み設定を低レベルエンジンへ反映する
+        ttsConnection.setEnabled(settingsRepository.isTtsEnabled());
+        notifConnection.setEnabled(settingsRepository.isNotificationEnabled());
+        ttsConnection.setSpeechRate(settingsRepository.getTtsSpeechRate());
+        ttsConnection.setPitch(settingsRepository.getTtsPitch());
 
         // ⑥ WebSocket 接続
         P2PQuakeWebSocketClient.addListener(this);
@@ -340,47 +347,12 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
      */
     @Override
     public void onMessage(String json) {
-        Log.d(TAG, "受信 length=" + (json == null ? 0 : json.length()));
-
-        // --- コード取得 ---
-        int p2pQuakeCode = extractP2PQuakeCode(json);
-        Log.d(TAG, "メッセージ解析 code=" + p2pQuakeCode);
-
-        // --- 短文変換 ---
-        String briefMessage = P2PConverts.toBriefMessage(json);
-        String notifTitle   = p2pQuakeCodeToTitle(p2pQuakeCode);
-        Log.d(TAG, "通知判定 code=" + p2pQuakeCode + " enabled=" + isNotificationEnabledForCode(p2pQuakeCode));
-
-        // --- 通知 ---
-        NotifiConnection notifRef = notifConnection;
-        if (notifRef != null && isNotificationEnabledForCode(p2pQuakeCode)) {
-            // 津波解除 / EEW取消は既存通知をキャンセル
-            if (p2pQuakeCode == 552 && briefMessage.contains("解除")) {
-                notifRef.cancelTsunami();
-            } else if (p2pQuakeCode == 556 && briefMessage.contains("取消")) {
-                notifRef.cancelEEW();
-            }
-            notifRef.notify(p2pQuakeCode, notifTitle, briefMessage);
+        EarthquakeMessageCoordinator coordinator = messageCoordinator;
+        if (coordinator != null) {
+            coordinator.handle(json);
+        } else {
+            Log.w(TAG, "受信したがCoordinator未初期化");
         }
-
-        // --- 読み上げ ---
-        TTSConnection ttsRef = ttsConnection;
-        if (ttsRef != null && isTtsEnabledForCode(p2pQuakeCode)) {
-            String fullMessage = P2PConverts.toFullMessage(json);
-            // EEW・EEW検出は割り込み読み上げ
-            boolean skipTts = (p2pQuakeCode == 555)
-                    || (p2pQuakeCode == 9611 && fullMessage.contains("非表示"));
-            Log.d(TAG, "TTS判定 code=" + p2pQuakeCode + " skip=" + skipTts
-                    + " fullLength=" + fullMessage.length());
-            if (!skipTts && (p2pQuakeCode == 556 || p2pQuakeCode == 554)) {
-                ttsRef.speakNow(fullMessage);
-            } else if (!skipTts) {
-                ttsRef.speak(fullMessage);
-            }
-        }
-
-        // --- ローカル WebSocket に配信（超高速）---
-        LocalWebSocketServer.getInstance().broadcastEarthquakeData(json);
     }
 
     // ──────────────────────────────────────────────
@@ -390,6 +362,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     public void setTtsEnabled(boolean enabled) {
         Log.d(TAG, "設定変更 TTS enabled=" + enabled);
+        if (settingsRepository != null) settingsRepository.setTtsEnabled(enabled);
         if (ttsConnection != null) ttsConnection.setEnabled(enabled);
         // ローカル WebSocket に配信
         LocalWebSocketServer.getInstance().broadcastTtsStatus(enabled);
@@ -397,6 +370,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     public void setNotificationEnabled(boolean enabled) {
         Log.d(TAG, "設定変更 notification enabled=" + enabled);
+        if (settingsRepository != null) settingsRepository.setNotificationEnabled(enabled);
         if (notifConnection != null) notifConnection.setEnabled(enabled);
         // ローカル WebSocket に配信
         LocalWebSocketServer.getInstance().broadcastNotifStatus(enabled);
@@ -404,50 +378,28 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     public void setTtsCodeEnabled(int code, boolean enabled) {
         Log.d(TAG, "設定変更 TTS code=" + code + " enabled=" + enabled);
-        getSharedPreferences(PREFS, MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_TTS_CODE_PREFIX + code, enabled)
-                .apply();
+        if (settingsRepository != null) settingsRepository.setTtsCodeEnabled(code, enabled);
     }
 
     public void setNotificationCodeEnabled(int code, boolean enabled) {
         Log.d(TAG, "設定変更 notification code=" + code + " enabled=" + enabled);
-        getSharedPreferences(PREFS, MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_NOTIFICATION_CODE_PREFIX + code, enabled)
-                .apply();
+        if (settingsRepository != null) settingsRepository.setNotificationCodeEnabled(code, enabled);
     }
 
     public void resetCodeSettings() {
         Log.d(TAG, "設定変更 code settings reset");
-        android.content.SharedPreferences.Editor editor =
-                getSharedPreferences(PREFS, MODE_PRIVATE).edit();
-        for (int code : SUPPORTED_MESSAGE_CODES) {
-            editor.remove(KEY_TTS_CODE_PREFIX + code);
-            editor.remove(KEY_NOTIFICATION_CODE_PREFIX + code);
-        }
-        editor.apply();
+        if (settingsRepository != null) settingsRepository.resetCodeSettings();
     }
-
-    private boolean isTtsEnabledForCode(int code) {
-        return getSharedPreferences(PREFS, MODE_PRIVATE)
-                .getBoolean(KEY_TTS_CODE_PREFIX + code, true);
-    }
-
-    private boolean isNotificationEnabledForCode(int code) {
-        return getSharedPreferences(PREFS, MODE_PRIVATE)
-                .getBoolean(KEY_NOTIFICATION_CODE_PREFIX + code, true);
-    }
-
-    private static final int[] SUPPORTED_MESSAGE_CODES = {551, 552, 554, 555, 556, 561, 9611, 1112};
 
     public void setTtsSpeechRate(float rate) {
         Log.d(TAG, "設定変更 TTS speechRate=" + rate);
+        if (settingsRepository != null) settingsRepository.setTtsSpeechRate(rate);
         if (ttsConnection != null) ttsConnection.setSpeechRate(rate);
     }
 
     public void setTtsPitch(float pitch) {
         Log.d(TAG, "設定変更 TTS pitch=" + pitch);
+        if (settingsRepository != null) settingsRepository.setTtsPitch(pitch);
         if (ttsConnection != null) ttsConnection.setPitch(pitch);
     }
 
@@ -463,30 +415,6 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     //  ヘルパー
     // ──────────────────────────────────────────────
 
-    /** JSON から code フィールドだけを手早く取り出す（JSONObject生成のコスト削減） */
-    private static int extractP2PQuakeCode(String json) {
-        try {
-            org.json.JSONObject o = new org.json.JSONObject(json);
-            return o.optInt("code", -1);
-        } catch (Exception e) {
-            Log.w(TAG, "code抽出失敗 length=" + (json == null ? 0 : json.length()), e);
-            return -1;
-        }
-    }
-
-    /** P2PQuakeコード → 通知タイトル文字列 */
-    private static String p2pQuakeCodeToTitle(int p2pQuakeCode) {
-        switch (p2pQuakeCode) {
-            case 551:  return "地震情報";
-            case 552:  return "津波予報";
-            case 554:  return "緊急地震速報 検出";
-            case 555:  return "ピア情報";
-            case 556:  return "⚡ 緊急地震速報（警報）";
-            case 561:  return "地震感知情報";
-            case 9611: return "地震感知 解析結果";
-            default:   return "KoiYure";
-        }
-    }
 
     // ──────────────────────────────────────────────
     //  フォアグラウンド通知ヘルパー（常駐通知専用）
