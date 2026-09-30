@@ -71,7 +71,8 @@ public class LocalWebSocketServer extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        Log.d(TAG, "受信: " + message);
+        Log.d(TAG, "受信 length=" + (message == null ? 0 : message.length())
+                + " client=" + (conn == null ? "null" : conn.getRemoteSocketAddress()));
 
         // JavaScript からのメッセージ処理
         // 例: { "type": "getTtsStatus" } → { "type": "ttsStatus", "enabled": true }
@@ -79,7 +80,7 @@ public class LocalWebSocketServer extends WebSocketServer {
             // JSON パース は SpinalCord で処理可能
             // 現在は表示用ログのみ
         } catch (Exception e) {
-            Log.e(TAG, "メッセージ処理エラー: " + message, e);
+            Log.e(TAG, "メッセージ処理エラー length=" + (message == null ? 0 : message.length()), e);
         }
     }
 
@@ -88,11 +89,21 @@ public class LocalWebSocketServer extends WebSocketServer {
         String remoteAddress = (conn != null && conn.getRemoteSocketAddress() != null)
                 ? conn.getRemoteSocketAddress().toString()
                 : "server";
+        if (conn == null) {
+            synchronized (this) {
+                isRunning = false;
+                startRequested = false;
+            }
+        }
         Log.e(TAG, "エラー: " + remoteAddress, ex);
     }
 
     @Override
     public void onStart() {
+        synchronized (this) {
+            isRunning = true;
+            startRequested = false;
+        }
         Log.d(TAG, "ローカル WebSocket サーバー起動: ws://127.0.0.1:" + PORT);
     }
 
@@ -184,7 +195,7 @@ public class LocalWebSocketServer extends WebSocketServer {
                 client.send(msg);
             }
         } catch (Exception e) {
-            Log.e(TAG, "配信失敗: " + msg, e);
+            Log.e(TAG, "配信失敗 length=" + (msg == null ? 0 : msg.length()), e);
         }
     }
 
@@ -193,20 +204,23 @@ public class LocalWebSocketServer extends WebSocketServer {
     // ──────────────────────────────────────────────
 
     private boolean isRunning = false;
+    private boolean startRequested = false;
 
     /**
      * サーバー起動
      */
     public synchronized void start() {
+        if (isRunning || startRequested) {
+            Log.d(TAG, "サーバー開始要求を無視: 既に起動中/起動処理中 running="
+                    + isRunning + ", starting=" + startRequested);
+            return;
+        }
         try {
-            if (!isRunning) {
-                super.start();
-                isRunning = true;
-                Log.d(TAG, "サーバー開始");
-            } else {
-                Log.d(TAG, "サーバーは既に起動中");
-            }
+            startRequested = true;
+            Log.d(TAG, "サーバー開始要求: ws://127.0.0.1:" + PORT);
+            super.start();
         } catch (Exception e) {
+            startRequested = false;
             Log.e(TAG, "サーバー起動エラー", e);
         }
     }
@@ -217,8 +231,9 @@ public class LocalWebSocketServer extends WebSocketServer {
     public synchronized void stop() {
         try {
             connectedClients.clear();
-            super.stop();
+            if (isRunning || startRequested) super.stop();
             isRunning = false;
+            startRequested = false;
             Log.d(TAG, "サーバー停止");
         } catch (Exception e) {
             Log.e(TAG, "サーバー停止エラー", e);

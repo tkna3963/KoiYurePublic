@@ -30,11 +30,15 @@ public class P2PQuakeWebSocketClient {
     private static final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<>();
 
     public static void addListener(Listener l) {
-        if (l != null && !listeners.contains(l)) listeners.add(l);
+        if (l != null && !listeners.contains(l)) {
+            listeners.add(l);
+            Log.d(TAG, "listener追加 total=" + listeners.size());
+        }
     }
 
     public static void removeListener(Listener l) {
         listeners.remove(l);
+        Log.d(TAG, "listener削除 total=" + listeners.size());
     }
 
     private static void broadcastMessage(String json) {
@@ -59,6 +63,7 @@ public class P2PQuakeWebSocketClient {
     private boolean manualDisconnect = false;
 
     public void connect() {
+        Log.d(TAG, "connect要求 manualDisconnect=false");
         manualDisconnect = false;
         reconnectAttempts = 0;
         doConnect();
@@ -69,19 +74,21 @@ public class P2PQuakeWebSocketClient {
             client = new WebSocketClient(new URI(WS_URL)) {
                 @Override
                 public void onOpen(ServerHandshake h) {
-                    Log.d(TAG, "connected");
+                    Log.d(TAG, "接続完了 uri=" + WS_URL);
                     reconnectAttempts = 0;
                     broadcastConnected();
                 }
 
                 @Override
                 public void onMessage(String message) {
+                    Log.d(TAG, "メッセージ受信 length=" + (message == null ? 0 : message.length()));
                     broadcastMessage(message);
                 }
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    Log.d(TAG, "closed: " + reason + " (remote=" + remote + ")");
+                    Log.d(TAG, "接続終了 code=" + code + " reasonLength="
+                            + (reason == null ? 0 : reason.length()) + " remote=" + remote);
                     scheduleReconnect();
                 }
 
@@ -121,6 +128,7 @@ public class P2PQuakeWebSocketClient {
     }
 
     public void disconnect() {
+        Log.d(TAG, "disconnect要求");
         manualDisconnect = true;
         if (reconnectFuture != null) reconnectFuture.cancel(false);
         if (client != null) client.close();

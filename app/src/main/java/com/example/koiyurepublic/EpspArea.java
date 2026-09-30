@@ -96,7 +96,11 @@ public class EpspArea {
      * 既に初期化済みの場合は何もしない。
      */
     public static synchronized void init(Context context) {
-        if (table != null) return;
+        if (table != null) {
+            Log.d(TAG, "CSV初期化をスキップ: 既に初期化済み entries=" + table.size());
+            return;
+        }
+        Log.d(TAG, "CSV読み込み開始 path=" + CSV_PATH);
         Map<Integer, Entry> tmp = new HashMap<>();
         int count = 0;
         int parseErrors = 0;
@@ -115,6 +119,7 @@ public class EpspArea {
                     String[] cols = splitCsv(line);
                     if (cols.length < 7) {
                         parseErrors++;
+                        Log.w(TAG, "CSV行をスキップ: 列数不足 columns=" + cols.length);
                         continue;
                     }
 
@@ -132,11 +137,12 @@ public class EpspArea {
                         count++;
                     } catch (Exception e) {
                         parseErrors++;
+                        Log.w(TAG, "CSV行の解析失敗", e);
                     }
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "CSV読み込み失敗: " + e.getMessage());
+            Log.e(TAG, "CSV読み込み失敗", e);
         }
         table = Collections.unmodifiableMap(tmp);
         Log.d(TAG, "EpspArea 初期化完了: " + count + " 件, parseErrors=" + parseErrors);
@@ -148,7 +154,10 @@ public class EpspArea {
 
     /** 地域コードから Entry を取得。未登録の場合は null */
     public static Entry get(int code) {
-        if (table == null) return null;
+        if (table == null) {
+            Log.w(TAG, "未初期化の地域コード参照 code=" + code);
+            return null;
+        }
         return table.get(code);
     }
 

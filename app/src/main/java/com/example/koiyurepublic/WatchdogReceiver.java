@@ -27,7 +27,8 @@ public class WatchdogReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "Watchdog fired — Serviceの生存確認");
+        Log.d(TAG, "Watchdog fired action=" + (intent == null ? null : intent.getAction())
+                + " — Serviceの生存確認");
 
         if (!isServiceRunning(context, SpinalCord.class)) {
             Log.w(TAG, "SpinalCord が停止している → 再起動");

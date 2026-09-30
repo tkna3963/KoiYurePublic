@@ -192,6 +192,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
      * 地震データや状態変更の通常配信はこのWebSocketに統一する。
      */
     public void syncWebViewState() {
+        Log.d(TAG, "WebView状態同期開始");
         LocalWebSocketServer server = LocalWebSocketServer.getInstance();
         server.broadcastConnectionState(getIsP2PQuakeConnected(), getIsP2PQuakeReconnecting());
         server.broadcastServiceState(isServiceRunning());
@@ -215,6 +216,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "onCreate開始");
         setRunning(true);
         isIntentionallyStopped = false;
         LocalWebSocketServer.getInstance().broadcastServiceState(true);
@@ -251,12 +253,17 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand startId=" + startId + " flags=" + flags
+                + " action=" + (intent == null ? null : intent.getAction()));
         scheduleWatchdog();
         return START_STICKY;
     }
 
     @Override
-    public IBinder onBind(Intent intent) { return binder; }
+    public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind action=" + (intent == null ? null : intent.getAction()));
+        return binder;
+    }
 
     @Override
     public boolean onUnbind(Intent intent) {
@@ -274,6 +281,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy開始 intentionallyStopped=" + isIntentionallyStopped);
         setRunning(false);
         LocalWebSocketServer.getInstance().broadcastServiceState(false);
 
@@ -332,14 +340,16 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
      */
     @Override
     public void onMessage(String json) {
-        Log.d(TAG, "受信: " + json.substring(0, Math.min(80, json.length())));
+        Log.d(TAG, "受信 length=" + (json == null ? 0 : json.length()));
 
         // --- コード取得 ---
         int p2pQuakeCode = extractP2PQuakeCode(json);
+        Log.d(TAG, "メッセージ解析 code=" + p2pQuakeCode);
 
         // --- 短文変換 ---
         String briefMessage = P2PConverts.toBriefMessage(json);
         String notifTitle   = p2pQuakeCodeToTitle(p2pQuakeCode);
+        Log.d(TAG, "通知判定 code=" + p2pQuakeCode + " enabled=" + isNotificationEnabledForCode(p2pQuakeCode));
 
         // --- 通知 ---
         NotifiConnection notifRef = notifConnection;
@@ -360,6 +370,8 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
             // EEW・EEW検出は割り込み読み上げ
             boolean skipTts = (p2pQuakeCode == 555)
                     || (p2pQuakeCode == 9611 && fullMessage.contains("非表示"));
+            Log.d(TAG, "TTS判定 code=" + p2pQuakeCode + " skip=" + skipTts
+                    + " fullLength=" + fullMessage.length());
             if (!skipTts && (p2pQuakeCode == 556 || p2pQuakeCode == 554)) {
                 ttsRef.speakNow(fullMessage);
             } else if (!skipTts) {
@@ -377,18 +389,21 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     // ──────────────────────────────────────────────
 
     public void setTtsEnabled(boolean enabled) {
+        Log.d(TAG, "設定変更 TTS enabled=" + enabled);
         if (ttsConnection != null) ttsConnection.setEnabled(enabled);
         // ローカル WebSocket に配信
         LocalWebSocketServer.getInstance().broadcastTtsStatus(enabled);
     }
 
     public void setNotificationEnabled(boolean enabled) {
+        Log.d(TAG, "設定変更 notification enabled=" + enabled);
         if (notifConnection != null) notifConnection.setEnabled(enabled);
         // ローカル WebSocket に配信
         LocalWebSocketServer.getInstance().broadcastNotifStatus(enabled);
     }
 
     public void setTtsCodeEnabled(int code, boolean enabled) {
+        Log.d(TAG, "設定変更 TTS code=" + code + " enabled=" + enabled);
         getSharedPreferences(PREFS, MODE_PRIVATE)
                 .edit()
                 .putBoolean(KEY_TTS_CODE_PREFIX + code, enabled)
@@ -396,6 +411,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     }
 
     public void setNotificationCodeEnabled(int code, boolean enabled) {
+        Log.d(TAG, "設定変更 notification code=" + code + " enabled=" + enabled);
         getSharedPreferences(PREFS, MODE_PRIVATE)
                 .edit()
                 .putBoolean(KEY_NOTIFICATION_CODE_PREFIX + code, enabled)
@@ -403,6 +419,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     }
 
     public void resetCodeSettings() {
+        Log.d(TAG, "設定変更 code settings reset");
         android.content.SharedPreferences.Editor editor =
                 getSharedPreferences(PREFS, MODE_PRIVATE).edit();
         for (int code : SUPPORTED_MESSAGE_CODES) {
@@ -425,10 +442,12 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     private static final int[] SUPPORTED_MESSAGE_CODES = {551, 552, 554, 555, 556, 561, 9611, 1112};
 
     public void setTtsSpeechRate(float rate) {
+        Log.d(TAG, "設定変更 TTS speechRate=" + rate);
         if (ttsConnection != null) ttsConnection.setSpeechRate(rate);
     }
 
     public void setTtsPitch(float pitch) {
+        Log.d(TAG, "設定変更 TTS pitch=" + pitch);
         if (ttsConnection != null) ttsConnection.setPitch(pitch);
     }
 
@@ -450,6 +469,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
             org.json.JSONObject o = new org.json.JSONObject(json);
             return o.optInt("code", -1);
         } catch (Exception e) {
+            Log.w(TAG, "code抽出失敗 length=" + (json == null ? 0 : json.length()), e);
             return -1;
         }
     }
@@ -484,6 +504,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         );
         ch.setDescription("P2PQuake WebSocket接続を維持します");
         nm.createNotificationChannel(ch);
+        Log.d(TAG, "Foreground通知チャンネル初期化完了");
     }
 
     private Notification buildForegroundNotification(String text) {
@@ -508,5 +529,6 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
             return;
         }
         nm.notify(NOTIF_FOREGROUND_ID, buildForegroundNotification(text));
+        Log.d(TAG, "Foreground通知更新 textLength=" + (text == null ? 0 : text.length()));
     }
 }

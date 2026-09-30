@@ -36,6 +36,7 @@ public class TTSConnection {
     // ──────────────────────────────────────────────
 
     public TTSConnection(Context context) {
+        Log.d(TAG, "TTS初期化開始");
         tts = new TextToSpeech(context, status -> {
             if (status == TextToSpeech.SUCCESS) {
                 int result = tts.setLanguage(Locale.JAPANESE);
@@ -91,10 +92,11 @@ public class TTSConnection {
      * @param text 読み上げるテキスト
      */
     public synchronized void speak(String text) {
-        if (!enabled) return;
+        if (!enabled) { Log.d(TAG, "TTSスキップ: disabled"); return; }
         if (!initialized) {
             pendingQueue.offer(text);
-            Log.d(TAG, "TTS未初期化 → キューに積む: " + text);
+            Log.d(TAG, "TTS未初期化 → キューに積む length=" + (text == null ? 0 : text.length())
+                    + " queue=" + pendingQueue.size());
             return;
         }
         doSpeak(text);
@@ -104,10 +106,11 @@ public class TTSConnection {
      * 現在の読み上げを中断して即座に読む（緊急地震速報など優先度の高い情報向け）。
      */
     public synchronized void speakNow(String text) {
-        if (!enabled) return;
+        if (!enabled) { Log.d(TAG, "TTS即時再生スキップ: disabled"); return; }
         if (!initialized) {
             pendingQueue.clear();       // 緊急なので旧キューを破棄
             pendingQueue.offer(text);
+            Log.d(TAG, "TTS即時再生をキュー: length=" + (text == null ? 0 : text.length()));
             return;
         }
         tts.stop();                     // 現在の読み上げを中断
@@ -144,6 +147,7 @@ public class TTSConnection {
      * @param rate 0.5=遅い  1.0=普通  2.0=速い
      */
     public void setSpeechRate(float rate) {
+        Log.d(TAG, "TTS speechRate=" + rate);
         if (tts != null) tts.setSpeechRate(rate);
     }
 
@@ -153,6 +157,7 @@ public class TTSConnection {
      * @param pitch 値が大きいほど高い声
      */
     public void setPitch(float pitch) {
+        Log.d(TAG, "TTS pitch=" + pitch);
         if (tts != null) tts.setPitch(pitch);
     }
 }

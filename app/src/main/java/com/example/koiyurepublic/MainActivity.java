@@ -49,12 +49,14 @@ public class MainActivity extends AppCompatActivity {
             spinalCord = localBinder.getService();
             spinalCord.syncWebViewState();
             bound = true;
+            Log.d(TAG, "Service接続完了 component=" + name.getClassName());
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
             spinalCord = null;
+            Log.w(TAG, "Service接続切断 component=" + name.getClassName());
         }
     };
 
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate savedInstanceState=" + (savedInstanceState != null));
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -86,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                Log.d(TAG, "WebViewページ読み込み完了 urlLength=" + (url == null ? 0 : url.length()));
             }
         });
         webView.loadUrl("file:///android_asset/Maindex.html");
@@ -121,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "onStart bound=" + bound);
         Intent serviceIntent = new Intent(this, SpinalCord.class);
         // 必ず Service が起動していることを確認
         if (!SpinalCord.isServiceRunning()) {
@@ -139,10 +144,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop bound=" + bound);
         if (bound) {
             unbindService(serviceConnection);
             bound = false;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy bound=" + bound);
+        super.onDestroy();
     }
 
     // ──────────────────────────────────────────────
@@ -321,11 +333,14 @@ public class MainActivity extends AppCompatActivity {
 
         boolean alreadyAsked = getSharedPreferences(PREFS, MODE_PRIVATE)
                 .getBoolean(KEY_BATTERY_OPT_ASKED, false);
-        if (alreadyAsked) return;
+        if (alreadyAsked) { Log.d(TAG, "バッテリー最適化確認済み"); return; }
 
         PowerManager pm = getSystemService(PowerManager.class);
         if (pm == null) return;
-        if (pm.isIgnoringBatteryOptimizations(getPackageName())) return;
+        if (pm.isIgnoringBatteryOptimizations(getPackageName())) {
+            Log.d(TAG, "バッテリー最適化除外済み");
+            return;
+        }
 
         Intent batteryOptIntent = new Intent(
                 Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
@@ -349,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
                 == PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        Log.d(TAG, "通知権限を要求");
         requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
     }
 }

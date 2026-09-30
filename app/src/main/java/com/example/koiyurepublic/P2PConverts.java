@@ -1,5 +1,6 @@
 package com.example.koiyurepublic;
 
+import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -23,6 +24,7 @@ import org.json.JSONObject;
  *   9611 UserquakeEvaluation   地震感知情報 解析結果
  */
 public class P2PConverts {
+    private static final String TAG = "P2PConverts";
 
     // ================================================================
     //  公開API
@@ -40,6 +42,7 @@ public class P2PConverts {
         try {
             JSONObject p2pJson = new JSONObject(json);
             int p2pQuakeCode = p2pJson.optInt("code", -1);
+            Log.d(TAG, "full parse code=" + p2pQuakeCode + " length=" + (json == null ? 0 : json.length()));
             switch (p2pQuakeCode) {
                 case 551:  return toFullMessage_JMAQuake(p2pJson);
                 case 552:  return toFullMessage_JMATsunami(p2pJson);
@@ -51,6 +54,7 @@ public class P2PConverts {
                 default:   return "【不明な情報】コード: " + p2pQuakeCode;
             }
         } catch (Exception e) {
+            Log.e(TAG, "full parse failed length=" + (json == null ? 0 : json.length()), e);
             return "【解析エラー】" + e.getMessage();
         }
     }
@@ -66,6 +70,7 @@ public class P2PConverts {
         try {
             JSONObject p2pJson = new JSONObject(json);
             int p2pQuakeCode = p2pJson.optInt("code", -1);
+            Log.d(TAG, "brief parse code=" + p2pQuakeCode + " length=" + (json == null ? 0 : json.length()));
             switch (p2pQuakeCode) {
                 case 551:  return toBriefMessage_JMAQuake(p2pJson);
                 case 552:  return toBriefMessage_JMATsunami(p2pJson);
@@ -77,6 +82,7 @@ public class P2PConverts {
                 default:   return "不明な情報を受信しました（コード: " + p2pQuakeCode + "）";
             }
         } catch (Exception e) {
+            Log.e(TAG, "brief parse failed length=" + (json == null ? 0 : json.length()), e);
             return "情報の解析に失敗しました";
         }
     }

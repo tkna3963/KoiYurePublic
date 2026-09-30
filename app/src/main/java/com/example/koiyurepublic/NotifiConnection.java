@@ -96,6 +96,7 @@ public class NotifiConnection {
         nm.createNotificationChannel(eew);
         nm.createNotificationChannel(quake);
         nm.createNotificationChannel(info);
+        Log.d(TAG, "通知チャンネル初期化完了");
     }
 
     // ──────────────────────────────────────────────
@@ -111,12 +112,14 @@ public class NotifiConnection {
      * @param message   通知本文（P2PConverts.toBriefMessage() の戻り値を推奨）
      */
     public synchronized void notify(int code, String title, String message) {
-        if (!enabled) return;
+        if (!enabled) { Log.d(TAG, "通知スキップ: disabled code=" + code); return; }
         if (nm == null) {
             Log.w(TAG, "通知発行失敗: NotificationManagerがnull");
             return;
         }
 
+        Log.d(TAG, "通知発行 code=" + code + " titleLength=" + (title == null ? 0 : title.length())
+                + " messageLength=" + (message == null ? 0 : message.length()));
         switch (code) {
             case 556: postEEW(title, message);          break;
             case 554: postEEWDetection(title, message); break;
@@ -155,6 +158,7 @@ public class NotifiConnection {
                 .setAutoCancel(true)
                 .build();
         nm.notify(NOTIF_EEW_DET, n);
+        Log.d(TAG, "EEW検出通知発行");
     }
 
     /** 552: 津波予報 */
@@ -192,7 +196,10 @@ public class NotifiConnection {
     /** 9611: 地震感知情報 解析結果 */
     private void postUserquakeEval(String title, String message) {
         // 「非表示」レベルは通知しない
-        if (message.contains("信頼度低")) return;
+        if (message.contains("信頼度低")) {
+            Log.d(TAG, "地震感知解析通知スキップ: 信頼度低");
+            return;
+        }
 
         Notification n = baseBuilder(CHANNEL_INFO, title, message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
