@@ -22,7 +22,73 @@ body, html {
     background-color: rgb(26, 175, 138);
 }
 
-/* メインテキストエリア */
+/* コード別防災ダッシュボード */
+.alert-dashboard {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 35vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    z-index: 3;
+    background: #f7f7f7;
+}
+
+.dashboard-empty {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    color: #59636d;
+    text-align: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.dashboard-empty-icon { font-size: 36px; color: #0dbf95; }
+
+.dashboard-card {
+    min-height: 100%;
+    color: #1d2429;
+    border-bottom: 4px solid rgba(0, 0, 0, .18);
+    box-sizing: border-box;
+}
+
+.dashboard-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    color: #fff;
+    background: rgba(0, 0, 0, .2);
+    font-weight: 700;
+}
+
+.dashboard-title { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.dashboard-icon { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fff; color: #b42318; font-weight: 900; }
+.dashboard-code { font: 700 11px monospace; opacity: .8; }
+.dashboard-card-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 10px 12px; }
+.dashboard-value, .dashboard-text { min-width: 0; padding: 7px 8px; border-radius: 5px; background: rgba(255, 255, 255, .55); }
+.dashboard-value-label, .dashboard-text span { display: block; font-size: 10px; opacity: .72; }
+.dashboard-value-number, .dashboard-text strong { display: block; margin-top: 2px; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-value-number { font-size: 28px; }
+.dashboard-text strong { font-size: 13px; }
+.dashboard-card-footer { padding: 5px 12px 8px; font-size: 12px; font-weight: 700; }
+.dashboard-quake { background: #e99a3b; }
+.dashboard-tsunami { background: #4ba8ce; }
+.dashboard-eew { background: #ed654c; }
+.dashboard-network { background: #8a75c9; }
+.dashboard-sensor { background: #5caf76; }
+.dashboard-analysis { background: #4c9f9a; }
+.dashboard-unknown { background: #8d969f; }
+.dashboard-value.danger { background: #fff0ed; color: #a82016; }
+.dashboard-value.safe { background: #dff8d9; color: #176b2a; }
+.dashboard-value.warning { background: #fff4cc; color: #765900; }
+
+/* メインテキストエリア（詳細表示・履歴選択時） */
 #maintextarea {
     position: fixed;
     top: 0;
@@ -38,10 +104,22 @@ body, html {
     color: #000;
 }
 
+/* 詳細テキストをダッシュボードの下に残す */
+#maintextarea { top: 35vh; height: 18vh; opacity: .92; }
+
 #maintextarea:focus {
-    height: 70vh;
+    height: 55vh;
+    top: 0;
     background-color: rgba(228, 148, 61, 0.9);
     z-index: 3;
+}
+
+@media (max-width: 480px) {
+    .dashboard-card-header { padding: 6px 9px; }
+    .dashboard-title { font-size: 14px; }
+    .dashboard-card-body { gap: 4px; padding: 7px 9px; }
+    .dashboard-value-number { font-size: 23px; }
+    .dashboard-text strong { font-size: 12px; }
 }
 
 /* ページバー（スライダー） */

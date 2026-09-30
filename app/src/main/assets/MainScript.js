@@ -158,6 +158,7 @@ const elements = {};
 function cacheElements() {
     elements.nowTime           = document.getElementById('now_time');
     elements.textarea          = document.getElementById('maintextarea');
+    elements.alertDashboard    = document.getElementById('alertDashboard');
     elements.pagebar           = document.getElementById('pagebar');
     elements.pagebarLabel      = document.getElementById('pagebarLabel');
     elements.menu              = document.getElementById('menu');
@@ -273,9 +274,124 @@ function updateMainTextarea(index) {
     }
 
     elements.textarea.value = formatP2PMessage(data);
+    renderCodeDashboard(data);
     currentIndex = index;
     updatePagebarLabel(index);
     updateNavButtons();
+}
+
+const CODE_META = {
+    551: { title: '地震情報', icon: '◆', theme: 'quake', action: '揺れに備えてください' },
+    552: { title: '津波予報', icon: '〰', theme: 'tsunami', action: '海岸・川から離れてください' },
+    554: { title: '緊急地震速報を検出', icon: '!', theme: 'eew', action: '情報を確認してください' },
+    555: { title: 'ピア情報', icon: '◎', theme: 'network', action: 'ネットワーク状態' },
+    556: { title: '緊急地震速報（警報）', icon: '!!', theme: 'eew', action: '身を守る行動を開始してください' },
+    561: { title: '地震感知情報', icon: '●', theme: 'sensor', action: '周囲の揺れを確認してください' },
+    9611: { title: '地震感知・解析結果', icon: '◇', theme: 'analysis', action: '解析結果を確認してください' }
+};
+
+function dashboardValue(label, value, className = '') {
+    const item = document.createElement('div');
+    item.className = `dashboard-value ${className}`.trim();
+    const labelEl = document.createElement('span');
+    labelEl.className = 'dashboard-value-label';
+    labelEl.textContent = label;
+    const valueEl = document.createElement('strong');
+    valueEl.className = 'dashboard-value-number';
+    valueEl.textContent = String(value ?? '—');
+    item.append(labelEl, valueEl);
+    return item;
+}
+
+function dashboardText(label, value) {
+    const item = document.createElement('div');
+    item.className = 'dashboard-text';
+    const labelEl = document.createElement('span');
+    labelEl.textContent = label;
+    const valueEl = document.createElement('strong');
+    valueEl.textContent = String(value ?? '不明');
+    item.append(labelEl, valueEl);
+    return item;
+}
+
+function renderCodeDashboard(data) {
+    if (!elements.alertDashboard || !data || typeof data !== 'object') return;
+    const code = Number(data.code);
+    const meta = CODE_META[code] ?? { title: `受信情報（code ${code || '?'}）`, icon: '?', theme: 'unknown', action: '詳細を確認してください' };
+    const card = document.createElement('section');
+    card.className = `dashboard-card dashboard-${meta.theme}`;
+    card.setAttribute('data-code', String(code));
+
+    const header = document.createElement('header');
+    header.className = 'dashboard-card-header';
+    const title = document.createElement('div');
+    title.className = 'dashboard-title';
+    title.innerHTML = `<span class="dashboard-icon" aria-hidden="true"></span><span></span>`;
+    title.querySelector('.dashboard-icon').textContent = meta.icon;
+    title.lastElementChild.textContent = meta.title;
+    const codeBadge = document.createElement('span');
+    codeBadge.className = 'dashboard-code';
+    codeBadge.textContent = `CODE ${code || '?'}`;
+    header.append(title, codeBadge);
+
+    const body = document.createElement('div');
+    body.className = 'dashboard-card-body';
+    const issue = data.issue ?? {};
+    const quake = data.earthquake ?? {};
+    const hypo = quake.hypocenter ?? {};
+
+    if (code === 551) {
+        body.append(
+            dashboardText('発生日時', quake.time),
+            dashboardText('震源', hypo.name),
+            dashboardValue('最大震度', scaleToText(quake.maxScale), `scale-${quake.maxScale}`),
+            dashboardValue('規模', hypo.magnitude >= 0 ? `M${hypo.magnitude}` : '—'),
+            dashboardText('深さ', hypo.depth >= 0 ? (hypo.depth === 0 ? 'ごく浅い' : `${hypo.depth} km`) : '—'),
+            dashboardText('津波', domesticTsunami(quake.domesticTsunami ?? 'None'))
+        );
+    } else if (code === 552) {
+        const areas = Array.isArray(data.areas) ? data.areas : [];
+        body.append(
+            dashboardValue('状態', data.cancelled ? '解除' : '発表', data.cancelled ? 'safe' : 'danger'),
+            dashboardText('発表日時', issue.time),
+            dashboardValue('対象地域', areas.length ? `${areas.length} 地域` : '—'),
+            dashboardText('最大警戒', areas[0]?.grade ? tsunamiGrade(areas[0].grade) : '—')
+        );
+        areas.slice(0, 4).forEach(area => body.append(
+            dashboardText(area.name ?? '津波予報区', `${tsunamiGrade(area.grade ?? '')}${area.immediate ? '・直ちに来襲' : ''}`)
+        ));
+    } else if (code === 556) {
+        body.append(
+            dashboardValue('状態', data.cancelled ? '取消' : (data.test ? 'テスト' : '警報'), data.cancelled ? 'safe' : 'danger'),
+            dashboardText('発表時刻', issue.time),
+            dashboardText('震央', hypo.name),
+            dashboardValue('推定規模', hypo.magnitude >= 0 ? `M${hypo.magnitude}` : '—'),
+            dashboardText('予測最大震度', (data.areas ?? []).length ? eewScaleRange(data.areas[0].scaleFrom, data.areas[0].scaleTo) : '—')
+        );
+    } else if (code === 554) {
+        body.append(dashboardValue('検出種別', eewDetectionType(data.type ?? ''), 'warning'));
+    } else if (code === 555) {
+        const areas = Array.isArray(data.areas) ? data.areas : [];
+        const total = areas.reduce((sum, area) => sum + (Number(area.peer) || 0), 0);
+        body.append(dashboardValue('接続ピア', total), dashboardValue('地域数', areas.length));
+    } else if (code === 561) {
+        body.append(dashboardValue('感知地域', data.area ?? '—'), dashboardText('受信時刻', data.time));
+    } else if (code === 9611) {
+        const confidence = Number(data.confidence);
+        body.append(
+            dashboardValue('信頼度', Number.isFinite(confidence) ? confidence.toFixed(3) : '—'),
+            dashboardValue('感知件数', data.count ?? 0),
+            dashboardText('評価時刻', data.time)
+        );
+    } else {
+        body.append(dashboardText('受信時刻', data.time), dashboardText('内容', '未対応コード'));
+    }
+
+    const footer = document.createElement('footer');
+    footer.className = 'dashboard-card-footer';
+    footer.textContent = meta.action;
+    card.append(header, body, footer);
+    elements.alertDashboard.replaceChildren(card);
 }
 
 // ========================================
@@ -490,6 +606,7 @@ function updateNavButtons() {
 function onP2PMessage(msg) {
     if (!msg || typeof msg !== 'object') return;
     AllWebsocketData.push(msg);
+    renderCodeDashboard(msg);
     if (AllWebsocketData.length > MAX_HISTORY_ENTRIES) {
         AllWebsocketData.shift();
         if (currentIndex > 0) currentIndex--;
