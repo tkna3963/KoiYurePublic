@@ -39,6 +39,9 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     private static final String CHANNEL_FOREGROUND = "koiyure_ws_channel";
     private static final int    NOTIF_FOREGROUND_ID = 1;
     private static final long   SELF_RESTART_DELAY_MS = 1500L;
+    private static final String PREFS = "koiyure_settings";
+    private static final String KEY_TTS_CODE_PREFIX = "code_tts_";
+    private static final String KEY_NOTIFICATION_CODE_PREFIX = "code_notif_";
 
     public static final long WATCHDOG_INTERVAL_MS = 60_000L;
 
@@ -214,6 +217,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         super.onCreate();
         setRunning(true);
         isIntentionallyStopped = false;
+        LocalWebSocketServer.getInstance().broadcastServiceState(true);
 
         // ① フォアグラウンド通知（常駐用）を先に立てる
         createForegroundChannel();
@@ -271,6 +275,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     @Override
     public void onDestroy() {
         setRunning(false);
+        LocalWebSocketServer.getInstance().broadcastServiceState(false);
 
         // ローカル WebSocket サーバー停止
         LocalWebSocketServer.getInstance().stop();
@@ -338,7 +343,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
         // --- 通知 ---
         NotifiConnection notifRef = notifConnection;
-        if (notifRef != null) {
+        if (notifRef != null && isNotificationEnabledForCode(p2pQuakeCode)) {
             // 津波解除 / EEW取消は既存通知をキャンセル
             if (p2pQuakeCode == 552 && briefMessage.contains("解除")) {
                 notifRef.cancelTsunami();
@@ -350,7 +355,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
         // --- 読み上げ ---
         TTSConnection ttsRef = ttsConnection;
-        if (ttsRef != null) {
+        if (ttsRef != null && isTtsEnabledForCode(p2pQuakeCode)) {
             String fullMessage = P2PConverts.toFullMessage(json);
             // EEW・EEW検出は割り込み読み上げ
             boolean skipTts = (p2pQuakeCode == 555)
@@ -382,6 +387,42 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         // ローカル WebSocket に配信
         LocalWebSocketServer.getInstance().broadcastNotifStatus(enabled);
     }
+
+    public void setTtsCodeEnabled(int code, boolean enabled) {
+        getSharedPreferences(PREFS, MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_TTS_CODE_PREFIX + code, enabled)
+                .apply();
+    }
+
+    public void setNotificationCodeEnabled(int code, boolean enabled) {
+        getSharedPreferences(PREFS, MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_NOTIFICATION_CODE_PREFIX + code, enabled)
+                .apply();
+    }
+
+    public void resetCodeSettings() {
+        android.content.SharedPreferences.Editor editor =
+                getSharedPreferences(PREFS, MODE_PRIVATE).edit();
+        for (int code : SUPPORTED_MESSAGE_CODES) {
+            editor.remove(KEY_TTS_CODE_PREFIX + code);
+            editor.remove(KEY_NOTIFICATION_CODE_PREFIX + code);
+        }
+        editor.apply();
+    }
+
+    private boolean isTtsEnabledForCode(int code) {
+        return getSharedPreferences(PREFS, MODE_PRIVATE)
+                .getBoolean(KEY_TTS_CODE_PREFIX + code, true);
+    }
+
+    private boolean isNotificationEnabledForCode(int code) {
+        return getSharedPreferences(PREFS, MODE_PRIVATE)
+                .getBoolean(KEY_NOTIFICATION_CODE_PREFIX + code, true);
+    }
+
+    private static final int[] SUPPORTED_MESSAGE_CODES = {551, 552, 554, 555, 556, 561, 9611, 1112};
 
     public void setTtsSpeechRate(float rate) {
         if (ttsConnection != null) ttsConnection.setSpeechRate(rate);

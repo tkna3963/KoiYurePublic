@@ -77,11 +77,12 @@
 
     <section class="menu-section connection-status" aria-label="接続状態">
         <h3>P2P地震情報 API 接続状態</h3>
-        <div class="status-row">
+        <div id="p2pConnectionStatus" class="status-row status-state-unknown"
+             role="status" aria-live="polite" aria-atomic="true">
             <span id="p2pStatusIndicator" class="status-indicator status-disconnected" aria-hidden="true"></span>
             <div class="status-text-box">
-                <div id="p2pStatusText" class="status-text-main">初期化中…</div>
-                <div id="p2pStatusDetail" class="status-text-detail">サーバーに接続しています</div>
+                <div id="p2pStatusText" class="status-text-main">接続状態を確認中</div>
+                <div id="p2pStatusDetail" class="status-text-detail">P2Pサーバーから応答を待っています</div>
             </div>
         </div>
     </section>

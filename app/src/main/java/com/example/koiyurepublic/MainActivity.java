@@ -271,6 +271,27 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        @JavascriptInterface
+        public void setTtsCodeEnabled(int code, boolean enabled) {
+            mainHandler.post(() -> {
+                if (spinalCord != null) spinalCord.setTtsCodeEnabled(code, enabled);
+            });
+        }
+
+        @JavascriptInterface
+        public void setNotificationCodeEnabled(int code, boolean enabled) {
+            mainHandler.post(() -> {
+                if (spinalCord != null) spinalCord.setNotificationCodeEnabled(code, enabled);
+            });
+        }
+
+        @JavascriptInterface
+        public void resetCodeSettings() {
+            mainHandler.post(() -> {
+                if (spinalCord != null) spinalCord.resetCodeSettings();
+            });
+        }
+
         /**
          * プッシュ通知が有効かを返す。
          * HTML側: AndroidBridge.isNotificationEnabled()

@@ -11,7 +11,7 @@ let currentIndex = -1; // 現在表示中のインデックス
 // ========================================
 let localWs = null;
 let localWsReconnectAttempts = 0;
-const LOCAL_WS_URL = 'ws://127.0.0.1:9001';
+const LOCAL_WS_URL = 'ws://localhost:9001';
 
 function connectLocalWebSocket() {
     try {
@@ -32,11 +32,19 @@ function connectLocalWebSocket() {
         };
         
         localWs.onerror = function(error) {
-            console.warn('[LocalWS] エラー:', error);
+            const detail = error && error.message
+                ? error.message
+                : 'WebSocket接続に失敗しました';
+            console.warn('[LocalWS] エラー:', detail, {
+                url: LOCAL_WS_URL,
+                readyState: localWs ? localWs.readyState : 'unknown'
+            });
         };
         
-        localWs.onclose = function() {
-            Bridge.log('[LocalWS] 切断');
+        localWs.onclose = function(event) {
+            const code = event && event.code ? event.code : 0;
+            const reason = event && event.reason ? event.reason : '';
+            Bridge.log(`[LocalWS] 切断 code=${code} reason=${reason || 'なし'}`);
             // 再接続（指数バックオフ）
             if (localWsReconnectAttempts < 5) {
                 const delay = Math.min(1000 * Math.pow(2, localWsReconnectAttempts), 10000);
@@ -130,6 +138,7 @@ function cacheElements() {
     elements.p2pIndicator      = document.getElementById('p2pStatusIndicator');
     elements.p2pText           = document.getElementById('p2pStatusText');
     elements.p2pDetail         = document.getElementById('p2pStatusDetail');
+    elements.p2pStatus         = document.getElementById('p2pConnectionStatus');
     elements.nowLocate         = document.getElementById('NowLocate');
 
     elements.startBtn          = document.getElementById('startServiceBtn');
@@ -624,17 +633,28 @@ function updateConnectionStatusDetailed(indicator, textElement, detailElement, i
     indicator.classList.toggle('status-connected',    isConnected);
     indicator.classList.toggle('status-disconnected', !isConnected);
     indicator.classList.toggle('status-reconnecting', !isConnected && willReconnect);
+    if (elements.p2pStatus) {
+        elements.p2pStatus.classList.toggle('status-state-connected', isConnected);
+        elements.p2pStatus.classList.toggle('status-state-reconnecting', !isConnected && willReconnect);
+        elements.p2pStatus.classList.toggle('status-state-disconnected', !isConnected && !willReconnect);
+        elements.p2pStatus.classList.remove('status-state-unknown');
+    }
 
     if (isConnected) {
-        textElement.textContent = '● 接続中';
-        if (detailElement) detailElement.textContent = 'P2Pサーバーに接続済み';
+        textElement.textContent = '接続済み';
+        if (detailElement) detailElement.textContent = `P2Pサーバーから受信中（${formatStatusTime()}）`;
     } else if (willReconnect) {
-        textElement.textContent = '○ 再接続中…';
-        if (detailElement) detailElement.textContent = '接続を再試行中です';
+        textElement.textContent = '再接続中';
+        if (detailElement) detailElement.textContent = `接続が切れました。再試行中です（${formatStatusTime()}）`;
     } else {
-        textElement.textContent = '✕ 切断';
-        if (detailElement) detailElement.textContent = 'サーバーに接続できていません';
+        textElement.textContent = '未接続';
+        if (detailElement) detailElement.textContent = `P2Pサーバーから受信できていません（${formatStatusTime()}）`;
     }
+}
+
+function formatStatusTime() {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 }
 
 // ========================================

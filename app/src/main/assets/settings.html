@@ -604,6 +604,16 @@
             if (typeof AndroidBridge !== 'undefined' && AndroidBridge) {
                 AndroidBridge.setTtsEnabled(settings.ttsEnabled);
                 AndroidBridge.setNotificationEnabled(settings.notifEnabled);
+                ['551', '552', '556', '554', '555', '561', '9611', '1112'].forEach(code => {
+                    if (typeof AndroidBridge.setTtsCodeEnabled === 'function') {
+                        AndroidBridge.setTtsCodeEnabled(
+                            parseInt(code, 10), settings[`code${code}_tts`]);
+                    }
+                    if (typeof AndroidBridge.setNotificationCodeEnabled === 'function') {
+                        AndroidBridge.setNotificationCodeEnabled(
+                            parseInt(code, 10), settings[`code${code}_notif`]);
+                    }
+                });
                 if (typeof AndroidBridge.setTtsSpeechRate === 'function') {
                     AndroidBridge.setTtsSpeechRate(settings.ttsSpeechRate);
                 }
@@ -618,6 +628,10 @@
         function resetSettings() {
             if (!confirm('設定をリセットしてもよろしいですか？')) return;
             localStorage.removeItem(STORAGE_KEY);
+            if (typeof AndroidBridge !== 'undefined' && AndroidBridge
+                    && typeof AndroidBridge.resetCodeSettings === 'function') {
+                AndroidBridge.resetCodeSettings();
+            }
             location.reload();
         }
 

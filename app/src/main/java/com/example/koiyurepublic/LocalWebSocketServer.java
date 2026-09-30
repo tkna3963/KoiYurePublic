@@ -30,6 +30,13 @@ public class LocalWebSocketServer extends WebSocketServer {
     // 接続中の全クライアント
     private static final CopyOnWriteArraySet<WebSocket> connectedClients = new CopyOnWriteArraySet<>();
 
+    // 新しく接続したWebViewへ現在状態を再送するためのスナップショット
+    private volatile boolean serviceRunning = false;
+    private volatile boolean p2pConnected = false;
+    private volatile boolean p2pWillReconnect = false;
+    private volatile boolean ttsEnabled = true;
+    private volatile boolean notificationEnabled = true;
+
     private static LocalWebSocketServer instance;
 
     private LocalWebSocketServer() {
@@ -52,6 +59,7 @@ public class LocalWebSocketServer extends WebSocketServer {
         connectedClients.add(conn);
         Log.d(TAG, "クライアント接続: " + conn.getRemoteSocketAddress()
               + " (total: " + connectedClients.size() + ")");
+        sendCurrentState(conn);
     }
 
     @Override
@@ -97,8 +105,9 @@ public class LocalWebSocketServer extends WebSocketServer {
      * メッセージ形式: { "type": "serviceStateChanged", "running": true }
      */
     public synchronized void broadcastServiceState(boolean running) {
+        serviceRunning = running;
         String msg = "{\"type\":\"serviceStateChanged\",\"running\":" + running + "}";
-        broadcast(msg);
+        sendToAllClients(msg);
         Log.d(TAG, "配信: " + msg);
     }
 
@@ -107,6 +116,8 @@ public class LocalWebSocketServer extends WebSocketServer {
      * メッセージ形式: { "type": "connectionStateChanged", "connected": true, "willReconnect": false }
      */
     public synchronized void broadcastConnectionState(boolean connected, boolean willReconnect) {
+        p2pConnected = connected;
+        p2pWillReconnect = willReconnect;
         String msg = "{\"type\":\"connectionStateChanged\",\"connected\":" + connected
                    + ",\"willReconnect\":" + willReconnect + "}";
         sendToAllClients(msg);
@@ -128,6 +139,7 @@ public class LocalWebSocketServer extends WebSocketServer {
      * メッセージ形式: { "type": "ttsStatus", "enabled": true }
      */
     public synchronized void broadcastTtsStatus(boolean enabled) {
+        ttsEnabled = enabled;
         String msg = "{\"type\":\"ttsStatus\",\"enabled\":" + enabled + "}";
         sendToAllClients(msg);
         Log.d(TAG, "配信: " + msg);
@@ -138,6 +150,7 @@ public class LocalWebSocketServer extends WebSocketServer {
      * メッセージ形式: { "type": "notifStatus", "enabled": true }
      */
     public synchronized void broadcastNotifStatus(boolean enabled) {
+        notificationEnabled = enabled;
         String msg = "{\"type\":\"notifStatus\",\"enabled\":" + enabled + "}";
         sendToAllClients(msg);
         Log.d(TAG, "配信: " + msg);
@@ -149,13 +162,29 @@ public class LocalWebSocketServer extends WebSocketServer {
      */
     private void sendToAllClients(String msg) {
         for (WebSocket client : connectedClients) {
-            try {
-                if (client != null && client.isOpen()) {
-                    client.send(msg);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "配信失敗: " + msg, e);
+            sendToClient(client, msg);
+        }
+    }
+
+    /**
+     * 接続直後に現在の状態をこのクライアントだけへ送信する。
+     * onOpen()がService側の初期同期より先に実行されても状態を失わない。
+     */
+    private synchronized void sendCurrentState(WebSocket client) {
+        sendToClient(client, "{\"type\":\"serviceStateChanged\",\"running\":" + serviceRunning + "}");
+        sendToClient(client, "{\"type\":\"connectionStateChanged\",\"connected\":" + p2pConnected
+                + ",\"willReconnect\":" + p2pWillReconnect + "}");
+        sendToClient(client, "{\"type\":\"ttsStatus\",\"enabled\":" + ttsEnabled + "}");
+        sendToClient(client, "{\"type\":\"notifStatus\",\"enabled\":" + notificationEnabled + "}");
+    }
+
+    private void sendToClient(WebSocket client, String msg) {
+        try {
+            if (client != null && client.isOpen()) {
+                client.send(msg);
             }
+        } catch (Exception e) {
+            Log.e(TAG, "配信失敗: " + msg, e);
         }
     }
 

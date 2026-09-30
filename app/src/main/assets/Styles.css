@@ -279,6 +279,24 @@ button:hover { background-color: #444; }
     align-items: center;
     padding: 8px 0;
     font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.status-state-connected {
+    background-color: rgba(0, 180, 80, 0.14);
+}
+
+.status-state-reconnecting {
+    background-color: rgba(255, 179, 0, 0.16);
+}
+
+.status-state-disconnected {
+    background-color: rgba(255, 23, 68, 0.14);
+}
+
+.status-state-unknown {
+    background-color: rgba(150, 150, 150, 0.12);
 }
 
 .status-text-box {
