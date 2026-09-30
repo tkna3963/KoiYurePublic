@@ -42,11 +42,11 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     private SpinalCord spinalCord = null;
     private boolean bound = false;
 
-    private final ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            SpinalCord.LocalBinder lb = (SpinalCord.LocalBinder) service;
-            spinalCord = lb.getService();
+            SpinalCord.LocalBinder localBinder = (SpinalCord.LocalBinder) service;
+            spinalCord = localBinder.getService();
             spinalCord.setUICallback(MainActivity.this);
             bound = true;
             runJs("window.onServiceStateChanged && window.onServiceStateChanged(true)");
@@ -77,10 +77,10 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         });
 
         webView = findViewById(R.id.webView);
-        WebSettings ws = webView.getSettings();
-        ws.setJavaScriptEnabled(true);
-        ws.setAllowFileAccess(true);
-        ws.setDomStorageEnabled(true);
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setDomStorageEnabled(true);
 
         // JavascriptInterface名: "AndroidBridge"（MainScript.js の Bridge クラスに対応）
         webView.addJavascriptInterface(new JsBridge(), "AndroidBridge");
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         webView.loadUrl("file:///android_asset/Maindex.html");
         requestNotificationPermissionIfNeeded();
         requestBatteryOptimizationWhitelistIfNeeded();
-        
+
         // ═══════════════════════════════════════
         // 🟢 アプリ起動時に Service を自動開始
         // ═══════════════════════════════════════
@@ -124,18 +124,18 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(this, SpinalCord.class);
+        Intent serviceIntent = new Intent(this, SpinalCord.class);
         // 必ず Service が起動していることを確認
         if (!SpinalCord.isServiceRunning()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
+                startForegroundService(serviceIntent);
             } else {
-                startService(intent);
+                startService(serviceIntent);
             }
         }
         // bind する
         if (!bound) {
-            bindService(intent, connection, Context.BIND_AUTO_CREATE);
+            bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
     }
 
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         super.onStop();
         if (bound) {
             spinalCord.clearUICallback();
-            unbindService(connection);
+            unbindService(serviceConnection);
             bound = false;
         }
     }
@@ -156,12 +156,12 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     @Override
     public void onEarthquakeMessage(String json) {
         // JSON文字列をJS文字列リテラルとして安全にエスケープ
-        String escaped = json
+        String escapedJson = json
                 .replace("\\", "\\\\")
                 .replace("'", "\\'")
                 .replace("\n", "\\n")
                 .replace("\r", "\\r");
-        runJs("window.onEarthquakeData && window.onEarthquakeData('" + escaped + "')");
+        runJs("window.onEarthquakeData && window.onEarthquakeData('" + escapedJson + "')");
     }
 
     @Override
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         @JavascriptInterface
         public void stopBackground() {
             mainHandler.post(() -> {
-                android.util.Log.d("JsBridge", "stopBackground called from JS");
+                Log.d("JsBridge", "stopBackground called from JS");
 
                 if (spinalCord != null) {
                     spinalCord.stopIntentionally();
@@ -192,15 +192,15 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
                 }
 
                 if (bound) {
-                    unbindService(connection);
+                    unbindService(serviceConnection);
                     bound = false;
                     spinalCord = null;
                 }
 
                 SpinalCord.cancelWatchdog(MainActivity.this);
 
-                Intent intent = new Intent(MainActivity.this, SpinalCord.class);
-                MainActivity.this.stopService(intent);
+                Intent serviceIntent = new Intent(MainActivity.this, SpinalCord.class);
+                MainActivity.this.stopService(serviceIntent);
 
                 runJs("window.onServiceStateChanged && window.onServiceStateChanged(false)");
             });
@@ -210,22 +210,22 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         @JavascriptInterface
         public void startBackground() {
             mainHandler.post(() -> {
-                android.util.Log.d("JsBridge", "startBackground called from JS");
+                Log.d("JsBridge", "startBackground called from JS");
 
                 if (SpinalCord.isServiceRunning()) {
                     // Already running
                     if (!bound) {
-                        Intent intent = new Intent(MainActivity.this, SpinalCord.class);
-                        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                        Intent serviceIntent = new Intent(MainActivity.this, SpinalCord.class);
+                        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
                     }
                     return;
                 }
 
-                Intent intent = new Intent(MainActivity.this, SpinalCord.class);
-                MainActivity.this.startForegroundService(intent);
+                Intent serviceIntent = new Intent(MainActivity.this, SpinalCord.class);
+                MainActivity.this.startForegroundService(serviceIntent);
 
                 mainHandler.postDelayed(() -> {
-                    if (!bound) bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                    if (!bound) bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
                 }, 500);
             });
         }
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         public void setTtsEnabled(boolean enabled) {
             mainHandler.post(() -> {
                 if (spinalCord != null) spinalCord.setTtsEnabled(enabled);
-                android.util.Log.d("JsBridge", "setTtsEnabled=" + enabled);
+                Log.d("JsBridge", "setTtsEnabled=" + enabled);
             });
         }
 
@@ -295,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         public void setNotificationEnabled(boolean enabled) {
             mainHandler.post(() -> {
                 if (spinalCord != null) spinalCord.setNotificationEnabled(enabled);
-                android.util.Log.d("JsBridge", "setNotificationEnabled=" + enabled);
+                Log.d("JsBridge", "setNotificationEnabled=" + enabled);
             });
         }
 
@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         /** JSからAndroidのLogcatにログを出力する。HTML側: AndroidBridge.log("msg") */
         @JavascriptInterface
         public void log(String message) {
-            android.util.Log.d("WebView/JS", message);
+            Log.d("WebView/JS", message);
         }
     }
 
@@ -333,19 +333,19 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     private void requestBatteryOptimizationWhitelistIfNeeded() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
 
-        boolean asked = getSharedPreferences(PREFS, MODE_PRIVATE)
+        boolean alreadyAsked = getSharedPreferences(PREFS, MODE_PRIVATE)
                 .getBoolean(KEY_BATTERY_OPT_ASKED, false);
-        if (asked) return;
+        if (alreadyAsked) return;
 
         PowerManager pm = getSystemService(PowerManager.class);
         if (pm == null) return;
         if (pm.isIgnoringBatteryOptimizations(getPackageName())) return;
 
-        Intent i = new Intent(
+        Intent batteryOptIntent = new Intent(
                 Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                 Uri.parse("package:" + getPackageName())
         );
-        if (i.resolveActivity(getPackageManager()) == null) {
+        if (batteryOptIntent.resolveActivity(getPackageManager()) == null) {
             Log.w(TAG, "バッテリー最適化除外の設定画面が見つからない");
             return;
         }
@@ -354,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
                 .edit()
                 .putBoolean(KEY_BATTERY_OPT_ASKED, true)
                 .apply();
-        startActivity(i);
+        startActivity(batteryOptIntent);
     }
 
     private void requestNotificationPermissionIfNeeded() {

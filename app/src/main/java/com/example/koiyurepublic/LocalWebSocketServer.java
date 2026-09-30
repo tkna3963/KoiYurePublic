@@ -10,16 +10,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * LocalWebSocketServer
- * 
+ *
  * Android アプリ内で動作する WebSocket サーバー。
  * WebView（JavaScript）との超高速双方向通信を実現。
- * 
+ *
  * 機能:
  *   - Service 状態の即座更新
  *   - WebSocket 接続状態の即座更新
  *   - 地震データの配信
  *   - TTS/通知設定の同期
- * 
+ *
  * ポート: 9001 (localhost)
  * URL: ws://127.0.0.1:9001
  */
@@ -28,7 +28,7 @@ public class LocalWebSocketServer extends WebSocketServer {
     private static final int PORT = 9001;
 
     // 接続中の全クライアント
-    private static final CopyOnWriteArraySet<WebSocket> clients = new CopyOnWriteArraySet<>();
+    private static final CopyOnWriteArraySet<WebSocket> connectedClients = new CopyOnWriteArraySet<>();
 
     private static LocalWebSocketServer instance;
 
@@ -49,22 +49,22 @@ public class LocalWebSocketServer extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        clients.add(conn);
-        Log.d(TAG, "クライアント接続: " + conn.getRemoteSocketAddress() 
-              + " (total: " + clients.size() + ")");
+        connectedClients.add(conn);
+        Log.d(TAG, "クライアント接続: " + conn.getRemoteSocketAddress()
+              + " (total: " + connectedClients.size() + ")");
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        clients.remove(conn);
-        Log.d(TAG, "クライアント切断: " + conn.getRemoteSocketAddress() 
-              + " (total: " + clients.size() + ")");
+        connectedClients.remove(conn);
+        Log.d(TAG, "クライアント切断: " + conn.getRemoteSocketAddress()
+              + " (total: " + connectedClients.size() + ")");
     }
 
     @Override
     public void onMessage(WebSocket conn, String message) {
         Log.d(TAG, "受信: " + message);
-        
+
         // JavaScript からのメッセージ処理
         // 例: { "type": "getTtsStatus" } → { "type": "ttsStatus", "enabled": true }
         try {
@@ -77,10 +77,10 @@ public class LocalWebSocketServer extends WebSocketServer {
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-        String who = (conn != null && conn.getRemoteSocketAddress() != null)
+        String remoteAddress = (conn != null && conn.getRemoteSocketAddress() != null)
                 ? conn.getRemoteSocketAddress().toString()
                 : "server";
-        Log.e(TAG, "エラー: " + who, ex);
+        Log.e(TAG, "エラー: " + remoteAddress, ex);
     }
 
     @Override
@@ -107,9 +107,9 @@ public class LocalWebSocketServer extends WebSocketServer {
      * メッセージ形式: { "type": "connectionStateChanged", "connected": true, "willReconnect": false }
      */
     public synchronized void broadcastConnectionState(boolean connected, boolean willReconnect) {
-        String msg = "{\"type\":\"connectionStateChanged\",\"connected\":" + connected 
+        String msg = "{\"type\":\"connectionStateChanged\",\"connected\":" + connected
                    + ",\"willReconnect\":" + willReconnect + "}";
-        broadcastToClients(msg);
+        sendToAllClients(msg);
         Log.d(TAG, "配信: " + msg);
     }
 
@@ -119,7 +119,7 @@ public class LocalWebSocketServer extends WebSocketServer {
      */
     public synchronized void broadcastEarthquakeData(String jsonData) {
         String msg = "{\"type\":\"earthquakeData\",\"data\":" + jsonData + "}";
-        broadcastToClients(msg);
+        sendToAllClients(msg);
         Log.d(TAG, "配信: 地震データ(" + jsonData.length() + " bytes)");
     }
 
@@ -129,7 +129,7 @@ public class LocalWebSocketServer extends WebSocketServer {
      */
     public synchronized void broadcastTtsStatus(boolean enabled) {
         String msg = "{\"type\":\"ttsStatus\",\"enabled\":" + enabled + "}";
-        broadcastToClients(msg);
+        sendToAllClients(msg);
         Log.d(TAG, "配信: " + msg);
     }
 
@@ -139,16 +139,16 @@ public class LocalWebSocketServer extends WebSocketServer {
      */
     public synchronized void broadcastNotifStatus(boolean enabled) {
         String msg = "{\"type\":\"notifStatus\",\"enabled\":" + enabled + "}";
-        broadcastToClients(msg);
+        sendToAllClients(msg);
         Log.d(TAG, "配信: " + msg);
     }
 
     /**
-     * 内部用：全クライアントにメッセージを配信
-     * 親クラスの broadcast() とのメソッド名衝突を避けるため broadcastToClients() に変更
+     * 内部用：全クライアントにメッセージを送信する。
+     * 親クラスの broadcast() とのメソッド名衝突を避けるため sendToAllClients() に変更。
      */
-    private void broadcastToClients(String msg) {
-        for (WebSocket client : clients) {
+    private void sendToAllClients(String msg) {
+        for (WebSocket client : connectedClients) {
             try {
                 if (client != null && client.isOpen()) {
                     client.send(msg);
@@ -163,11 +163,11 @@ public class LocalWebSocketServer extends WebSocketServer {
     //  ライフサイクル管理
     // ──────────────────────────────────────────────
 
+    private boolean isRunning = false;
+
     /**
      * サーバー起動
      */
-    private boolean isRunning = false;
-
     public synchronized void start() {
         try {
             if (!isRunning) {
@@ -181,12 +181,13 @@ public class LocalWebSocketServer extends WebSocketServer {
             Log.e(TAG, "サーバー起動エラー", e);
         }
     }
+
     /**
      * サーバー停止
      */
     public synchronized void stop() {
         try {
-            clients.clear();
+            connectedClients.clear();
             super.stop();
             isRunning = false;
             Log.d(TAG, "サーバー停止");
