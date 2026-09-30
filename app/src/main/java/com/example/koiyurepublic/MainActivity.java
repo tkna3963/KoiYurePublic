@@ -15,8 +15,10 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+import android.webkit.GeolocationPermissions;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebChromeClient;
 import android.webkit.WebViewClient;
 
 import androidx.activity.EdgeToEdge;
@@ -34,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1002;
+    private String pendingGeolocationOrigin;
+    private GeolocationPermissions.Callback pendingGeolocationCallback;
 
     // ──────────────────────────────────────────────
     //  Service Bind
@@ -85,6 +90,24 @@ public class MainActivity extends AppCompatActivity {
 
         // JavascriptInterface名: "AndroidBridge"（MainScript.js の Bridge クラスに対応）
         webView.addJavascriptInterface(new JsBridge(), "AndroidBridge");
+        webView.getSettings().setGeolocationEnabled(true);
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onGeolocationPermissionsShowPrompt(
+                    String origin, GeolocationPermissions.Callback callback) {
+                if (!"file:///android_asset".equals(origin)) {
+                    callback.invoke(origin, false, false);
+                    return;
+                }
+                if (hasLocationPermission()) {
+                    callback.invoke(origin, true, false);
+                    return;
+                }
+                pendingGeolocationOrigin = origin;
+                pendingGeolocationCallback = callback;
+                requestLocationPermissionIfNeeded();
+            }
+        });
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -94,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         });
         webView.loadUrl("file:///android_asset/Maindex.html");
         requestNotificationPermissionIfNeeded();
+        requestLocationPermissionIfNeeded();
         requestBatteryOptimizationWhitelistIfNeeded();
 
         // ═══════════════════════════════════════
@@ -252,7 +276,11 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void setTtsEnabled(boolean enabled) {
             mainHandler.post(() -> {
-                if (spinalCord != null) spinalCord.setTtsEnabled(enabled);
+                if (spinalCord != null) {
+                    spinalCord.setTtsEnabled(enabled);
+                } else {
+                    new SettingsRepository(MainActivity.this).setTtsEnabled(enabled);
+                }
                 Log.d("JsBridge", "setTtsEnabled=" + enabled);
             });
         }
@@ -263,7 +291,9 @@ public class MainActivity extends AppCompatActivity {
          */
         @JavascriptInterface
         public boolean isTtsEnabled() {
-            return spinalCord != null && spinalCord.isTtsEnabled();
+            return spinalCord != null
+                    ? spinalCord.isTtsEnabled()
+                    : new SettingsRepository(MainActivity.this).isTtsEnabled();
         }
 
         /**
@@ -273,7 +303,11 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void setTtsSpeechRate(float rate) {
             mainHandler.post(() -> {
-                if (spinalCord != null) spinalCord.setTtsSpeechRate(rate);
+                if (spinalCord != null) {
+                    spinalCord.setTtsSpeechRate(rate);
+                } else {
+                    new SettingsRepository(MainActivity.this).setTtsSpeechRate(rate);
+                }
             });
         }
 
@@ -284,7 +318,11 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void setTtsPitch(float pitch) {
             mainHandler.post(() -> {
-                if (spinalCord != null) spinalCord.setTtsPitch(pitch);
+                if (spinalCord != null) {
+                    spinalCord.setTtsPitch(pitch);
+                } else {
+                    new SettingsRepository(MainActivity.this).setTtsPitch(pitch);
+                }
             });
         }
 
@@ -299,7 +337,11 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void setNotificationEnabled(boolean enabled) {
             mainHandler.post(() -> {
-                if (spinalCord != null) spinalCord.setNotificationEnabled(enabled);
+                if (spinalCord != null) {
+                    spinalCord.setNotificationEnabled(enabled);
+                } else {
+                    new SettingsRepository(MainActivity.this).setNotificationEnabled(enabled);
+                }
                 Log.d("JsBridge", "setNotificationEnabled=" + enabled);
             });
         }
@@ -331,7 +373,9 @@ public class MainActivity extends AppCompatActivity {
          */
         @JavascriptInterface
         public boolean isNotificationEnabled() {
-            return spinalCord != null && spinalCord.isNotificationEnabled();
+            return spinalCord != null
+                    ? spinalCord.isNotificationEnabled()
+                    : new SettingsRepository(MainActivity.this).isNotificationEnabled();
         }
 
         // ──────────────────────────────────────────
@@ -387,5 +431,35 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.d(TAG, "通知権限を要求");
         requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
+    }
+
+    private boolean hasLocationPermission() {
+        return checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestLocationPermissionIfNeeded() {
+        if (hasLocationPermission()) return;
+        requestPermissions(new String[]{
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+        }, LOCATION_PERMISSION_REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE
+                || pendingGeolocationCallback == null
+                || pendingGeolocationOrigin == null) {
+            return;
+        }
+        boolean granted = hasLocationPermission();
+        pendingGeolocationCallback.invoke(pendingGeolocationOrigin, granted, false);
+        pendingGeolocationCallback = null;
+        pendingGeolocationOrigin = null;
     }
 }

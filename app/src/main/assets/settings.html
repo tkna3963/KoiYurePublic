@@ -580,13 +580,14 @@
             }
 
             try {
-                localWs = new WebSocket(url);
-                localWs.onopen = () => {
+                const socket = new WebSocket(url);
+                localWs = socket;
+                socket.onopen = () => {
                     localWsReconnectAttempts = 0;
                     updateLocalWebSocketStatus('接続済み ' + localWsUrl, true);
                     addDebugLog('LocalWS接続完了: ' + localWsUrl);
                 };
-                localWs.onmessage = (event) => {
+                socket.onmessage = (event) => {
                     try {
                         const message = JSON.parse(event.data);
                         if (message.type === 'ttsStatus' && message.enabled !== undefined) {
@@ -599,15 +600,16 @@
                         addDebugLog('LocalWS JSON解析失敗');
                     }
                 };
-                localWs.onerror = () => {
+                socket.onerror = () => {
                     updateLocalWebSocketStatus('接続エラー ' + localWsUrl, false);
                     addDebugLog('LocalWS接続エラー');
                 };
-                localWs.onclose = (event) => {
+                socket.onclose = (event) => {
                     updateLocalWebSocketStatus(
                         `切断 code=${event.code} ${localWsUrl}`, false);
                     addDebugLog(`LocalWS切断 code=${event.code}`);
-                    if (localWsReconnectAttempts < 5 && !localWsReconnectTimer) {
+                    if (localWs === socket) localWs = null;
+                    if (!localWsReconnectTimer) {
                         const delay = Math.min(
                             1000 * Math.pow(2, localWsReconnectAttempts), 10000);
                         localWsReconnectAttempts++;
@@ -635,7 +637,15 @@
             const saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) return;
 
-            const settings = JSON.parse(saved);
+            let settings;
+            try {
+                settings = JSON.parse(saved);
+            } catch (error) {
+                localStorage.removeItem(STORAGE_KEY);
+                addDebugLog('設定データが壊れていたため初期値に戻しました');
+                return;
+            }
+            if (!settings || typeof settings !== 'object') return;
 
             // TTS 設定
             if (settings.ttsEnabled !== undefined) document.getElementById('ttsEnabled').checked = settings.ttsEnabled;
@@ -722,6 +732,21 @@
                     && typeof AndroidBridge.resetCodeSettings === 'function') {
                 AndroidBridge.resetCodeSettings();
             }
+            // LocalStorage だけでなく、Service 側の全体設定も初期値へ戻す。
+            if (typeof AndroidBridge !== 'undefined' && AndroidBridge) {
+                if (typeof AndroidBridge.setTtsEnabled === 'function') {
+                    AndroidBridge.setTtsEnabled(true);
+                }
+                if (typeof AndroidBridge.setNotificationEnabled === 'function') {
+                    AndroidBridge.setNotificationEnabled(true);
+                }
+                if (typeof AndroidBridge.setTtsSpeechRate === 'function') {
+                    AndroidBridge.setTtsSpeechRate(1.0);
+                }
+                if (typeof AndroidBridge.setTtsPitch === 'function') {
+                    AndroidBridge.setTtsPitch(1.3);
+                }
+            }
             location.reload();
         }
 
@@ -745,9 +770,12 @@
         // ========================================
         function showMessage(text, type = 'success') {
             const msgEl = document.getElementById('settingsMessage');
-            msgEl.innerHTML = `<div class="message ${type}">${text}</div>`;
+            const message = document.createElement('div');
+            message.className = `message ${type === 'error' ? 'error' : 'success'}`;
+            message.textContent = text;
+            msgEl.replaceChildren(message);
             setTimeout(() => {
-                msgEl.innerHTML = '';
+                msgEl.replaceChildren();
             }, 3000);
         }
 

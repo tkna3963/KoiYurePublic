@@ -44,7 +44,7 @@ public final class SettingsRepository {
     }
 
     public void setTtsSpeechRate(float rate) {
-        preferences.edit().putFloat(KEY_TTS_RATE, rate).apply();
+        preferences.edit().putFloat(KEY_TTS_RATE, clampTtsValue(rate)).apply();
     }
 
     public float getTtsPitch() {
@@ -52,7 +52,7 @@ public final class SettingsRepository {
     }
 
     public void setTtsPitch(float pitch) {
-        preferences.edit().putFloat(KEY_TTS_PITCH, pitch).apply();
+        preferences.edit().putFloat(KEY_TTS_PITCH, clampTtsValue(pitch)).apply();
     }
 
     public boolean isTtsEnabledForCode(int code) {
@@ -82,5 +82,10 @@ public final class SettingsRepository {
         }
         editor.apply();
         Log.d(TAG, "コード別設定をリセット");
+    }
+
+    private static float clampTtsValue(float value) {
+        if (Float.isNaN(value) || Float.isInfinite(value)) return 1.0f;
+        return Math.max(0.5f, Math.min(2.0f, value));
     }
 }

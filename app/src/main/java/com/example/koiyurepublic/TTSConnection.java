@@ -27,6 +27,9 @@ public class TTSConnection {
     private TextToSpeech tts;
     private boolean initialized = false;
     private boolean enabled     = true;  // ユーザー設定でON/OFF切替
+    private float speechRate = 1.0f;
+    private float pitch = 1.0f;
+    private static final int MAX_PENDING_MESSAGES = 20;
 
     // 初期化完了前に積まれたメッセージを保持するキュー
     private final Queue<String> pendingQueue = new ArrayDeque<>();
@@ -38,12 +41,18 @@ public class TTSConnection {
     public TTSConnection(Context context) {
         Log.d(TAG, "TTS初期化開始");
         tts = new TextToSpeech(context, status -> {
+            if (tts == null) {
+                Log.d(TAG, "TTS初期化完了通知を破棄: shutdown済み");
+                return;
+            }
             if (status == TextToSpeech.SUCCESS) {
                 int result = tts.setLanguage(Locale.JAPANESE);
                 if (result == TextToSpeech.LANG_MISSING_DATA
                         || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.w(TAG, "日本語TTSが利用不可 — フォールバックなし");
                 }
+                tts.setSpeechRate(speechRate);
+                tts.setPitch(pitch);
 
                 // 読み上げ完了ログ（将来的にUI通知と連携可能）
                 tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
@@ -76,6 +85,9 @@ public class TTSConnection {
             tts.shutdown();
             tts = null;
             initialized = false;
+            synchronized (this) {
+                pendingQueue.clear();
+            }
             Log.d(TAG, "TTS shutdown");
         }
     }
@@ -92,9 +104,16 @@ public class TTSConnection {
      * @param text 読み上げるテキスト
      */
     public synchronized void speak(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            Log.w(TAG, "TTSスキップ: テキストが空");
+            return;
+        }
         if (!enabled) { Log.d(TAG, "TTSスキップ: disabled"); return; }
         if (!initialized) {
             pendingQueue.offer(text);
+            while (pendingQueue.size() > MAX_PENDING_MESSAGES) {
+                pendingQueue.poll();
+            }
             Log.d(TAG, "TTS未初期化 → キューに積む length=" + (text == null ? 0 : text.length())
                     + " queue=" + pendingQueue.size());
             return;
@@ -106,10 +125,17 @@ public class TTSConnection {
      * 現在の読み上げを中断して即座に読む（緊急地震速報など優先度の高い情報向け）。
      */
     public synchronized void speakNow(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            Log.w(TAG, "TTS即時再生スキップ: テキストが空");
+            return;
+        }
         if (!enabled) { Log.d(TAG, "TTS即時再生スキップ: disabled"); return; }
         if (!initialized) {
             pendingQueue.clear();       // 緊急なので旧キューを破棄
             pendingQueue.offer(text);
+            while (pendingQueue.size() > MAX_PENDING_MESSAGES) {
+                pendingQueue.poll();
+            }
             Log.d(TAG, "TTS即時再生をキュー: length=" + (text == null ? 0 : text.length()));
             return;
         }
@@ -124,8 +150,16 @@ public class TTSConnection {
     }
 
     private void flushPendingQueue() {
+        boolean first = true;
         while (!pendingQueue.isEmpty()) {
-            doSpeak(pendingQueue.poll());
+            String text = pendingQueue.poll();
+            if (first) {
+                doSpeak(text);
+                first = false;
+            } else if (tts != null) {
+                String uid = "utt_" + System.currentTimeMillis();
+                tts.speak(text, TextToSpeech.QUEUE_ADD, null, uid);
+            }
         }
     }
 
@@ -147,8 +181,9 @@ public class TTSConnection {
      * @param rate 0.5=遅い  1.0=普通  2.0=速い
      */
     public void setSpeechRate(float rate) {
+        speechRate = sanitizeTtsValue(rate);
         Log.d(TAG, "TTS speechRate=" + rate);
-        if (tts != null) tts.setSpeechRate(rate);
+        if (tts != null) tts.setSpeechRate(speechRate);
     }
 
     /**
@@ -157,7 +192,13 @@ public class TTSConnection {
      * @param pitch 値が大きいほど高い声
      */
     public void setPitch(float pitch) {
+        this.pitch = sanitizeTtsValue(pitch);
         Log.d(TAG, "TTS pitch=" + pitch);
-        if (tts != null) tts.setPitch(pitch);
+        if (tts != null) tts.setPitch(this.pitch);
+    }
+
+    private static float sanitizeTtsValue(float value) {
+        if (Float.isNaN(value) || Float.isInfinite(value)) return 1.0f;
+        return Math.max(0.5f, Math.min(2.0f, value));
     }
 }

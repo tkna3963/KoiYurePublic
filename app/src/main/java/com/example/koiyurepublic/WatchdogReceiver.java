@@ -58,11 +58,19 @@ public class WatchdogReceiver extends BroadcastReceiver {
                 context, 0, i,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
-        am.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + SpinalCord.WATCHDOG_INTERVAL_MS,
-                pi
-        );
+        long triggerAt = System.currentTimeMillis() + SpinalCord.WATCHDOG_INTERVAL_MS;
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+                    || am.canScheduleExactAlarms()) {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
+            } else {
+                Log.w(TAG, "正確なAlarm権限なし — 非正確Alarmへフォールバック");
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
+            }
+        } catch (SecurityException e) {
+            Log.w(TAG, "正確なAlarm設定に失敗 — 非正確Alarmへフォールバック", e);
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
+        }
         Log.d(TAG, "次のWatchdog Alarmをセット (" + SpinalCord.WATCHDOG_INTERVAL_MS + "ms後)");
     }
 

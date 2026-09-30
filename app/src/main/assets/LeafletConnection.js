@@ -20,6 +20,12 @@ const marker9611Map = new Map();
 let shindoMarkers   = new Map();
 let userLocationMarker = null;
 
+function escapePopupText(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[char]));
+}
+
 // ========================================
 // ユーザー位置マーカーを追加
 // ========================================
@@ -33,7 +39,7 @@ function addUserLocationMarker() {
 
     userLocationMarker = L.marker([userLocation.lat, userLocation.lon])
         .addTo(LeafletMapSet)
-        .bindPopup(`あなたの現在地: ${userLocation.place}<br>(${userLocation.lat.toFixed(2)}, ${userLocation.lon.toFixed(2)})`)
+        .bindPopup(`あなたの現在地: ${escapePopupText(userLocation.place)}<br>(${userLocation.lat.toFixed(2)}, ${userLocation.lon.toFixed(2)})`)
         .openPopup();
 
     LeafletMapSet.setView([userLocation.lat, userLocation.lon], 10);
@@ -46,6 +52,11 @@ async function toggleMapMode() {
     isMapMode = !isMapMode;
 
     if (isMapMode) {
+        if (typeof L === 'undefined') {
+            console.error('Leaflet が読み込まれていないため地図を表示できません');
+            isMapMode = false;
+            return;
+        }
         // 地図モードへ
         elements.backImg.style.display    = 'none';
         elements.leafletMap.style.display = 'block';
@@ -65,14 +76,13 @@ async function toggleMapMode() {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 }).addTo(LeafletMapSet);
 
-                // GeoJSONデータの読み込み
-                PrefArea    = await fetch("Item/Pref.geojson").then(res => res.json());
-                SaibunArea  = await fetch("Item/Saibun.geojson").then(res => res.json());
-                TsunamiArea = await fetch("Item/Tsunami.geojson").then(res => res.json());
-
-                PrefGeoJSON    = L.geoJSON(PrefArea,    { style: { color: "green", fillOpacity: 0.0 } }).addTo(LeafletMapSet);
-                SaibunGeoJSON  = L.geoJSON(SaibunArea,  { style: { color: "red",   fillOpacity: 0.0 } }).addTo(LeafletMapSet);
-                TsunamiGeoJSON = L.geoJSON(TsunamiArea, { style: { color: "blue",  fillOpacity: 0.0 } }).addTo(LeafletMapSet);
+                // 配布されている境界データだけを読み込む（旧 Item/*.geojson は存在しない）。
+                const response = await fetch('accompanying/MySubdivisions.geojson');
+                if (!response.ok) throw new Error(`境界データ HTTP ${response.status}`);
+                SaibunArea = await response.json();
+                SaibunGeoJSON = L.geoJSON(SaibunArea, {
+                    style: { color: 'red', weight: 1, fillOpacity: 0.0 }
+                }).addTo(LeafletMapSet);
                 
                 addUserLocationMarker();
             } catch (error) {
@@ -117,7 +127,11 @@ function P2PMap(msg) {
         const lat = hypo.latitude;
         const lon = hypo.longitude;
         
-        if (lat && lon && lat > -100) {
+        const latitude = Number(lat);
+        const longitude = Number(lon);
+        if (Number.isFinite(latitude) && Number.isFinite(longitude)
+                && latitude >= -90 && latitude <= 90
+                && longitude >= -180 && longitude <= 180) {
             // 既存のマーカーを削除（最新のもののみ表示）
             if (EpicenterMarker) {
                 LeafletMapSet.removeLayer(EpicenterMarker);
@@ -125,9 +139,9 @@ function P2PMap(msg) {
             
             const name = hypo.name ?? '不明な震源';
             const mag = hypo.magnitude ?? '?';
-            EpicenterMarker = L.marker([lat, lon])
+            EpicenterMarker = L.marker([latitude, longitude])
                 .addTo(LeafletMapSet)
-                .bindPopup(`${name}<br>M${mag}`)
+                .bindPopup(`${escapePopupText(name)}<br>M${escapePopupText(mag)}`)
                 .openPopup();
         }
     }
@@ -149,7 +163,7 @@ function P2PMap(msg) {
                     const areaName = EpspArea.nameOf(areaCode);
                     const marker = L.marker([latLon[0], latLon[1]], { opacity: 0.6 })
                         .addTo(LeafletMapSet)
-                        .bindPopup(`${areaName}<br>${ac.display ?? '-'}`);
+                        .bindPopup(`${escapePopupText(areaName)}<br>${escapePopupText(ac.display ?? '-')}`);
                     marker9611Map.set(areaCode, marker);
                 }
             }

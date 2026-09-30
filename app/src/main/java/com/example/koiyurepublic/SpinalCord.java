@@ -10,6 +10,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
@@ -89,6 +90,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     private PowerManager.WakeLock wakeLock = null;
 
+    @SuppressLint("WakelockTimeout")
     private void acquireWakeLock() {
         if (wakeLock != null && wakeLock.isHeld()) return;
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -122,11 +124,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         }
         PendingIntent pi = getWatchdogPendingIntent(this);
         am.cancel(pi);
-        am.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + WATCHDOG_INTERVAL_MS,
-                pi
-        );
+        scheduleAlarm(am, System.currentTimeMillis() + WATCHDOG_INTERVAL_MS, pi);
     }
 
     public static void cancelWatchdog(Context ctx) {
@@ -168,12 +166,29 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
             Log.w(TAG, reason + " — AlarmManager取得失敗");
             return;
         }
-        am.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + SELF_RESTART_DELAY_MS,
-                getSelfRestartPendingIntent()
-        );
+        scheduleAlarm(am, System.currentTimeMillis() + SELF_RESTART_DELAY_MS,
+                getSelfRestartPendingIntent());
         Log.d(TAG, reason + " — 自己再起動をスケジュール");
+    }
+
+    @SuppressLint("ScheduleExactAlarm")
+    private void scheduleAlarm(AlarmManager alarmManager, long triggerAtMillis,
+                               PendingIntent pendingIntent) {
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+                    || alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            } else {
+                Log.w(TAG, "正確なAlarm権限なし — 非正確Alarmへフォールバック");
+                alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            }
+        } catch (SecurityException e) {
+            Log.w(TAG, "正確なAlarm設定に失敗 — 非正確Alarmへフォールバック", e);
+            alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        }
     }
 
     // ──────────────────────────────────────────────
@@ -392,12 +407,14 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     }
 
     public void setTtsSpeechRate(float rate) {
+        rate = sanitizeTtsValue(rate);
         Log.d(TAG, "設定変更 TTS speechRate=" + rate);
         if (settingsRepository != null) settingsRepository.setTtsSpeechRate(rate);
         if (ttsConnection != null) ttsConnection.setSpeechRate(rate);
     }
 
     public void setTtsPitch(float pitch) {
+        pitch = sanitizeTtsValue(pitch);
         Log.d(TAG, "設定変更 TTS pitch=" + pitch);
         if (settingsRepository != null) settingsRepository.setTtsPitch(pitch);
         if (ttsConnection != null) ttsConnection.setPitch(pitch);
@@ -409,6 +426,11 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     public boolean isNotificationEnabled() {
         return notifConnection != null && notifConnection.isEnabled();
+    }
+
+    private static float sanitizeTtsValue(float value) {
+        if (Float.isNaN(value) || Float.isInfinite(value)) return 1.0f;
+        return Math.max(0.5f, Math.min(2.0f, value));
     }
 
     // ──────────────────────────────────────────────

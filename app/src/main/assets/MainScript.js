@@ -5,6 +5,7 @@ let AllWebsocketData = [];
 let timeUpdateInterval = null;
 let userLocation = null;
 let currentIndex = -1; // 現在表示中のインデックス
+const MAX_HISTORY_ENTRIES = 500;
 
 // ========================================
 // ローカル WebSocket（Java ↔ JS 超高速通信）
@@ -12,6 +13,8 @@ let currentIndex = -1; // 現在表示中のインデックス
 let localWs = null;
 let localWsReconnectAttempts = 0;
 let localWsUrl = 'ws://localhost:9001';
+let localWsReconnectTimer = null;
+let localWsClosing = false;
 
 function resolveLocalWebSocketUrl() {
     try {
@@ -30,17 +33,20 @@ function resolveLocalWebSocketUrl() {
 }
 
 function connectLocalWebSocket() {
+    if (localWsClosing || (localWs && (localWs.readyState === WebSocket.OPEN
+            || localWs.readyState === WebSocket.CONNECTING))) return;
     try {
         const url = resolveLocalWebSocketUrl();
         Bridge.log('[LocalWS] 接続開始 url=' + url + ' attempt=' + localWsReconnectAttempts);
-        localWs = new WebSocket(url);
+        const socket = new WebSocket(url);
+        localWs = socket;
         
-        localWs.onopen = function() {
+        socket.onopen = function() {
             Bridge.log('[LocalWS] 接続完了');
             localWsReconnectAttempts = 0;
         };
         
-        localWs.onmessage = function(event) {
+        socket.onmessage = function(event) {
             try {
                 const msg = JSON.parse(event.data);
                 handleLocalWsMessage(msg);
@@ -49,29 +55,39 @@ function connectLocalWebSocket() {
             }
         };
         
-        localWs.onerror = function(error) {
+        socket.onerror = function(error) {
             const detail = error && error.message
                 ? error.message
                 : 'WebSocket接続に失敗しました';
             console.warn('[LocalWS] エラー:', detail, {
                 url: localWsUrl,
-                readyState: localWs ? localWs.readyState : 'unknown'
+                readyState: socket.readyState
             });
         };
         
-        localWs.onclose = function(event) {
+        socket.onclose = function(event) {
             const code = event && event.code ? event.code : 0;
             const reason = event && event.reason ? event.reason : '';
             Bridge.log(`[LocalWS] 切断 code=${code} reason=${reason || 'なし'}`);
-            // 再接続（指数バックオフ）
-            if (localWsReconnectAttempts < 5) {
+            if (localWs === socket) localWs = null;
+            // 再接続（指数バックオフ）。一時的な障害で永久停止しない。
+            if (!localWsClosing && !localWsReconnectTimer) {
                 const delay = Math.min(1000 * Math.pow(2, localWsReconnectAttempts), 10000);
                 localWsReconnectAttempts++;
-                setTimeout(connectLocalWebSocket, delay);
+                localWsReconnectTimer = setTimeout(() => {
+                    localWsReconnectTimer = null;
+                    connectLocalWebSocket();
+                }, delay);
             }
         };
     } catch (e) {
         console.error('[LocalWS] 接続エラー:', e);
+        if (!localWsClosing && !localWsReconnectTimer) {
+            localWsReconnectTimer = setTimeout(() => {
+                localWsReconnectTimer = null;
+                connectLocalWebSocket();
+            }, 1000);
+        }
     }
 }
 
@@ -404,7 +420,8 @@ function format561(d) {
 
 // ── 9611: 感知解析 ──
 function format9611(d) {
-    const conf = d.confidence ?? 0;
+    const confValue = Number(d.confidence);
+    const conf = Number.isFinite(confValue) ? confValue : 0;
     let s = '【地震感知情報 解析結果】\n';
     s += `評価日時 : ${d.time ?? ''}\n`;
     s += `開始日時 : ${d.started_at ?? ''}\n`;
@@ -471,7 +488,19 @@ function updateNavButtons() {
 // WebSocketメッセージ受信
 // ========================================
 function onP2PMessage(msg) {
+    if (!msg || typeof msg !== 'object') return;
     AllWebsocketData.push(msg);
+    if (AllWebsocketData.length > MAX_HISTORY_ENTRIES) {
+        AllWebsocketData.shift();
+        if (currentIndex > 0) currentIndex--;
+        else if (currentIndex === 0) currentIndex = -1;
+        if (elements.infomenuList) {
+            const entries = elements.infomenuList.querySelectorAll('.info-entry');
+            if (entries.length >= MAX_HISTORY_ENTRIES) {
+                entries[entries.length - 1].remove();
+            }
+        }
+    }
     updatePagebar();
     if (typeof P2PMap === 'function') P2PMap(msg);
 
@@ -529,14 +558,23 @@ function addInfomenuEntry(data) {
         detail = data.cancelled ? '解除' : '発表';
     }
 
-    item.innerHTML = `
-        <span class="info-entry-label">${label}</span>
-        <span class="info-entry-time">${timeStr}</span>
-        ${detail ? `<span class="info-entry-detail">${detail}</span>` : ''}
-    `;
+    const labelElement = document.createElement('span');
+    labelElement.className = 'info-entry-label';
+    labelElement.textContent = label;
+    const timeElement = document.createElement('span');
+    timeElement.className = 'info-entry-time';
+    timeElement.textContent = timeStr;
+    item.append(labelElement, timeElement);
+    if (detail) {
+        const detailElement = document.createElement('span');
+        detailElement.className = 'info-entry-detail';
+        detailElement.textContent = detail;
+        item.appendChild(detailElement);
+    }
 
-    const idx = AllWebsocketData.length - 1;
     item.addEventListener('click', () => {
+        const idx = AllWebsocketData.indexOf(data);
+        if (idx < 0) return;
         currentIndex = idx;
         if (elements.pagebar) elements.pagebar.value = idx;
         updateMainTextarea(idx);
@@ -545,6 +583,8 @@ function addInfomenuEntry(data) {
     });
 
     // 先頭に追加（新しいものが上に来る）
+    const emptyMessage = document.getElementById('infomenuEmpty');
+    if (emptyMessage) emptyMessage.remove();
     elements.infomenuList.insertBefore(item, elements.infomenuList.firstChild);
 }
 
@@ -624,8 +664,8 @@ function confidenceLabel(c) {
     if (c <= 0)       return '非表示';
     if (c >= 0.98052) return 'レベル4';
     if (c >= 0.97024) return 'レベル3';
-    if (c >= 0.96774) return 'レベル2';
     if (c >= 0.97015) return 'レベル1';
+    if (c >= 0.96774) return 'レベル2';
     return 'レベル不明';
 }
 
@@ -728,10 +768,16 @@ function getUserLocation() {
     navigator.geolocation.getCurrentPosition(
         pos => {
             const { latitude, longitude } = pos.coords;
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-                .then(r => r.json())
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`, {
+                headers: { Accept: 'application/json' }
+            })
+                .then(r => {
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.json();
+                })
                 .then(data => {
-                    const place = data.address.city || data.address.town || data.address.village || '不明な地域';
+                    const address = data && data.address ? data.address : {};
+                    const place = address.city || address.town || address.village || '不明な地域';
                     userLocation = { lat: latitude, lon: longitude, place };
                     if (elements.nowLocate) elements.nowLocate.textContent = `${place} (${latitude.toFixed(1)}, ${longitude.toFixed(1)})`;
                     if (typeof addUserLocationMarker === 'function') addUserLocationMarker();
@@ -965,4 +1011,7 @@ if (document.readyState === 'loading') {
 
 window.addEventListener('beforeunload', () => {
     if (timeUpdateInterval) clearInterval(timeUpdateInterval);
+    localWsClosing = true;
+    if (localWsReconnectTimer) clearTimeout(localWsReconnectTimer);
+    if (localWs && localWs.readyState <= WebSocket.OPEN) localWs.close();
 });

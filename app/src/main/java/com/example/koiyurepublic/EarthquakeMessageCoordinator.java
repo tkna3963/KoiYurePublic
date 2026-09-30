@@ -18,6 +18,10 @@ public final class EarthquakeMessageCoordinator {
     }
 
     public void handle(String json) {
+        if (json == null || json.trim().isEmpty()) {
+            Log.w(TAG, "空の受信イベントを破棄");
+            return;
+        }
         int code;
         try {
             code = policy.extractCode(json);

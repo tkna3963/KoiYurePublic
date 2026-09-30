@@ -60,12 +60,16 @@ public class P2PQuakeWebSocketClient {
     private ScheduledFuture<?> reconnectFuture;
 
     private int reconnectAttempts = 0;
-    private boolean manualDisconnect = false;
+    private volatile boolean manualDisconnect = false;
 
     public void connect() {
         Log.d(TAG, "connect要求 manualDisconnect=false");
         manualDisconnect = false;
         reconnectAttempts = 0;
+        if (reconnectFuture != null) {
+            reconnectFuture.cancel(false);
+            reconnectFuture = null;
+        }
         doConnect();
     }
 
@@ -122,6 +126,9 @@ public class P2PQuakeWebSocketClient {
 
         broadcastDisconnected(true);
 
+        if (reconnectFuture != null && !reconnectFuture.isDone()) {
+            return;
+        }
         reconnectFuture = scheduler.schedule(() -> {
             if (!manualDisconnect) doConnect();
         }, delay, TimeUnit.MILLISECONDS);

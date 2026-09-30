@@ -117,6 +117,8 @@ public class NotifiConnection {
             Log.w(TAG, "通知発行失敗: NotificationManagerがnull");
             return;
         }
+        if (title == null || title.trim().isEmpty()) title = "KoiYure";
+        if (message == null || message.trim().isEmpty()) message = "地震情報を受信しました";
 
         Log.d(TAG, "通知発行 code=" + code + " titleLength=" + (title == null ? 0 : title.length())
                 + " messageLength=" + (message == null ? 0 : message.length()));
