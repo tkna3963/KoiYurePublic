@@ -29,7 +29,7 @@ import androidx.core.app.NotificationCompat;
  *     → P2PConverts.toBriefMessage()  短文変換
  *     → NotifiConnection.notify()     プッシュ通知
  *     → TTSConnection.speak()         読み上げ
- *     → UICallback.onEarthquakeMessage() → MainActivity → WebView(JS)
+ *     → LocalWebSocketServer         → WebView(JS)
  */
 public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Listener {
 
@@ -175,41 +175,23 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
     }
 
     // ──────────────────────────────────────────────
-    //  Binder / UICallback
+    //  Binder / WebView state synchronization
     // ──────────────────────────────────────────────
-
-    public interface UICallback {
-        void onEarthquakeMessage(String json);
-        void onConnectionStateChanged(boolean connected, boolean willReconnect);
-    }
 
     public class LocalBinder extends Binder {
         public SpinalCord getService() { return SpinalCord.this; }
     }
 
-    private final IBinder binder    = new LocalBinder();
-    private UICallback    uiCallback = null;
+    private final IBinder binder = new LocalBinder();
 
-    public synchronized void setUICallback(UICallback uiCb) {
-        this.uiCallback = uiCb;
-        // UICallback をセットされた直後に、現在の接続状態を通知
-        if (uiCb != null) {
-            uiCb.onConnectionStateChanged(getIsP2PQuakeConnected(), getIsP2PQuakeReconnecting());
-            Log.d(TAG, "UI Callback初期化: onConnectionStateChanged("
-                    + getIsP2PQuakeConnected() + ", " + getIsP2PQuakeReconnecting() + ")");
-            // ローカル WebSocket にも初期状態を配信（初回接続時）
-            LocalWebSocketServer.getInstance().broadcastConnectionState(
-                    getIsP2PQuakeConnected(), getIsP2PQuakeReconnecting());
-            LocalWebSocketServer.getInstance().broadcastServiceState(true);
-        }
-    }
-
-    public synchronized void clearUICallback() {
-        this.uiCallback = null;
-    }
-
-    private synchronized UICallback getUICallback() {
-        return uiCallback;
+    /**
+     * WebViewが接続した後に現在の状態をローカルWebSocketへ再送する。
+     * 地震データや状態変更の通常配信はこのWebSocketに統一する。
+     */
+    public void syncWebViewState() {
+        LocalWebSocketServer server = LocalWebSocketServer.getInstance();
+        server.broadcastConnectionState(getIsP2PQuakeConnected(), getIsP2PQuakeReconnecting());
+        server.broadcastServiceState(isServiceRunning());
     }
 
     // ──────────────────────────────────────────────
@@ -274,7 +256,6 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
 
     @Override
     public boolean onUnbind(Intent intent) {
-        uiCallback = null;
         return true;
     }
 
@@ -320,11 +301,6 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         // ローカル WebSocket に配信（超高速）
         LocalWebSocketServer.getInstance().broadcastConnectionState(true, false);
 
-        UICallback uiCb = getUICallback();
-        if (uiCb != null) {
-            uiCb.onConnectionStateChanged(true, false);
-            Log.d(TAG, "UI Callback: onConnectionStateChanged(true, false)");
-        }
     }
 
     @Override
@@ -336,11 +312,6 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
         // ローカル WebSocket に配信（超高速）
         LocalWebSocketServer.getInstance().broadcastConnectionState(false, willReconnect);
 
-        UICallback uiCb = getUICallback();
-        if (uiCb != null) {
-            uiCb.onConnectionStateChanged(false, willReconnect);
-            Log.d(TAG, "UI Callback: onConnectionStateChanged(false, " + willReconnect + ")");
-        }
     }
 
     /**
@@ -352,7 +323,7 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
      *   3. 通知発行（NotifiConnection）
      *   4. 読み上げ（TTSConnection）
      *      556 EEW は speakNow() で割り込み読み上げ
-     *   5. UIコールバック → MainActivity → WebView
+     *   5. LocalWebSocketServer → WebView
      */
     @Override
     public void onMessage(String json) {
@@ -390,10 +361,6 @@ public class SpinalCord extends Service implements P2PQuakeWebSocketClient.Liste
                 ttsRef.speak(fullMessage);
             }
         }
-
-        // --- UIコールバック（従来の JavaScriptInterface）---
-        UICallback uiCb = getUICallback();
-        if (uiCb != null) uiCb.onEarthquakeMessage(json);
 
         // --- ローカル WebSocket に配信（超高速）---
         LocalWebSocketServer.getInstance().broadcastEarthquakeData(json);

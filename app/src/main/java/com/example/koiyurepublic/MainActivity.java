@@ -26,7 +26,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity implements SpinalCord.UICallback {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String PREFS = "startup_prefs";
@@ -47,16 +47,14 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
         public void onServiceConnected(ComponentName name, IBinder service) {
             SpinalCord.LocalBinder localBinder = (SpinalCord.LocalBinder) service;
             spinalCord = localBinder.getService();
-            spinalCord.setUICallback(MainActivity.this);
+            spinalCord.syncWebViewState();
             bound = true;
-            runJs("window.onServiceStateChanged && window.onServiceStateChanged(true)");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
             spinalCord = null;
-            runJs("window.onServiceStateChanged && window.onServiceStateChanged(false)");
         }
     };
 
@@ -88,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                runJs("window.onServiceStateChanged && window.onServiceStateChanged(" + SpinalCord.isServiceRunning() + ")");
             }
         });
         webView.loadUrl("file:///android_asset/Maindex.html");
@@ -143,31 +140,9 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     protected void onStop() {
         super.onStop();
         if (bound) {
-            spinalCord.clearUICallback();
             unbindService(serviceConnection);
             bound = false;
         }
-    }
-
-    // ──────────────────────────────────────────────
-    //  SpinalCord.UICallback — Serviceからのデータ受信
-    // ──────────────────────────────────────────────
-
-    @Override
-    public void onEarthquakeMessage(String json) {
-        // JSON文字列をJS文字列リテラルとして安全にエスケープ
-        String escapedJson = json
-                .replace("\\", "\\\\")
-                .replace("'", "\\'")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
-        runJs("window.onEarthquakeData && window.onEarthquakeData('" + escapedJson + "')");
-    }
-
-    @Override
-    public void onConnectionStateChanged(boolean connected, boolean willReconnect) {
-        runJs("window.onConnectionStateChanged && window.onConnectionStateChanged("
-                + connected + "," + willReconnect + ")");
     }
 
     // ──────────────────────────────────────────────
@@ -188,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
 
                 if (spinalCord != null) {
                     spinalCord.stopIntentionally();
-                    spinalCord.clearUICallback();
                 }
 
                 if (bound) {
@@ -198,11 +172,9 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
                 }
 
                 SpinalCord.cancelWatchdog(MainActivity.this);
-
                 Intent serviceIntent = new Intent(MainActivity.this, SpinalCord.class);
                 MainActivity.this.stopService(serviceIntent);
-
-                runJs("window.onServiceStateChanged && window.onServiceStateChanged(false)");
+                MainActivity.this.stopService(serviceIntent);
             });
         }
 
@@ -322,13 +294,6 @@ public class MainActivity extends AppCompatActivity implements SpinalCord.UICall
     // ──────────────────────────────────────────────
     //  ヘルパー
     // ──────────────────────────────────────────────
-
-    /** UIスレッドでJSを実行する */
-    private void runJs(String js) {
-        mainHandler.post(() -> {
-            if (webView != null) webView.evaluateJavascript(js, null);
-        });
-    }
 
     private void requestBatteryOptimizationWhitelistIfNeeded() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
