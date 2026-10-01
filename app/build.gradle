@@ -5,6 +5,9 @@ plugins {
 
 android {
     namespace 'com.example.koiyurepublic'
+    buildFeatures {
+        buildConfig true
+    }
     compileSdk {
         version = release(36)
     }
@@ -15,11 +18,15 @@ android {
         targetSdk 36
         versionCode 1
         versionName "1.0"
+        buildConfigField "String", "P2PQUAKE_WS_URL", '"wss://api.p2pquake.net/v2/ws"'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "P2PQUAKE_WS_URL", '"ws://10.0.2.2:8080"'
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

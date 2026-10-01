@@ -190,12 +190,16 @@ SpinalCord.onMessage(json)
 | `BootReceiver` | true | Boot/QuickBootを受信 |
 
 `SpinalCord`は`stopWithTask="false"`であり、タスク一覧からActivityを消しても
-Serviceが停止しない構成である。
+Serviceが停止しない構成である。Serviceは常時WakeLockを保持せず、
+Foreground Serviceのプロセス優先度とWebSocket再接続を利用する。
 
 ### 5.3 ネットワークセキュリティ
 
 `network_security_config.xml`により、端末内WebSocket接続に使用する`localhost`の
 クリアテキスト通信を許可する。外部P2PQuake接続はTLS付き`wss`を使用する。
+Watchdogと自己再起動のAlarmは、特別アクセスを要求しない
+`setAndAllowWhileIdle()`を使用する。これは厳密な時刻が必要なユーザー操作ではなく、
+サービス回復用の補助処理であるためである。
 
 ---
 
@@ -985,4 +989,3 @@ WebView JavaScript
 5. AndroidBridgeへAPIを追加する場合、入力値の検証と公開範囲を検討する。
 6. WebView資産を追加する場合、`file:///android_asset`からの相対パスを確認する。
 7. LocalWSイベントを追加する場合、イベント名、JSON形、状態再送の扱いを仕様化する。
-

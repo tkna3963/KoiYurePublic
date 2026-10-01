@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    >
 
     <!-- ネットワーク -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,19 +15,6 @@
 
     <!-- 端末再起動後の自動起動 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <!-- WakeLock（CPUスリープ防止） -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-
-    <!--
-        正確なAlarm（Doze中でも発火）
-        Android 12以降: SCHEDULE_EXACT_ALARM または USE_EXACT_ALARM が必要。
-        USE_EXACT_ALARM はシステムが自動付与（地震など安全・緊急情報アプリ向け）。
-        通常は SCHEDULE_EXACT_ALARM + ユーザーへの権限付与誘導を組み合わせる。
-    -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
-        tools:ignore="ExactAlarm" />
 
     <!-- WebViewの現在地表示 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

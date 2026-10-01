@@ -5,14 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.PowerManager;
-import android.provider.Settings;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.GeolocationPermissions;
@@ -31,9 +28,6 @@ import androidx.core.view.WindowInsetsCompat;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private static final String PREFS = "startup_prefs";
-    private static final String KEY_BATTERY_OPT_ASKED = "battery_opt_asked";
-
     private WebView webView;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1002;
@@ -118,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
         webView.loadUrl("file:///android_asset/Maindex.html");
         requestNotificationPermissionIfNeeded();
         requestLocationPermissionIfNeeded();
-        requestBatteryOptimizationWhitelistIfNeeded();
 
         // ═══════════════════════════════════════
         // 🟢 アプリ起動時に Service を自動開始
@@ -178,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy bound=" + bound);
+        mainHandler.removeCallbacksAndMessages(null);
         if (bound) {
             unbindService(serviceConnection);
             bound = false;
@@ -392,36 +386,6 @@ public class MainActivity extends AppCompatActivity {
     // ──────────────────────────────────────────────
     //  ヘルパー
     // ──────────────────────────────────────────────
-
-    private void requestBatteryOptimizationWhitelistIfNeeded() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
-
-        boolean alreadyAsked = getSharedPreferences(PREFS, MODE_PRIVATE)
-                .getBoolean(KEY_BATTERY_OPT_ASKED, false);
-        if (alreadyAsked) { Log.d(TAG, "バッテリー最適化確認済み"); return; }
-
-        PowerManager pm = getSystemService(PowerManager.class);
-        if (pm == null) return;
-        if (pm.isIgnoringBatteryOptimizations(getPackageName())) {
-            Log.d(TAG, "バッテリー最適化除外済み");
-            return;
-        }
-
-        Intent batteryOptIntent = new Intent(
-                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                Uri.parse("package:" + getPackageName())
-        );
-        if (batteryOptIntent.resolveActivity(getPackageManager()) == null) {
-            Log.w(TAG, "バッテリー最適化除外の設定画面が見つからない");
-            return;
-        }
-
-        getSharedPreferences(PREFS, MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_BATTERY_OPT_ASKED, true)
-                .apply();
-        startActivity(batteryOptIntent);
-    }
 
     private void requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;

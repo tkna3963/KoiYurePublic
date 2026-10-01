@@ -15,11 +15,9 @@ import android.util.Log;
  * AlarmManagerから定期的に呼ばれ、SpinalCordが生きているか確認する。
  * 死んでいれば startForegroundService() で再起動し、次のAlarmを再スケジュールする。
  *
- * ポイント：
- *   - setExactAndAllowWhileIdle は一度しか発火しないため、
- *     Receiver内で次のAlarmを自分でセットする「連鎖Alarm」方式を採用。
- *   - これにより AlarmManager → Receiver → AlarmManager の無限ループが成立し、
- *     Xiaomi/OPPO 等の強制終了からの復旧が可能になる。
+ * ポイント:
+ *   - バッテリー消費を抑えるため、Watchdogは非正確Alarmを使用する。
+ *   - Alarmは一度しか発火しないため、Receiver内で次のAlarmを再スケジュールする。
  */
 public class WatchdogReceiver extends BroadcastReceiver {
 
@@ -33,10 +31,16 @@ public class WatchdogReceiver extends BroadcastReceiver {
         if (!isServiceRunning(context, SpinalCord.class)) {
             Log.w(TAG, "SpinalCord が停止している → 再起動");
             Intent serviceIntent = new Intent(context, SpinalCord.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
                 context.startForegroundService(serviceIntent);
-            } else {
-                context.startService(serviceIntent);
+            } catch (RuntimeException e) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                        && e.getClass().getSimpleName()
+                        .equals("ForegroundServiceStartNotAllowedException")) {
+                    Log.w(TAG, "バックグラウンドからのService再起動が許可されない", e);
+                } else {
+                    throw e;
+                }
             }
         } else {
             Log.d(TAG, "SpinalCord は稼働中");
@@ -59,18 +63,7 @@ public class WatchdogReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         long triggerAt = System.currentTimeMillis() + SpinalCord.WATCHDOG_INTERVAL_MS;
-        try {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S
-                    || am.canScheduleExactAlarms()) {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
-            } else {
-                Log.w(TAG, "正確なAlarm権限なし — 非正確Alarmへフォールバック");
-                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
-            }
-        } catch (SecurityException e) {
-            Log.w(TAG, "正確なAlarm設定に失敗 — 非正確Alarmへフォールバック", e);
-            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
-        }
+        am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
         Log.d(TAG, "次のWatchdog Alarmをセット (" + SpinalCord.WATCHDOG_INTERVAL_MS + "ms後)");
     }
 
