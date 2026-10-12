@@ -956,52 +956,6 @@ function getUserLocation() {
 }
 
 // ========================================
-// デモ用テストデータ注入（Android外の確認用）
-// ========================================
-function injectDemoData() {
-    const demos = [
-        { code: 561, area: 130, time: '2025/06/01 09:12:34' },
-        {
-            code: 551,
-            issue: { source: '気象庁', time: '2025/06/01 09:15:00', type: 'ScaleAndDestination', correct: 'None' },
-            earthquake: {
-                time: '2025/06/01 09:14:52',
-                hypocenter: { name: '茨城県沖', magnitude: 5.1, depth: 60, latitude: 36.1, longitude: 140.7 },
-                maxScale: 40, domesticTsunami: 'None', foreignTsunami: 'None'
-            },
-            points: [
-                { pref: '茨城県', addr: '水戸市', scale: 40 },
-                { pref: '茨城県', addr: 'ひたちなか市', scale: 40 },
-                { pref: '千葉県', addr: '柏市', scale: 30 },
-                { pref: '東京都', addr: '足立区', scale: 30 },
-                { pref: '埼玉県', addr: 'さいたま市', scale: 20 },
-            ],
-            comments: { freeFormComment: '' }
-        },
-        {
-            code: 556,
-            cancelled: false, test: false,
-            issue: { time: '2025/06/01 09:13:45', serial: '2' },
-            earthquake: {
-                originTime: '2025/06/01 09:13:40',
-                hypocenter: { name: '茨城県南部', reduceName: '茨城南部', magnitude: 5.3, depth: 55 },
-                condition: ''
-            },
-            areas: [
-                { pref: '茨城県', name: '水戸', scaleFrom: 40, scaleTo: 40, arrivalTime: '09:14:10' },
-                { pref: '千葉県', name: '柏', scaleFrom: 30, scaleTo: 40, arrivalTime: '09:14:25' },
-            ]
-        },
-    ];
-
-    let delay = 500;
-    demos.forEach(d => {
-        setTimeout(() => onP2PMessage(d), delay);
-        delay += 800;
-    });
-}
-
-// ========================================
 // アプリ初期化
 // ========================================
 
@@ -1152,8 +1106,6 @@ function initializeApp() {
         if (elements.startBtn) elements.startBtn.disabled = false;
         if (elements.stopBtn)  elements.stopBtn.disabled  = true;
 
-        // ブラウザ確認用にデモデータを注入
-        injectDemoData();
     }
 
     // 初期表示
