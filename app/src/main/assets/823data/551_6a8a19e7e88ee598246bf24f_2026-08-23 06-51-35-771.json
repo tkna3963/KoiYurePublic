@@ -1,0 +1,41 @@
+{
+  "_id": "6a8a19e7e88ee598246bf24f",
+  "code": 551,
+  "comments": {
+    "freeFormComment": ""
+  },
+  "earthquake": {
+    "domesticTsunami": "None",
+    "foreignTsunami": "Unknown",
+    "hypocenter": {
+      "depth": 20,
+      "latitude": 35,
+      "longitude": 135.4,
+      "magnitude": 2.1,
+      "name": "大阪府北部"
+    },
+    "maxScale": 10,
+    "time": "2026/08/23 06:45:00"
+  },
+  "issue": {
+    "correct": "None",
+    "source": "気象庁",
+    "time": "2026/08/23 06:51:35",
+    "type": "DetailScale"
+  },
+  "points": [
+    {
+      "addr": "能勢町森上",
+      "isArea": false,
+      "pref": "大阪府",
+      "scale": 10
+    }
+  ],
+  "time": "2026/08/23 06:51:35.771",
+  "timestamp": {
+    "convert": "2026/08/23 06:51:35.721",
+    "register": "2026/08/23 06:51:35.771"
+  },
+  "user_agent": "jmaxml-seis-parser-go, relay, register-api",
+  "ver": "20231023"
+}

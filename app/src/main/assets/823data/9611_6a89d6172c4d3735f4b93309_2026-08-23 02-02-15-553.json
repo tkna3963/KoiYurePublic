@@ -1,0 +1,168 @@
+{
+  "_id": "6a89d6172c4d3735f4b93309",
+  "area_confidences": {
+    "120": {
+      "confidence": 0.5947080801731965,
+      "count": 5,
+      "display": "C"
+    },
+    "125": {
+      "confidence": 0.6766456378859479,
+      "count": 8,
+      "display": "B"
+    },
+    "143": {
+      "confidence": 0.051901796087842594,
+      "count": 1,
+      "display": "E"
+    },
+    "150": {
+      "confidence": 0.06288102218334776,
+      "count": 2,
+      "display": "E"
+    },
+    "151": {
+      "confidence": 0.02554541526198503,
+      "count": 1,
+      "display": "E"
+    },
+    "152": {
+      "confidence": 0.20436332209588023,
+      "count": 1,
+      "display": "D"
+    },
+    "200": {
+      "confidence": 0.061093408770156774,
+      "count": 2,
+      "display": "E"
+    },
+    "205": {
+      "confidence": 0.08509439078700408,
+      "count": 3,
+      "display": "E"
+    },
+    "210": {
+      "confidence": 0.05460988253125916,
+      "count": 1,
+      "display": "E"
+    },
+    "215": {
+      "confidence": 0.10921976506251832,
+      "count": 3,
+      "display": "E"
+    },
+    "225": {
+      "confidence": 0.15557598004764514,
+      "count": 4,
+      "display": "E"
+    },
+    "230": {
+      "confidence": 0.9327460104917178,
+      "count": 7,
+      "display": "A"
+    },
+    "231": {
+      "confidence": 0.8035965628851721,
+      "count": 14,
+      "display": "A"
+    },
+    "240": {
+      "confidence": 0.019614978215309414,
+      "count": 1,
+      "display": "E"
+    },
+    "241": {
+      "confidence": 0.2562601992645262,
+      "count": 9,
+      "display": "D"
+    },
+    "242": {
+      "confidence": 0.03922995643061883,
+      "count": 1,
+      "display": "E"
+    },
+    "250": {
+      "confidence": 0.4826322244641478,
+      "count": 32,
+      "display": "C"
+    },
+    "270": {
+      "confidence": 0.7324173000511978,
+      "count": 24,
+      "display": "B"
+    },
+    "275": {
+      "confidence": 0.147633554258609,
+      "count": 5,
+      "display": "E"
+    },
+    "301": {
+      "confidence": 0.035018407111430366,
+      "count": 1,
+      "display": "E"
+    },
+    "302": {
+      "confidence": 0.025013147936735973,
+      "count": 1,
+      "display": "E"
+    },
+    "320": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "340": {
+      "confidence": 0.0881582276931114,
+      "count": 1,
+      "display": "E"
+    },
+    "345": {
+      "confidence": 0.8060180817655899,
+      "count": 4,
+      "display": "A"
+    },
+    "351": {
+      "confidence": 0.014459815124266952,
+      "count": 1,
+      "display": "E"
+    },
+    "355": {
+      "confidence": 0.022722566623848063,
+      "count": 1,
+      "display": "E"
+    },
+    "410": {
+      "confidence": 0.0442470847978362,
+      "count": 1,
+      "display": "E"
+    },
+    "411": {
+      "confidence": 0.15170429073543837,
+      "count": 4,
+      "display": "E"
+    },
+    "415": {
+      "confidence": 0.03539766783826896,
+      "count": 2,
+      "display": "E"
+    },
+    "535": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "900": {
+      "confidence": -1,
+      "count": 13,
+      "display": "F"
+    }
+  },
+  "code": 9611,
+  "confidence": 0.98052,
+  "count": 155,
+  "started_at": "2026/08/23 02:00:53.308",
+  "time": "2026/08/23 02:02:15.553",
+  "updated_at": "2026/08/23 02:02:14.843",
+  "user-agent": "userquake-aggregator 20260612",
+  "ver": "20260612"
+}

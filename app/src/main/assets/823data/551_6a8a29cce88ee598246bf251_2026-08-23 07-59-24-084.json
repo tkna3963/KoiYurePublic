@@ -1,0 +1,41 @@
+{
+  "_id": "6a8a29cce88ee598246bf251",
+  "code": 551,
+  "comments": {
+    "freeFormComment": ""
+  },
+  "earthquake": {
+    "domesticTsunami": "None",
+    "foreignTsunami": "Unknown",
+    "hypocenter": {
+      "depth": 10,
+      "latitude": 37.3,
+      "longitude": 136.8,
+      "magnitude": 2.3,
+      "name": "石川県能登地方"
+    },
+    "maxScale": 10,
+    "time": "2026/08/23 07:56:00"
+  },
+  "issue": {
+    "correct": "None",
+    "source": "気象庁",
+    "time": "2026/08/23 07:59:23",
+    "type": "DetailScale"
+  },
+  "points": [
+    {
+      "addr": "穴水町大町",
+      "isArea": false,
+      "pref": "石川県",
+      "scale": 10
+    }
+  ],
+  "time": "2026/08/23 07:59:24.084",
+  "timestamp": {
+    "convert": "2026/08/23 07:59:24.076",
+    "register": "2026/08/23 07:59:24.084"
+  },
+  "user_agent": "jmaxml-seis-parser-go, relay, register-api",
+  "ver": "20231023"
+}

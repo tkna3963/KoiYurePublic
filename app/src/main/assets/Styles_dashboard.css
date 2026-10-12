@@ -1,0 +1,126 @@
+/* ==============================================
+   Styles_dashboard.css  （Styles.css の「後」に読み込む）
+   画像のような「ラベル小＋数字大」のやさしい表示
+   ============================================== */
+
+.alert-dashboard {
+    background: #f1f1f1;
+    height: 31.5vh;      /* ページバー(top:32%)の上に収める */
+}
+
+.dashboard-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 100%;
+    padding: 5px 30px 4px 8px;          /* 右は縦タグ分あける */
+    color: #1d2429;
+    border-bottom: 4px solid rgba(0,0,0,.18);
+    box-sizing: border-box;
+}
+
+/* 右端の縦タグ（画像の「地震情報」）。1文字ずつ縦に並べる＝どの端末でも崩れない */
+.dc-tag {
+    position: absolute;
+    top: 8px; right: 0;
+    width: 24px;
+    padding: 6px 0;
+    display: flex; flex-direction: column; align-items: center;
+    box-sizing: border-box;
+    font-size: 12px; font-weight: 700; line-height: 1.2;
+    color: #1d2429;
+    background: rgba(255,255,255,.55);
+    border: 2px solid rgba(0,0,0,.45);
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+}
+
+/* 1段目 */
+.dc-head { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.dc-icon {
+    flex: none; display: inline-grid; place-items: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #fff; color: #b42318; font-size: 12px; font-weight: 900;
+}
+.dc-title { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dc-code  { margin-left: auto; font: 700 10px monospace; opacity: .6; white-space: nowrap; }
+
+/* 2段目：左に大きな主役、右に補足 */
+.dc-body { flex: 1; min-height: 0; display: flex; gap: 6px; overflow: hidden; }
+.dc-main { flex: 0 0 38%; display: flex; }
+.dc-main .dc-box { flex: 1; justify-content: center; }
+.dc-sub  { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; align-content: start; }
+
+/* 小さな箱 */
+.dc-box {
+    min-width: 0;
+    display: flex; flex-direction: column;
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: rgba(255,255,255,.6);
+}
+.dc-wide { grid-column: 1 / -1; }
+.dc-label { font-size: 10px; line-height: 1.2; opacity: .75; }
+.dc-value {
+    font-size: 17px; line-height: 1.25; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dc-unit { margin-left: 2px; font-size: .6em; font-weight: 700; }
+
+/* 画像の「5+」にあたる、大きな震度 */
+.dc-big { align-items: center; }
+.dc-bignum { font-size: clamp(44px, 11vh, 72px); line-height: 1; font-weight: 700; }
+.dc-bignum .dc-unit { font-size: .42em; margin-left: 1px; }
+.dc-bignum-none { font-size: 32px; opacity: .5; }
+
+/* 震度ごとの色（暗めにして、白い箱の上でも読める） */
+.lv-10 .dc-bignum, .lv-20 .dc-bignum { color: #1f5fa8; }
+.lv-30 .dc-bignum { color: #17783a; }
+.lv-40 .dc-bignum { color: #8a6500; }
+.lv-45 .dc-bignum { color: #b45309; }
+.lv-46 .dc-bignum { color: #b45309; }
+.lv-50 .dc-bignum { color: #c2410c; }
+.lv-55 .dc-bignum { color: #b42318; }
+.lv-60 .dc-bignum { color: #9b1c1c; }
+.lv-70 .dc-bignum { color: #7a0f3a; }
+.lv-70 { box-shadow: 0 0 0 3px #7a0f3a inset; }
+.is-cancel .dc-bignum { text-decoration: line-through; opacity: .5; }
+
+/* 数字ではなく文字が主役のとき（津波・検出・人数など） */
+.dc-big-text .dc-value { font-size: 24px; white-space: normal; line-height: 1.15; }
+
+/* 状態の色 */
+.dc-box.danger  { background: #fff0ed; color: #a82016; }
+.dc-box.warning { background: #fff4cc; color: #765900; }
+.dc-box.safe    { background: #dff8d9; color: #176b2a; }
+
+/* 3段目：やさしい説明 */
+.dc-help {
+    margin: 0; padding: 4px 8px;
+    font-size: 12px; font-weight: 700; line-height: 1.35;
+    border-radius: 6px;
+    background: rgba(0,0,0,.14);
+}
+
+/* 種類ごとの背景色（元の配色を継承） */
+.dashboard-quake    { background: #e99a3b; }
+.dashboard-tsunami  { background: #4ba8ce; }
+.dashboard-eew      { background: #ed654c; }
+.dashboard-network  { background: #8a75c9; }
+.dashboard-sensor   { background: #5caf76; }
+.dashboard-analysis { background: #4c9f9a; }
+.dashboard-unknown  { background: #8d969f; }
+
+/* 緊急地震速報だけは、気づきやすく点滅 */
+.dashboard-eew .dc-icon { animation: dc-blink 1s ease-in-out infinite; }
+@keyframes dc-blink { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .dashboard-eew .dc-icon { animation: none; } }
+
+/* 細い画面 */
+@media (max-width: 380px) {
+    .dc-title { font-size: 13px; }
+    .dc-value { font-size: 15px; }
+    .dc-big-text .dc-value { font-size: 20px; }
+    .dc-help { font-size: 11px; }
+}

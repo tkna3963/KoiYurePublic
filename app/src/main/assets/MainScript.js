@@ -157,7 +157,6 @@ const elements = {};
 
 function cacheElements() {
     elements.nowTime           = document.getElementById('now_time');
-    elements.textarea          = document.getElementById('maintextarea');
     elements.alertDashboard    = document.getElementById('alertDashboard');
     elements.pagebar           = document.getElementById('pagebar');
     elements.pagebarLabel      = document.getElementById('pagebarLabel');
@@ -257,140 +256,194 @@ function toggleMenu(menuElement, btnElement) {
 }
 
 // ========================================
-// テキストエリア更新
+// 選択中のデータ更新
 // ========================================
-function updateMainTextarea(index) {
-    if (!elements.textarea) return;
+function updateSelectedData(index) {
     if (index < 0 || index >= AllWebsocketData.length) {
-        elements.textarea.value = '(受信データがありません)';
         updatePagebarLabel(index);
         return;
     }
 
-    let data = AllWebsocketData[index];
-    if (typeof data === 'string') {
-        try { data = JSON.parse(data); }
-        catch (e) { elements.textarea.value = '(データの読み込みに失敗しました)'; return; }
-    }
-
-    elements.textarea.value = formatP2PMessage(data);
+    const data = AllWebsocketData[index];
     renderCodeDashboard(data);
     currentIndex = index;
     updatePagebarLabel(index);
     updateNavButtons();
 }
 
+// ========================================
+// コード別ダッシュボード（初心者向け・やさしい表示）
+//  - 数字は大きく、ラベルは小さく（「何の数字か」が一目でわかる）
+//  - 最後に必ず「これは何？」「どうすればいい？」を一文で表示
+// ========================================
 const CODE_META = {
-    551: { title: '地震情報', icon: '◆', theme: 'quake', action: '揺れに備えてください' },
-    552: { title: '津波予報', icon: '〰', theme: 'tsunami', action: '海岸・川から離れてください' },
-    554: { title: '緊急地震速報を検出', icon: '!', theme: 'eew', action: '情報を確認してください' },
-    555: { title: 'ピア情報', icon: '◎', theme: 'network', action: 'ネットワーク状態' },
-    556: { title: '緊急地震速報（警報）', icon: '!!', theme: 'eew', action: '身を守る行動を開始してください' },
-    561: { title: '地震感知情報', icon: '●', theme: 'sensor', action: '周囲の揺れを確認してください' },
-    9611: { title: '地震感知・解析結果', icon: '◇', theme: 'analysis', action: '解析結果を確認してください' }
+    551:  { tag: '地震情報',     title: '地震が発生しました',       icon: '◆',  theme: 'quake',    action: '揺れが収まるまで、まず身の安全を。続報に注意してください' },
+    552:  { tag: '津波予報',     title: '津波に関する情報',         icon: '〰', theme: 'tsunami',  action: '海岸・川から離れ、高い場所へ避難してください' },
+    554:  { tag: '緊急地震速報', title: '緊急地震速報を検出',       icon: '!',  theme: 'eew',      action: 'すぐ強い揺れが来るかもしれません。落ち着いて周りを確認' },
+    556:  { tag: '緊急地震速報', title: '緊急地震速報（警報）',     icon: '!!', theme: 'eew',      action: '頭を守り、机の下へ。火の元は揺れが収まってから' },
+    561:  { tag: '地震感知',     title: '揺れを感じた人がいます',   icon: '●',  theme: 'sensor',   action: '周りの揺れを確認。まだ地震と決まったわけではありません' },
+    9611: { tag: '感知の解析',   title: '地震感知の解析結果',       icon: '◇',  theme: 'analysis', action: '数字が大きく、レベルが高いほど地震の可能性が高いです' }
 };
 
-function dashboardValue(label, value, className = '') {
-    const item = document.createElement('div');
-    item.className = `dashboard-value ${className}`.trim();
-    const labelEl = document.createElement('span');
-    labelEl.className = 'dashboard-value-label';
-    labelEl.textContent = label;
-    const valueEl = document.createElement('strong');
-    valueEl.className = 'dashboard-value-number';
-    valueEl.textContent = String(value ?? '—');
-    item.append(labelEl, valueEl);
-    return item;
+// 震度ごとの「どんな揺れか」（気象庁の震度階級の説明を短くしたもの）
+const SCALE_HELP = {
+    10: '屋内で静かにしている人の一部が、わずかに揺れを感じます',
+    20: '屋内で静かにしている人の大半が揺れを感じます',
+    30: '屋内にいる人のほとんどが揺れを感じます',
+    40: 'ほとんどの人が驚きます。つり下げた物が大きく揺れます',
+    45: '大半の人が怖いと感じ、物につかまりたくなります',
+    46: '震度5弱以上と推定されます（観測データ未入手）',
+    50: '物につかまらないと歩くのが難しい揺れです',
+    55: '立っているのが困難な揺れです',
+    60: 'はわないと動けない、飛ばされることもある揺れです',
+    70: '耐震性の低い建物は倒れることがあります'
+};
+
+// 作成ヘルパー
+function dcEl(tag, className, text) {
+    const e = document.createElement(tag);
+    if (className) e.className = className;
+    if (text !== undefined && text !== null) e.textContent = String(text);
+    return e;
 }
 
-function dashboardText(label, value) {
-    const item = document.createElement('div');
-    item.className = 'dashboard-text';
-    const labelEl = document.createElement('span');
-    labelEl.textContent = label;
-    const valueEl = document.createElement('strong');
-    valueEl.textContent = String(value ?? '不明');
-    item.append(labelEl, valueEl);
-    return item;
+// 「ラベル（小）＋値（大）」の小さな箱
+function dcBox(label, value, { cls = '', unit = '' } = {}) {
+    const box = dcEl('div', `dc-box ${cls}`.trim());
+    box.append(dcEl('span', 'dc-label', label));
+    const v = dcEl('strong', 'dc-value', value ?? '—');
+    if (unit) v.append(dcEl('small', 'dc-unit', unit));
+    box.append(v);
+    return box;
+}
+
+// 「5弱」「5強」を「5」＋小さい「弱／強」に分けた大きな震度表示
+function dcScaleBig(label, scale, cls = '') {
+    const text = scaleToText(scale);
+    const box = dcEl('div', `dc-box dc-big lv-${scale} ${cls}`.trim());
+    box.append(dcEl('span', 'dc-label', label));
+    const v = dcEl('strong', 'dc-bignum');
+    const m = /^(\d)([弱強])?/.exec(text);
+    if (m) {
+        v.append(document.createTextNode(m[1]));
+        if (m[2]) v.append(dcEl('small', 'dc-unit', m[2]));
+    } else {
+        v.textContent = '—';
+        v.classList.add('dc-bignum-none');
+    }
+    box.append(v);
+    return box;
+}
+
+// "2025/06/01 09:14:52" → "6/1 09:14頃"
+function dcShortTime(str, approx = true) {
+    const m = /(\d{4})\/(\d{1,2})\/(\d{1,2}) (\d{1,2}):(\d{2})/.exec(str ?? '');
+    if (!m) return str ? String(str) : '—';
+    return `${Number(m[2])}/${Number(m[3])} ${m[4]}:${m[5]}${approx ? '頃' : ''}`;
+}
+
+function dcDepth(d) {
+    if (d === undefined || d === null || d < 0) return { v: '—', unit: '' };
+    return d === 0 ? { v: 'ごく浅い', unit: '' } : { v: d, unit: 'km' };
+}
+function dcMag(m) { return (m === undefined || m === null || m < 0) ? '—' : Number(m).toFixed(1); }
+
+// 津波の有無を「ひとこと」に
+function dcTsunamiWord(t) {
+    const m = { None: '心配なし', Unknown: '不明', Checking: '調査中', NonEffective: 'ほぼ心配なし', Watch: '注意報あり', Warning: '津波予報あり' };
+    return m[t] ?? '不明';
+}
+function dcTsunamiClass(t) {
+    if (t === 'Watch' || t === 'Warning') return 'danger';
+    if (t === 'Checking' || t === 'Unknown') return 'warning';
+    return 'safe';
 }
 
 function renderCodeDashboard(data) {
     if (!elements.alertDashboard || !data || typeof data !== 'object') return;
     const code = Number(data.code);
-    const meta = CODE_META[code] ?? { title: `受信情報（code ${code || '?'}）`, icon: '?', theme: 'unknown', action: '詳細を確認してください' };
-    const card = document.createElement('section');
-    card.className = `dashboard-card dashboard-${meta.theme}`;
+    const meta = CODE_META[code] ?? { tag: '受信情報', title: `受信情報（code ${code || '?'}）`, icon: '?', theme: 'unknown', action: '詳細は下のテキストを確認してください' };
+
+    const card = dcEl('section', `dashboard-card dashboard-${meta.theme}`);
     card.setAttribute('data-code', String(code));
 
-    const header = document.createElement('header');
-    header.className = 'dashboard-card-header';
-    const title = document.createElement('div');
-    title.className = 'dashboard-title';
-    title.innerHTML = `<span class="dashboard-icon" aria-hidden="true"></span><span></span>`;
-    title.querySelector('.dashboard-icon').textContent = meta.icon;
-    title.lastElementChild.textContent = meta.title;
-    const codeBadge = document.createElement('span');
-    codeBadge.className = 'dashboard-code';
-    codeBadge.textContent = `CODE ${code || '?'}`;
-    header.append(title, codeBadge);
+    // 右端の縦タグ（画像の「地震情報」と同じ位置）
+    const tagEl = dcEl('div', 'dc-tag');
+    [...meta.tag].forEach(ch => tagEl.append(dcEl('span', '', ch)));   // 1文字ずつ縦に並べる
+    tagEl.setAttribute('aria-label', meta.tag);
+    card.append(tagEl);
 
-    const body = document.createElement('div');
-    body.className = 'dashboard-card-body';
+    // 1段目：いま何の情報か
+    const head = dcEl('div', 'dc-head');
+    head.append(dcEl('span', 'dc-icon', meta.icon), dcEl('span', 'dc-title', meta.title), dcEl('span', 'dc-code', `CODE ${code || '?'}`));
+
+    const main = dcEl('div', 'dc-main');
+    const sub = dcEl('div', 'dc-sub');
+    let help = meta.action;
+
     const issue = data.issue ?? {};
     const quake = data.earthquake ?? {};
     const hypo = quake.hypocenter ?? {};
 
     if (code === 551) {
-        body.append(
-            dashboardText('発生日時', quake.time),
-            dashboardText('震源', hypo.name),
-            dashboardValue('最大震度', scaleToText(quake.maxScale), `scale-${quake.maxScale}`),
-            dashboardValue('規模', hypo.magnitude >= 0 ? `M${hypo.magnitude}` : '—'),
-            dashboardText('深さ', hypo.depth >= 0 ? (hypo.depth === 0 ? 'ごく浅い' : `${hypo.depth} km`) : '—'),
-            dashboardText('津波', domesticTsunami(quake.domesticTsunami ?? 'None'))
+        const depth = dcDepth(hypo.depth);
+        main.append(dcScaleBig('最大震度', quake.maxScale));
+        sub.append(
+            dcBox('発生', dcShortTime(quake.time), { cls: 'dc-wide' }),
+            dcBox('震央（震源の場所）', hypo.name || '—', { cls: 'dc-wide' }),
+            dcBox('規模', dcMag(hypo.magnitude), { unit: 'M' }),
+            dcBox('深さ', depth.v, { unit: depth.unit }),
+            dcBox('津波', dcTsunamiWord(quake.domesticTsunami), { cls: dcTsunamiClass(quake.domesticTsunami) })
         );
+        help = SCALE_HELP[quake.maxScale] ?? '震度の情報はまだありません（震源のみの発表です）';
+        if (issue.correct && issue.correct !== 'None' && issue.correct !== 'Unknown') help = `【訂正】${correctType(issue.correct)}。${help}`;
+    } else if (code === 556) {
+        const area0 = (data.areas ?? [])[0];
+        const depth = dcDepth(hypo.depth);
+        const state = data.cancelled ? '取消' : (data.test ? 'テスト' : '警報');
+        main.append(area0
+            ? dcScaleBig('予測最大震度', area0.scaleTo === 99 ? area0.scaleFrom : (area0.scaleTo ?? area0.scaleFrom), data.cancelled ? 'is-cancel' : '')
+            : dcBox('状態', state, { cls: data.cancelled ? 'safe' : 'danger' }));
+        sub.append(
+            dcBox('状態', state + (issue.serial ? `（第${issue.serial}報）` : ''), { cls: `dc-wide ${data.cancelled || data.test ? 'safe' : 'danger'}` }),
+            dcBox('震央（震源の場所）', hypo.name || '—', { cls: 'dc-wide' }),
+            dcBox('規模', dcMag(hypo.magnitude), { unit: 'M' }),
+            dcBox('深さ', depth.v, { unit: depth.unit })
+        );
+        if (area0?.arrivalTime) sub.append(dcBox(`${area0.name ?? ''}に揺れが届く時刻`, area0.arrivalTime, { cls: 'dc-wide' }));
+        if (data.cancelled) help = 'この緊急地震速報は取り消されました';
+        else if (data.test) help = 'これはテスト配信です。実際の地震ではありません';
+        else if (area0) help = `予測：${eewScaleRange(area0.scaleFrom, area0.scaleTo)}。${meta.action}`;
     } else if (code === 552) {
         const areas = Array.isArray(data.areas) ? data.areas : [];
-        body.append(
-            dashboardValue('状態', data.cancelled ? '解除' : '発表', data.cancelled ? 'safe' : 'danger'),
-            dashboardText('発表日時', issue.time),
-            dashboardValue('対象地域', areas.length ? `${areas.length} 地域` : '—'),
-            dashboardText('最大警戒', areas[0]?.grade ? tsunamiGrade(areas[0].grade) : '—')
-        );
-        areas.slice(0, 4).forEach(area => body.append(
-            dashboardText(area.name ?? '津波予報区', `${tsunamiGrade(area.grade ?? '')}${area.immediate ? '・直ちに来襲' : ''}`)
-        ));
-    } else if (code === 556) {
-        body.append(
-            dashboardValue('状態', data.cancelled ? '取消' : (data.test ? 'テスト' : '警報'), data.cancelled ? 'safe' : 'danger'),
-            dashboardText('発表時刻', issue.time),
-            dashboardText('震央', hypo.name),
-            dashboardValue('推定規模', hypo.magnitude >= 0 ? `M${hypo.magnitude}` : '—'),
-            dashboardText('予測最大震度', (data.areas ?? []).length ? eewScaleRange(data.areas[0].scaleFrom, data.areas[0].scaleTo) : '—')
-        );
+        const order = { MajorWarning: 3, Warning: 2, Watch: 1, Unknown: 0 };
+        const top = areas.reduce((best, a) => (order[a.grade] ?? 0) > (order[best?.grade] ?? -1) ? a : best, null);
+        main.append(dcBox('いまの状態', data.cancelled ? '解除' : (top ? tsunamiGrade(top.grade) : '発表'),
+            { cls: `dc-big-text ${data.cancelled ? 'safe' : 'danger'}` }));
+        sub.append(dcBox('発表', dcShortTime(issue.time, false), { cls: 'dc-wide' }), dcBox('対象の地域', areas.length ? `${areas.length}` : '—', { unit: areas.length ? '地域' : '' }));
+        areas.slice(0, 3).forEach(a => {
+            const h = a.maxHeight?.description;
+            sub.append(dcBox(a.name ?? '津波予報区',
+                `${tsunamiGrade(a.grade ?? '')}${h ? '・' + h : ''}${a.immediate ? '・すぐ来る' : ''}`, { cls: 'dc-wide' }));
+        });
+        if (data.cancelled) help = '津波の予報は解除されました';
     } else if (code === 554) {
-        body.append(dashboardValue('検出種別', eewDetectionType(data.type ?? ''), 'warning'));
-    } else if (code === 555) {
-        const areas = Array.isArray(data.areas) ? data.areas : [];
-        const total = areas.reduce((sum, area) => sum + (Number(area.peer) || 0), 0);
-        body.append(dashboardValue('接続ピア', total), dashboardValue('地域数', areas.length));
+        main.append(dcBox('検出した種類', eewDetectionType(data.type ?? ''), { cls: 'dc-big-text warning' }));
+        sub.append(dcBox('受信', dcShortTime(data.time, false), { cls: 'dc-wide' }));
     } else if (code === 561) {
-        body.append(dashboardValue('感知地域', data.area ?? '—'), dashboardText('受信時刻', data.time));
+        main.append(dcBox('感知した地域コード', data.area ?? '—', { cls: 'dc-big-text warning' }));
+        sub.append(dcBox('受信', dcShortTime(data.time, false), { cls: 'dc-wide' }));
     } else if (code === 9611) {
-        const confidence = Number(data.confidence);
-        body.append(
-            dashboardValue('信頼度', Number.isFinite(confidence) ? confidence.toFixed(3) : '—'),
-            dashboardValue('感知件数', data.count ?? 0),
-            dashboardText('評価時刻', data.time)
-        );
+        const c = Number(data.confidence);
+        main.append(dcBox('信頼度', Number.isFinite(c) ? confidenceLabel(c) : '—', { cls: 'dc-big-text warning' }));
+        sub.append(dcBox('感知した件数', data.count ?? 0, { unit: '件' }), dcBox('評価', dcShortTime(data.time, false), { cls: 'dc-wide' }));
     } else {
-        body.append(dashboardText('受信時刻', data.time), dashboardText('内容', '未対応コード'));
+        main.append(dcBox('受信', dcShortTime(data.time, false), { cls: 'dc-wide' }));
     }
 
-    const footer = document.createElement('footer');
-    footer.className = 'dashboard-card-footer';
-    footer.textContent = meta.action;
-    card.append(header, body, footer);
+    const body = dcEl('div', 'dc-body');
+    body.append(main, sub);
+    card.append(head, body, dcEl('p', 'dc-help', help));
     elements.alertDashboard.replaceChildren(card);
 }
 
@@ -403,7 +456,6 @@ function formatP2PMessage(data) {
     if (code === 551) return format551(data);
     if (code === 552) return format552(data);
     if (code === 554) return format554(data);
-    if (code === 555) return format555(data);
     if (code === 556) return format556(data);
     if (code === 561) return format561(data);
     if (code === 9611) return format9611(data);
@@ -477,14 +529,6 @@ function format552(d) {
 // ── 554: EEW検出 ──
 function format554(d) {
     return `【緊急地震速報 検出】\n検出時刻 : ${d.time ?? ''}\n種　別 : ${eewDetectionType(d.type ?? '')}`;
-}
-
-// ── 555: Areapeers ──
-function format555(d) {
-    const areas = d.areas ?? [];
-    let total = 0;
-    areas.forEach(a => { total += a.peer ?? 0; });
-    return `【ピア情報】\n接続ピア総数 : ${total}\n地域数 : ${areas.length}`;
 }
 
 // ── 556: EEW警報 ──
@@ -605,6 +649,8 @@ function updateNavButtons() {
 // ========================================
 function onP2PMessage(msg) {
     if (!msg || typeof msg !== 'object') return;
+    // 555は接続状況の内部通知で、画面には表示しない。
+    if (Number(msg.code) === 555) return;
     AllWebsocketData.push(msg);
     renderCodeDashboard(msg);
     if (AllWebsocketData.length > MAX_HISTORY_ENTRIES) {
@@ -626,7 +672,7 @@ function onP2PMessage(msg) {
     if (isAtLatest) {
         currentIndex = AllWebsocketData.length - 1;
         elements.pagebar.value = currentIndex;
-        updateMainTextarea(currentIndex);
+        updateSelectedData(currentIndex);
     } else {
         updateDataCountBadge();
         updateNavButtons();
@@ -642,9 +688,6 @@ function onP2PMessage(msg) {
 function addInfomenuEntry(data) {
     if (!elements.infomenuList) return;
     const code = data.code;
-
-    // 555(ピア情報)は追加しない
-    if (code === 555) return;
 
     const item = document.createElement('div');
     item.className = 'info-entry';
@@ -694,7 +737,7 @@ function addInfomenuEntry(data) {
         if (idx < 0) return;
         currentIndex = idx;
         if (elements.pagebar) elements.pagebar.value = idx;
-        updateMainTextarea(idx);
+        updateSelectedData(idx);
         // 情報メニューを閉じる
         if (elements.infomenu) elements.infomenu.classList.remove('open');
     });
@@ -917,7 +960,6 @@ function getUserLocation() {
 // ========================================
 function injectDemoData() {
     const demos = [
-        { code: 555, areas: [{ peer: 120 }, { peer: 85 }, { peer: 60 }] },
         { code: 561, area: 130, time: '2025/06/01 09:12:34' },
         {
             code: 551,
@@ -1025,7 +1067,7 @@ function initializeApp() {
         elements.pagebar.addEventListener('input', e => {
             const idx = parseInt(e.target.value, 10);
             currentIndex = idx;
-            updateMainTextarea(idx);
+            updateSelectedData(idx);
         });
     }
 
@@ -1035,7 +1077,7 @@ function initializeApp() {
             if (currentIndex > 0) {
                 currentIndex--;
                 elements.pagebar.value = currentIndex;
-                updateMainTextarea(currentIndex);
+                updateSelectedData(currentIndex);
             }
         });
     }
@@ -1044,7 +1086,7 @@ function initializeApp() {
             if (currentIndex < AllWebsocketData.length - 1) {
                 currentIndex++;
                 elements.pagebar.value = currentIndex;
-                updateMainTextarea(currentIndex);
+                updateSelectedData(currentIndex);
             }
         });
     }
@@ -1053,7 +1095,7 @@ function initializeApp() {
             if (AllWebsocketData.length > 0) {
                 currentIndex = AllWebsocketData.length - 1;
                 elements.pagebar.value = currentIndex;
-                updateMainTextarea(currentIndex);
+                updateSelectedData(currentIndex);
             }
         });
     }
@@ -1115,7 +1157,7 @@ function initializeApp() {
     }
 
     // 初期表示
-    updateMainTextarea(-1);
+    updateSelectedData(-1);
     getUserLocation();
 }
 
@@ -1132,3 +1174,93 @@ window.addEventListener('beforeunload', () => {
     if (localWsReconnectTimer) clearTimeout(localWsReconnectTimer);
     if (localWs && localWs.readyState <= WebSocket.OPEN) localWs.close();
 });
+
+
+
+
+// debug 823dataフォルダーからjson読み込み
+let testPlaybackToken = 0;
+
+async function loadTestAssetJson(assetPath) {
+    if (Bridge.available() && typeof AndroidBridge.readAsset === 'function') {
+        const content = AndroidBridge.readAsset(assetPath);
+        if (typeof content !== 'string' || content.length === 0) {
+            throw new Error(`[TestStart] アセットが空です: ${assetPath}`);
+        }
+        return JSON.parse(content);
+    }
+
+    const response = await fetch(assetPath);
+    if (!response.ok) {
+        throw new Error(`[TestStart] ${assetPath} の読み込みに失敗しました: ${response.status}`);
+    }
+    return response.json();
+}
+
+/**
+ * 823data の保存済み通知を、実際のWebSocket受信と同じ経路で再生する。
+ *
+ * コンソールから `TestStart()`、または速度を指定して
+ * `TestStart({ intervalMs: 250, reset: true })` を実行する。
+ * 再実行すると、前回の再生は停止する。
+ */
+async function TestStart(options = {}) {
+    const playbackToken = ++testPlaybackToken;
+    const intervalMs = Number.isFinite(Number(options.intervalMs))
+        ? Math.max(0, Number(options.intervalMs))
+        : 100;
+    const reset = options.reset !== false;
+    const manifestUrl = '823data/index.json';
+
+    const manifest = await loadTestAssetJson(manifestUrl);
+    if (!Array.isArray(manifest) || manifest.length === 0
+            || manifest.some(name => typeof name !== 'string' || !name.endsWith('.json'))) {
+        throw new Error('[TestStart] 823data/index.json の形式が不正です');
+    }
+
+    const loaded = await Promise.all(manifest.map(async name => {
+        const data = await loadTestAssetJson(`823data/${name}`);
+        if (!data || typeof data !== 'object' || !Number.isFinite(Number(data.code))) {
+            throw new Error(`[TestStart] ${name} のデータ形式が不正です`);
+        }
+        return { name, data };
+    }));
+
+    loaded.sort((a, b) => {
+        const timeDiff = String(a.data.time ?? '').localeCompare(String(b.data.time ?? ''));
+        return timeDiff || a.name.localeCompare(b.name);
+    });
+
+    if (reset) {
+        AllWebsocketData = [];
+        currentIndex = -1;
+        if (elements.alertDashboard) elements.alertDashboard.replaceChildren();
+        if (elements.infomenuList) elements.infomenuList.replaceChildren();
+        updatePagebar();
+        updateSelectedData(-1);
+    }
+
+    console.info(`[TestStart] ${loaded.length}件の再生を開始します`);
+    let processed = 0;
+    for (const entry of loaded) {
+        if (playbackToken !== testPlaybackToken) {
+            console.info('[TestStart] 新しい再生が開始されたため中断しました');
+            return { cancelled: true, processed };
+        }
+        try {
+            onP2PMessage(entry.data);
+            processed++;
+        } catch (error) {
+            console.error(`[TestStart] ${entry.name} の処理に失敗しました`, error);
+        }
+        if (intervalMs > 0) {
+            await new Promise(resolve => setTimeout(resolve, intervalMs));
+        }
+    }
+
+    const result = { cancelled: false, processed, total: loaded.length };
+    console.info(`[TestStart] 再生完了: ${processed}/${loaded.length}件`, result);
+    return result;
+}
+
+window.TestStart = TestStart;

@@ -1,0 +1,68 @@
+{
+  "_id": "6a89d5d62c4d3735f4b932e8",
+  "area_confidences": {
+    "200": {
+      "confidence": 0.0072254772334818754,
+      "count": 1,
+      "display": "E"
+    },
+    "205": {
+      "confidence": 0.004472914477869732,
+      "count": 1,
+      "display": "E"
+    },
+    "230": {
+      "confidence": 0.027300734626721584,
+      "count": 2,
+      "display": "E"
+    },
+    "231": {
+      "confidence": 0.013230356011411233,
+      "count": 3,
+      "display": "E"
+    },
+    "241": {
+      "confidence": 0.012588791826945018,
+      "count": 3,
+      "display": "E"
+    },
+    "250": {
+      "confidence": 0.022474412025911546,
+      "count": 8,
+      "display": "E"
+    },
+    "270": {
+      "confidence": 0.0005780305805112084,
+      "count": 1,
+      "display": "E"
+    },
+    "275": {
+      "confidence": 0.002135501866888631,
+      "count": 1,
+      "display": "E"
+    },
+    "411": {
+      "confidence": 0.0051419002388694264,
+      "count": 1,
+      "display": "E"
+    },
+    "535": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "900": {
+      "confidence": -1,
+      "count": 2,
+      "display": "F"
+    }
+  },
+  "code": 9611,
+  "confidence": 0.98052,
+  "count": 24,
+  "started_at": "2026/08/23 02:00:53.308",
+  "time": "2026/08/23 02:01:10.870",
+  "updated_at": "2026/08/23 02:01:10.278",
+  "user-agent": "userquake-aggregator 20260612",
+  "ver": "20260612"
+}

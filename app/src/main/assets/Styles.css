@@ -88,32 +88,6 @@ body, html {
 .dashboard-value.safe { background: #dff8d9; color: #176b2a; }
 .dashboard-value.warning { background: #fff4cc; color: #765900; }
 
-/* メインテキストエリア（詳細表示・履歴選択時） */
-#maintextarea {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 35vh;
-    background-color: rgb(228, 148, 61);
-    z-index: 1;
-    border: none;
-    resize: none;
-    padding: 10px;
-    font-size: 18px;
-    color: #000;
-}
-
-/* 詳細テキストをダッシュボードの下に残す */
-#maintextarea { top: 35vh; height: 18vh; opacity: .92; }
-
-#maintextarea:focus {
-    height: 55vh;
-    top: 0;
-    background-color: rgba(228, 148, 61, 0.9);
-    z-index: 3;
-}
-
 @media (max-width: 480px) {
     .dashboard-card-header { padding: 6px 9px; }
     .dashboard-title { font-size: 14px; }

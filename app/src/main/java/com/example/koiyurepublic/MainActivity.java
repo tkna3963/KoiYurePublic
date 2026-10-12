@@ -25,6 +25,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -380,6 +385,31 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void log(String message) {
             Log.d("WebView/JS", message);
+        }
+
+        /**
+         * WebViewのfile URLではfetchできないアセットをJSから読み込む。
+         * 読み取り対象はアセット配下に限定する。
+         */
+        @JavascriptInterface
+        public String readAsset(String assetPath) {
+            if (assetPath == null || assetPath.isEmpty()
+                    || assetPath.startsWith("/")
+                    || assetPath.contains("..")) {
+                throw new IllegalArgumentException("Invalid asset path");
+            }
+
+            StringBuilder content = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    getAssets().open(assetPath), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append('\n');
+                }
+                return content.toString();
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to read asset: " + assetPath, e);
+            }
         }
     }
 

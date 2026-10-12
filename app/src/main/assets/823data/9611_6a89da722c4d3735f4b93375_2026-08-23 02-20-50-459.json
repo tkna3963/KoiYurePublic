@@ -1,0 +1,28 @@
+{
+  "_id": "6a89da722c4d3735f4b93375",
+  "area_confidences": {
+    "241": {
+      "confidence": 0.0007659199258738959,
+      "count": 1,
+      "display": "E"
+    },
+    "250": {
+      "confidence": 0.00022491216010835503,
+      "count": 1,
+      "display": "E"
+    },
+    "300": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    }
+  },
+  "code": 9611,
+  "confidence": 0,
+  "count": 3,
+  "started_at": "2026/08/23 02:20:28.741",
+  "time": "2026/08/23 02:20:50.459",
+  "updated_at": "2026/08/23 02:20:50.027",
+  "user-agent": "userquake-aggregator 20260612",
+  "ver": "20260612"
+}

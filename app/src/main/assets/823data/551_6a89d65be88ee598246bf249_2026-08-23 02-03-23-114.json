@@ -1,0 +1,185 @@
+{
+  "_id": "6a89d65be88ee598246bf249",
+  "code": 551,
+  "comments": {
+    "freeFormComment": ""
+  },
+  "earthquake": {
+    "domesticTsunami": "Checking",
+    "foreignTsunami": "Unknown",
+    "hypocenter": {
+      "depth": -1,
+      "latitude": -200,
+      "longitude": -200,
+      "magnitude": -1,
+      "name": ""
+    },
+    "maxScale": 45,
+    "time": "2026/08/23 02:00:00"
+  },
+  "issue": {
+    "correct": "None",
+    "source": "気象庁",
+    "time": "2026/08/23 02:03:21",
+    "type": "ScalePrompt"
+  },
+  "points": [
+    {
+      "addr": "茨城県北部",
+      "isArea": true,
+      "pref": "茨城県",
+      "scale": 45
+    },
+    {
+      "addr": "茨城県南部",
+      "isArea": true,
+      "pref": "茨城県",
+      "scale": 45
+    },
+    {
+      "addr": "埼玉県南部",
+      "isArea": true,
+      "pref": "埼玉県",
+      "scale": 45
+    },
+    {
+      "addr": "埼玉県北部",
+      "isArea": true,
+      "pref": "埼玉県",
+      "scale": 40
+    },
+    {
+      "addr": "千葉県北西部",
+      "isArea": true,
+      "pref": "千葉県",
+      "scale": 45
+    },
+    {
+      "addr": "千葉県北東部",
+      "isArea": true,
+      "pref": "千葉県",
+      "scale": 40
+    },
+    {
+      "addr": "千葉県南部",
+      "isArea": true,
+      "pref": "千葉県",
+      "scale": 40
+    },
+    {
+      "addr": "福島県中通り",
+      "isArea": true,
+      "pref": "福島県",
+      "scale": 40
+    },
+    {
+      "addr": "福島県浜通り",
+      "isArea": true,
+      "pref": "福島県",
+      "scale": 30
+    },
+    {
+      "addr": "福島県会津",
+      "isArea": true,
+      "pref": "福島県",
+      "scale": 30
+    },
+    {
+      "addr": "栃木県南部",
+      "isArea": true,
+      "pref": "栃木県",
+      "scale": 40
+    },
+    {
+      "addr": "栃木県北部",
+      "isArea": true,
+      "pref": "栃木県",
+      "scale": 30
+    },
+    {
+      "addr": "群馬県南部",
+      "isArea": true,
+      "pref": "群馬県",
+      "scale": 40
+    },
+    {
+      "addr": "群馬県北部",
+      "isArea": true,
+      "pref": "群馬県",
+      "scale": 30
+    },
+    {
+      "addr": "東京都２３区",
+      "isArea": true,
+      "pref": "東京都",
+      "scale": 40
+    },
+    {
+      "addr": "東京都多摩東部",
+      "isArea": true,
+      "pref": "東京都",
+      "scale": 40
+    },
+    {
+      "addr": "神奈川県東部",
+      "isArea": true,
+      "pref": "神奈川県",
+      "scale": 40
+    },
+    {
+      "addr": "神奈川県西部",
+      "isArea": true,
+      "pref": "神奈川県",
+      "scale": 40
+    },
+    {
+      "addr": "宮城県南部",
+      "isArea": true,
+      "pref": "宮城県",
+      "scale": 30
+    },
+    {
+      "addr": "新潟県中越",
+      "isArea": true,
+      "pref": "新潟県",
+      "scale": 30
+    },
+    {
+      "addr": "山梨県中・西部",
+      "isArea": true,
+      "pref": "山梨県",
+      "scale": 30
+    },
+    {
+      "addr": "山梨県東部・富士五湖",
+      "isArea": true,
+      "pref": "山梨県",
+      "scale": 30
+    },
+    {
+      "addr": "長野県中部",
+      "isArea": true,
+      "pref": "長野県",
+      "scale": 30
+    },
+    {
+      "addr": "静岡県伊豆",
+      "isArea": true,
+      "pref": "静岡県",
+      "scale": 30
+    },
+    {
+      "addr": "静岡県東部",
+      "isArea": true,
+      "pref": "静岡県",
+      "scale": 30
+    }
+  ],
+  "time": "2026/08/23 02:03:23.114",
+  "timestamp": {
+    "convert": "2026/08/23 02:03:23.107",
+    "register": "2026/08/23 02:03:23.114"
+  },
+  "user_agent": "jmaxml-seis-parser-go, relay, register-api",
+  "ver": "20231023"
+}

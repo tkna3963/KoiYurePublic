@@ -1,0 +1,58 @@
+{
+  "_id": "6a89d5d42c4d3735f4b932e6",
+  "area_confidences": {
+    "205": {
+      "confidence": 0.003778620690861863,
+      "count": 1,
+      "display": "E"
+    },
+    "230": {
+      "confidence": 0.006192228454450357,
+      "count": 1,
+      "display": "E"
+    },
+    "231": {
+      "confidence": 0.012003396696319155,
+      "count": 3,
+      "display": "E"
+    },
+    "241": {
+      "confidence": 0.005042706972059279,
+      "count": 2,
+      "display": "E"
+    },
+    "250": {
+      "confidence": 0.004973857148040357,
+      "count": 4,
+      "display": "E"
+    },
+    "270": {
+      "confidence": 0.0005509111833022375,
+      "count": 1,
+      "display": "E"
+    },
+    "275": {
+      "confidence": 0.0020353107605332664,
+      "count": 1,
+      "display": "E"
+    },
+    "535": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "900": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    }
+  },
+  "code": 9611,
+  "confidence": 0.98052,
+  "count": 15,
+  "started_at": "2026/08/23 02:00:53.308",
+  "time": "2026/08/23 02:01:08.633",
+  "updated_at": "2026/08/23 02:01:03.617",
+  "user-agent": "userquake-aggregator 20260612",
+  "ver": "20260612"
+}

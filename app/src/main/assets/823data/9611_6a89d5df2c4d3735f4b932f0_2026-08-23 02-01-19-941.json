@@ -1,0 +1,93 @@
+{
+  "_id": "6a89d5df2c4d3735f4b932f0",
+  "area_confidences": {
+    "150": {
+      "confidence": 0.006165513069582838,
+      "count": 1,
+      "display": "E"
+    },
+    "200": {
+      "confidence": 0.008963386774011347,
+      "count": 1,
+      "display": "E"
+    },
+    "205": {
+      "confidence": 0.022195052964218573,
+      "count": 2,
+      "display": "E"
+    },
+    "230": {
+      "confidence": 0.07829475509936597,
+      "count": 3,
+      "display": "E"
+    },
+    "231": {
+      "confidence": 0.046843015871415546,
+      "count": 5,
+      "display": "E"
+    },
+    "240": {
+      "confidence": 0.010710451346926253,
+      "count": 1,
+      "display": "E"
+    },
+    "241": {
+      "confidence": 0.027639874443680656,
+      "count": 4,
+      "display": "E"
+    },
+    "250": {
+      "confidence": 0.07199003290794823,
+      "count": 13,
+      "display": "E"
+    },
+    "270": {
+      "confidence": 0.01879517074164748,
+      "count": 5,
+      "display": "E"
+    },
+    "275": {
+      "confidence": 0.024997577086391144,
+      "count": 3,
+      "display": "E"
+    },
+    "320": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "345": {
+      "confidence": 0.08326054837682745,
+      "count": 2,
+      "display": "E"
+    },
+    "411": {
+      "confidence": 0.005814520758690014,
+      "count": 1,
+      "display": "E"
+    },
+    "415": {
+      "confidence": 0.005426886041444014,
+      "count": 1,
+      "display": "E"
+    },
+    "535": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "900": {
+      "confidence": -1,
+      "count": 4,
+      "display": "F"
+    }
+  },
+  "code": 9611,
+  "confidence": 0.98052,
+  "count": 48,
+  "started_at": "2026/08/23 02:00:53.308",
+  "time": "2026/08/23 02:01:19.941",
+  "updated_at": "2026/08/23 02:01:19.417",
+  "user-agent": "userquake-aggregator 20260612",
+  "ver": "20260612"
+}

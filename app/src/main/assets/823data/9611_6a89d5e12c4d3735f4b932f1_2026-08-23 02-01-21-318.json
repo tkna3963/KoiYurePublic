@@ -1,0 +1,98 @@
+{
+  "_id": "6a89d5e12c4d3735f4b932f1",
+  "area_confidences": {
+    "150": {
+      "confidence": 0.006165513069582838,
+      "count": 1,
+      "display": "E"
+    },
+    "200": {
+      "confidence": 0.009071249430738318,
+      "count": 1,
+      "display": "E"
+    },
+    "205": {
+      "confidence": 0.0224621414475425,
+      "count": 2,
+      "display": "E"
+    },
+    "225": {
+      "confidence": 0.004527941556619241,
+      "count": 1,
+      "display": "E"
+    },
+    "230": {
+      "confidence": 0.07923693025098288,
+      "count": 3,
+      "display": "E"
+    },
+    "231": {
+      "confidence": 0.04740671040657097,
+      "count": 5,
+      "display": "E"
+    },
+    "240": {
+      "confidence": 0.0108393376447232,
+      "count": 1,
+      "display": "E"
+    },
+    "241": {
+      "confidence": 0.02797248424444697,
+      "count": 4,
+      "display": "E"
+    },
+    "250": {
+      "confidence": 0.07285633895978876,
+      "count": 13,
+      "display": "E"
+    },
+    "270": {
+      "confidence": 0.028046019179304684,
+      "count": 6,
+      "display": "E"
+    },
+    "275": {
+      "confidence": 0.02590361493644113,
+      "count": 3,
+      "display": "E"
+    },
+    "320": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "345": {
+      "confidence": 0.08326054837682745,
+      "count": 2,
+      "display": "E"
+    },
+    "411": {
+      "confidence": 0.005814520758690014,
+      "count": 1,
+      "display": "E"
+    },
+    "415": {
+      "confidence": 0.005426886041444014,
+      "count": 1,
+      "display": "E"
+    },
+    "535": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "900": {
+      "confidence": -1,
+      "count": 4,
+      "display": "F"
+    }
+  },
+  "code": 9611,
+  "confidence": 0.98052,
+  "count": 50,
+  "started_at": "2026/08/23 02:00:53.308",
+  "time": "2026/08/23 02:01:21.318",
+  "updated_at": "2026/08/23 02:01:19.528",
+  "user-agent": "userquake-aggregator 20260612",
+  "ver": "20260612"
+}

@@ -1,0 +1,103 @@
+{
+  "_id": "6a89d5e52c4d3735f4b932f3",
+  "area_confidences": {
+    "150": {
+      "confidence": 0.006165513069582838,
+      "count": 1,
+      "display": "E"
+    },
+    "200": {
+      "confidence": 0.04236492951642054,
+      "count": 2,
+      "display": "E"
+    },
+    "205": {
+      "confidence": 0.026225908748260335,
+      "count": 2,
+      "display": "E"
+    },
+    "225": {
+      "confidence": 0.004797141411352846,
+      "count": 1,
+      "display": "E"
+    },
+    "230": {
+      "confidence": 0.09452946222869783,
+      "count": 3,
+      "display": "E"
+    },
+    "231": {
+      "confidence": 0.14478358659301416,
+      "count": 8,
+      "display": "E"
+    },
+    "240": {
+      "confidence": 0.012609628852698906,
+      "count": 1,
+      "display": "E"
+    },
+    "241": {
+      "confidence": 0.05084527763185045,
+      "count": 5,
+      "display": "E"
+    },
+    "242": {
+      "confidence": 0.02521925770539781,
+      "count": 1,
+      "display": "E"
+    },
+    "250": {
+      "confidence": 0.1463583018974835,
+      "count": 16,
+      "display": "E"
+    },
+    "270": {
+      "confidence": 0.041388230174217853,
+      "count": 7,
+      "display": "E"
+    },
+    "275": {
+      "confidence": 0.028084870475362112,
+      "count": 3,
+      "display": "E"
+    },
+    "320": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "345": {
+      "confidence": 0.08326054837682745,
+      "count": 2,
+      "display": "E"
+    },
+    "411": {
+      "confidence": 0.005814520758690014,
+      "count": 1,
+      "display": "E"
+    },
+    "415": {
+      "confidence": 0.005426886041444014,
+      "count": 1,
+      "display": "E"
+    },
+    "535": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "900": {
+      "confidence": -1,
+      "count": 6,
+      "display": "F"
+    }
+  },
+  "code": 9611,
+  "confidence": 0.98052,
+  "count": 62,
+  "started_at": "2026/08/23 02:00:53.308",
+  "time": "2026/08/23 02:01:25.776",
+  "updated_at": "2026/08/23 02:01:25.271",
+  "user-agent": "userquake-aggregator 20260612",
+  "ver": "20260612"
+}

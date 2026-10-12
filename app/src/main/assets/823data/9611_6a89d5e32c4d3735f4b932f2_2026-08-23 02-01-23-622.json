@@ -1,0 +1,98 @@
+{
+  "_id": "6a89d5e32c4d3735f4b932f2",
+  "area_confidences": {
+    "150": {
+      "confidence": 0.006165513069582838,
+      "count": 1,
+      "display": "E"
+    },
+    "200": {
+      "confidence": 0.009394837400919235,
+      "count": 1,
+      "display": "E"
+    },
+    "205": {
+      "confidence": 0.023263406897514292,
+      "count": 2,
+      "display": "E"
+    },
+    "225": {
+      "confidence": 0.004689461469459404,
+      "count": 1,
+      "display": "E"
+    },
+    "230": {
+      "confidence": 0.0889595444206096,
+      "count": 3,
+      "display": "E"
+    },
+    "231": {
+      "confidence": 0.10431837174792852,
+      "count": 7,
+      "display": "E"
+    },
+    "240": {
+      "confidence": 0.011776290486060804,
+      "count": 1,
+      "display": "E"
+    },
+    "241": {
+      "confidence": 0.047485042282503255,
+      "count": 5,
+      "display": "E"
+    },
+    "250": {
+      "confidence": 0.14307304259563203,
+      "count": 16,
+      "display": "E"
+    },
+    "270": {
+      "confidence": 0.029046471706509373,
+      "count": 6,
+      "display": "E"
+    },
+    "275": {
+      "confidence": 0.026827644006706574,
+      "count": 3,
+      "display": "E"
+    },
+    "320": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "345": {
+      "confidence": 0.08326054837682745,
+      "count": 2,
+      "display": "E"
+    },
+    "411": {
+      "confidence": 0.005814520758690014,
+      "count": 1,
+      "display": "E"
+    },
+    "415": {
+      "confidence": 0.005426886041444014,
+      "count": 1,
+      "display": "E"
+    },
+    "535": {
+      "confidence": -1,
+      "count": 1,
+      "display": "F"
+    },
+    "900": {
+      "confidence": -1,
+      "count": 5,
+      "display": "F"
+    }
+  },
+  "code": 9611,
+  "confidence": 0.98052,
+  "count": 57,
+  "started_at": "2026/08/23 02:00:53.308",
+  "time": "2026/08/23 02:01:23.622",
+  "updated_at": "2026/08/23 02:01:22.089",
+  "user-agent": "userquake-aggregator 20260612",
+  "ver": "20260612"
+}
