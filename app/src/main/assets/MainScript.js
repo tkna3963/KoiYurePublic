@@ -6,6 +6,10 @@ let timeUpdateInterval = null;
 let userLocation = null;
 let currentIndex = -1; // 現在表示中のインデックス
 const MAX_HISTORY_ENTRIES = 500;
+let koishiDialogueSets = [];
+let koishiDailyTimer = null;
+let koishiSpeechToken = 0;
+const KOISHI_DEFAULT_FACE = 'Img/hyoujyou_bishou_koisi.png';
 
 // ========================================
 // ローカル WebSocket（Java ↔ JS 超高速通信）
@@ -190,6 +194,11 @@ function cacheElements() {
     elements.latestBtn         = document.getElementById('latestBtn');
     elements.codeFilterBtns    = document.querySelectorAll('.code-filter-btn');
     elements.infomenuList      = document.getElementById('infomenuList');
+    elements.testPanel         = document.getElementById('testPanel');
+    elements.testInterval      = document.getElementById('testInterval');
+    elements.testStartBtn      = document.getElementById('testStartBtn');
+    elements.testStopBtn       = document.getElementById('testStopBtn');
+    elements.testStatus        = document.getElementById('testPlaybackStatus');
 }
 
 // ========================================
@@ -754,33 +763,72 @@ function addInfomenuEntry(data) {
 function updateKoishiSpeech(data) {
     if (!elements.koishiText && !elements.koisiarrow) return;
     const target = elements.koishiText || elements.koisiarrow;
-    const code = data.code;
+    const code = Number(data.code);
+    const candidates = koishiDialogueSets.filter(set =>
+        Number(set?.earthquake?.code) === code
+    );
+    const selected = candidates.length
+        ? candidates[Math.floor(Math.random() * candidates.length)].earthquake
+        : null;
 
-    let msg = '';
-    if (code === 556) {
-        const hypo = data.earthquake?.hypocenter;
-        msg = `⚡ 緊急地震速報！${hypo?.name ?? ''}`;
-    } else if (code === 551) {
-        const maxScale = data.earthquake?.maxScale;
-        msg = `地震情報 最大震度${scaleToText(maxScale)}`;
-    } else if (code === 552) {
-        msg = data.cancelled ? '津波予報が解除されました' : '⚠️ 津波予報が発表されました';
-    } else if (code === 554) {
-        msg = '⚡ 緊急地震速報を検出しました';
-    } else if (code === 561) {
-        msg = '地震感知情報を受信しました';
-    } else if (code === 9611) {
-        msg = '地震感知 解析結果を受信';
-    } else {
-        return;
+    const fallback = {
+        556: `⚡ 緊急地震速報！${data.earthquake?.hypocenter?.name ?? ''}`,
+        551: `地震情報 最大震度${scaleToText(data.earthquake?.maxScale)}`,
+        552: data.cancelled ? '津波予報が解除されました' : '⚠️ 津波予報が発表されました',
+        554: '⚡ 緊急地震速報を検出しました',
+        561: '地震感知情報を受信しました',
+        9611: '地震感知の解析結果を受信しました',
+    }[code];
+    if (!selected && !fallback) return;
+
+    showKoishiDialogue(
+        selected?.text ?? fallback,
+        selected?.face,
+        code === 552 || code === 556 ? 7000 : 5500
+    );
+}
+
+function showKoishiDialogue(text, faceName, durationMs = 5500) {
+    const target = elements.koishiText || elements.koisiarrow;
+    if (!target || !text) return;
+    const token = ++koishiSpeechToken;
+    target.textContent = text;
+    if (faceName) KoishiFaceUpdate(`Img/koishi_faces/${faceName}`);
+    clearTimeout(target._speechTimer);
+    target._speechTimer = setTimeout(() => {
+        if (token !== koishiSpeechToken) return;
+        target.textContent = '古明地こいしだよ!!';
+        KoishiFaceUpdate(KOISHI_DEFAULT_FACE);
+    }, durationMs);
+}
+
+function KoishiFaceUpdate(path) {
+    if (elements.koisiImg && path) {
+        elements.koisiImg.src = path;
     }
+}
 
-    if (msg) {
-        target.textContent = msg;
-        clearTimeout(target._speechTimer);
-        target._speechTimer = setTimeout(() => {
-            target.textContent = '古明地こいしだよ!!';
-        }, 5000);
+async function loadKoishiDialogues() {
+    try {
+        const response = await fetch('koishi_dialogues.json', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const document = await response.json();
+        const sets = Array.isArray(document?.sets) ? document.sets : [];
+        koishiDialogueSets = sets.filter(set =>
+            set?.daily?.text && set?.earthquake?.text
+        );
+        if (koishiDialogueSets.length === 0) throw new Error('会話データが空です');
+
+        const daily = koishiDialogueSets[Math.floor(Math.random() * koishiDialogueSets.length)].daily;
+        showKoishiDialogue(daily.text, daily.face, 12000);
+        clearInterval(koishiDailyTimer);
+        koishiDailyTimer = setInterval(() => {
+            if (document.hidden) return;
+            const entry = koishiDialogueSets[Math.floor(Math.random() * koishiDialogueSets.length)].daily;
+            showKoishiDialogue(entry.text, entry.face, 9000);
+        }, 45000);
+    } catch (error) {
+        console.warn('[KoishiDialogue] 読み込み失敗:', error);
     }
 }
 
@@ -1001,6 +1049,7 @@ function applyStoredSettings() {
 
 function initializeApp() {
     cacheElements();
+    loadKoishiDialogues();
 
     // 設定を読み込んで適用
     applyStoredSettings();
@@ -1153,14 +1202,17 @@ async function loadTestAssetJson(assetPath) {
  * 823data の保存済み通知を、実際のWebSocket受信と同じ経路で再生する。
  *
  * コンソールから `TestStart()`、または速度を指定して
- * `TestStart({ intervalMs: 250, reset: true })` を実行する。
+ * `TestStart({ intervalMs: 350, maxEvents: 12, reset: true })` を実行する。
  * 再実行すると、前回の再生は停止する。
  */
 async function TestStart(options = {}) {
     const playbackToken = ++testPlaybackToken;
     const intervalMs = Number.isFinite(Number(options.intervalMs))
         ? Math.max(0, Number(options.intervalMs))
-        : 100;
+        : 350;
+    const maxEvents = Number.isFinite(Number(options.maxEvents))
+        ? Math.max(1, Math.floor(Number(options.maxEvents)))
+        : null;
     const reset = options.reset !== false;
     const manifestUrl = '823data/index.json';
 
@@ -1170,7 +1222,13 @@ async function TestStart(options = {}) {
         throw new Error('[TestStart] 823data/index.json の形式が不正です');
     }
 
-    const loaded = await Promise.all(manifest.map(async name => {
+    // 展示では全件（数百件）を読み込まず、コードの種類を優先した代表データだけを使う。
+    // これにより、ボタンを押してから最初の表示までの待ち時間を短くする。
+    const selectedManifest = maxEvents && manifest.length > maxEvents
+        ? selectExhibitionManifest(manifest, maxEvents)
+        : manifest;
+
+    const loaded = await Promise.all(selectedManifest.map(async name => {
         const data = await loadTestAssetJson(`823data/${name}`);
         if (!data || typeof data !== 'object' || !Number.isFinite(Number(data.code))) {
             throw new Error(`[TestStart] ${name} のデータ形式が不正です`);
@@ -1216,3 +1274,73 @@ async function TestStart(options = {}) {
 }
 
 window.TestStart = TestStart;
+
+function selectExhibitionManifest(manifest, maxEvents) {
+    const selected = [];
+    const selectedSet = new Set();
+    const codeOf = name => String(name).split('_', 1)[0];
+
+    // まず各コードを1件ずつ確保し、展示で変化が見えるようにする。
+    for (const name of manifest) {
+        const code = codeOf(name);
+        if (!selectedSet.has(code)) {
+            selected.push(name);
+            selectedSet.add(code);
+            if (selected.length >= maxEvents) return selected;
+        }
+    }
+
+    // 残りは全体から均等に選び、時系列の偏りを減らす。
+    const step = manifest.length / Math.max(1, maxEvents - selected.length);
+    for (let i = 0; selected.length < maxEvents && i < manifest.length; i += step) {
+        const name = manifest[Math.floor(i)];
+        if (!selected.includes(name)) selected.push(name);
+    }
+    return selected;
+}
+
+function StopTestPlayback() {
+    testPlaybackToken++;
+}
+
+window.StopTestPlayback = StopTestPlayback;
+
+async function StartExhibitionTest() {
+    const startButton = document.getElementById('testStartBtn');
+    const stopButton = document.getElementById('testStopBtn');
+    const intervalSelect = document.getElementById('testInterval');
+    const status = document.getElementById('testPlaybackStatus');
+    const intervalMs = Number(intervalSelect?.value ?? 700);
+
+    if (startButton) startButton.disabled = true;
+    if (stopButton) stopButton.disabled = false;
+    if (status) status.textContent = '再生中…';
+
+    try {
+        const result = await TestStart({ intervalMs, maxEvents: 200, reset: true });
+        if (status) {
+            status.textContent = result.cancelled
+                ? '停止しました'
+                : `完了（${result.processed}件）`;
+        }
+    } catch (error) {
+        console.error('[展示テスト] 再生失敗:', error);
+        if (status) status.textContent = 'データを確認してください';
+    } finally {
+        if (startButton) startButton.disabled = false;
+        if (stopButton) stopButton.disabled = true;
+    }
+}
+
+function StopExhibitionTest() {
+    StopTestPlayback();
+    const status = document.getElementById('testPlaybackStatus');
+    const startButton = document.getElementById('testStartBtn');
+    const stopButton = document.getElementById('testStopBtn');
+    if (status) status.textContent = '停止しました';
+    if (startButton) startButton.disabled = false;
+    if (stopButton) stopButton.disabled = true;
+}
+
+window.StartExhibitionTest = StartExhibitionTest;
+window.StopExhibitionTest = StopExhibitionTest;

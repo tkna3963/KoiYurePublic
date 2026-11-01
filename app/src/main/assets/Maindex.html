@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="Styles.css">
     <link rel="stylesheet" href="Styles_dashboard.css">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="MainScript.js"></script>
+    <script src="MainScript.js?v=20261102"></script>
     <script src="LeafletConnection.js"></script>
 </head>
 
@@ -21,11 +21,6 @@
 
 <!-- 最新の防災情報 -->
 <main id="alertDashboard" class="alert-dashboard" aria-live="polite" aria-label="最新の防災情報">
-    <div class="dashboard-empty">
-        <span class="dashboard-empty-icon">◌</span>
-        <strong>情報を待っています</strong>
-        <span>P2P地震情報に接続すると、コード別の画面が自動表示されます</span>
-    </div>
 </main>
 
 <!-- スライダーエリア（ラベル＋スライダー＋ナビボタン） -->
@@ -111,7 +106,6 @@
      ────────────────────────────────────────────── -->
 <aside id="infomenu" aria-label="情報メニュー">
     <h2>受信履歴</h2>
-    <button id="TestDev" onclick="TestStart({ intervalMs: 250, reset: true })">テスト</button>
     <!-- ここに addInfomenuEntry() でエントリが追加される -->
     <div id="infomenuList" aria-label="受信データリスト">
         <p id="infomenuEmpty" style="color:#888;font-size:0.85em;padding:8px;">まだデータがありません</p>
@@ -122,6 +116,24 @@
 <button id="toggleMenuBtn"     aria-label="メニューを開閉"      aria-expanded="false">☰</button>
 <button id="toggleinfoMenuBtn" aria-label="情報メニューを開閉"  aria-expanded="false">☰</button>
 <button id="MapChange"         aria-label="地図表示切替">🗺️</button>
+
+<!-- 文化祭展示用テスト操作 -->
+<section id="testPanel" aria-label="展示用テスト再生">
+    <div class="test-panel-heading">
+        <strong>展示テスト</strong>
+        <span id="testPlaybackStatus" role="status" aria-live="polite">停止中</span>
+    </div>
+    <div class="test-panel-controls">
+        <label for="testInterval">再生間隔</label>
+        <select id="testInterval" aria-label="テスト再生間隔">
+            <option value="600">ゆっくり</option>
+            <option value="350" selected>標準</option>
+            <option value="180">速め</option>
+        </select>
+        <button id="testStartBtn" type="button" onclick="StartExhibitionTest()">▶ 再生</button>
+        <button id="testStopBtn" type="button" onclick="StopExhibitionTest()" disabled>■ 停止</button>
+    </div>
+</section>
 
 <!-- 地図 -->
 <div id="LeafletMap" role="application" aria-label="地図"></div>

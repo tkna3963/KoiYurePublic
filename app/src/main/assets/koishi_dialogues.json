@@ -1,0 +1,2407 @@
+{
+  "version": 1,
+  "notice": "公式台詞の再現ではなく、展示用のオリジナル会話データです。",
+  "imageDirectory": "Img/koishi_faces/",
+  "sets": [
+    {
+      "id": 1,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 2,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 3,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 4,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 5,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 6,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 7,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 8,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 9,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 10,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 11,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 12,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 13,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 14,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 15,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 16,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 17,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 18,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 19,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 20,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 21,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 22,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 23,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 24,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 25,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 26,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 27,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 28,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 29,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 30,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 31,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 32,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 33,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 34,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 35,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 36,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 37,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 38,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 39,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 40,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 41,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 42,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 43,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 44,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 45,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 46,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 47,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 48,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 49,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 50,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 51,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 52,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 53,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 54,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 55,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 56,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 57,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 58,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 59,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 60,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 61,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 62,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 63,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 64,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 65,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 66,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 67,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 68,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 69,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 70,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 71,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 72,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 73,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 74,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 75,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 76,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 77,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 78,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 79,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 80,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 81,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 82,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 83,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 84,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 85,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 86,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 87,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 88,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 89,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 90,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 91,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 92,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 93,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 94,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 95,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 96,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 97,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 98,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 99,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 100,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 101,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 102,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 103,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 104,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 105,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 106,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 107,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 108,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 109,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 110,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 111,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 112,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 113,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 114,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 115,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 116,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 117,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 118,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 119,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 120,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 121,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 122,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 123,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 124,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 125,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 126,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 127,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 128,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 129,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 130,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 131,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 132,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 133,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 134,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 135,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 136,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 137,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 138,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 139,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 140,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 141,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 142,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 143,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 144,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 145,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 146,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 147,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 148,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 149,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 150,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 151,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 152,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 153,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 154,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 155,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 156,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 157,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 158,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 159,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 160,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 161,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 162,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 163,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 164,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 165,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 166,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 167,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 168,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 169,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 170,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 171,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 172,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 173,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 174,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 175,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 176,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 177,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 178,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 179,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 180,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 181,
+      "daily": {
+        "text": "今日は何をしようかな？ 気楽にいこうね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "揺れを感じたら、まず自分の安全を確かめよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 182,
+      "daily": {
+        "text": "見つけた？ 私はまだ見つかってないよ。 私はちゃんとここにいるよ。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "大事なお知らせ。あわてず、頭を守ってね。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 183,
+      "daily": {
+        "text": "静かな時間って、ちょっとわくわくするね。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "安全確認の時間だよ。机の下や丈夫な場所を探してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 184,
+      "daily": {
+        "text": "おはよう。今日も気配を消していこう。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "津波の情報があるときは、海から離れて高いところへ。 最新の防災情報を確認してね。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 185,
+      "daily": {
+        "text": "こんにちは。ここにいるけど、気にしなくていいよ。 小さな変化も教えてね。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "揺れが収まっても、続報を確認してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 186,
+      "daily": {
+        "text": "こんばんは。夜は音が少なくて好きだな。 あわてないのがいちばんだよ。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "この表示は防災の目安。現地の公式情報も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 187,
+      "daily": {
+        "text": "おなかすいた？ 私も……たぶん。 画面は明るく、心はのんびり。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "情報が変わることもあるから、更新を見守ろう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 188,
+      "daily": {
+        "text": "窓の外、さっきより明るくなった気がする。 またあとで会おうね。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "地震のお知らせだよ。落ち着いて画面を見てね。 最新の防災情報を確認してね。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 189,
+      "daily": {
+        "text": "今日はゆっくり話してもいい日だよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "揺れが続くかもしれないよ。無理に動かないでね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 190,
+      "daily": {
+        "text": "ねえねえ、今の音聞こえた？ 今日もよろしくね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "速報を受信したよ。数字だけで判断せず、周囲も確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 191,
+      "daily": {
+        "text": "何もないところに、何かあるかもしれないよ。 気楽にいこうね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "地震のあとには落下物にも注意してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_cry.png"
+      }
+    },
+    {
+      "id": 192,
+      "daily": {
+        "text": "少し休憩しようよ。急がなくても大丈夫。 私はちゃんとここにいるよ。",
+        "face": "koishi_confident.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "近くの人と声をかけ合おう。ひとりで抱えなくていいよ。 最新の防災情報を確認してね。",
+        "face": "koishi_displeased.png"
+      }
+    },
+    {
+      "id": 193,
+      "daily": {
+        "text": "あれ、ボタンが呼んでる気がする。 気づいた人から、そっと確認しよう。",
+        "face": "koishi_confident_shadow.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "怖いときは深呼吸。次にすることを一つずつ考えよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_laugh.png"
+      }
+    },
+    {
+      "id": 194,
+      "daily": {
+        "text": "気づいたらここにいたよ。ふしぎだね。 見つからなくても、それはそれで楽しいよ。",
+        "face": "koishi_surprised.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "揺れの情報を受け取ったよ。無理せず安全な場所へ。 最新の防災情報を確認してね。",
+        "face": "koishi_confident_shadow.png"
+      }
+    },
+    {
+      "id": 195,
+      "daily": {
+        "text": "今日はどんな知らせが来るのかな？ 小さな変化も教えてね。",
+        "face": "koishi_worried.png"
+      },
+      "earthquake": {
+        "code": 554,
+        "text": "今の情報を受け取ったよ。身を守る準備をしよう。 こいしちゃんとの約束だよ。",
+        "face": "koishi_worried.png"
+      }
+    },
+    {
+      "id": 196,
+      "daily": {
+        "text": "見えないものも、たまには気にしてみよう。 あわてないのがいちばんだよ。",
+        "face": "koishi_cry.png"
+      },
+      "earthquake": {
+        "code": 556,
+        "text": "地震情報が届いたよ。周りの人にも知らせよう。 最新の防災情報を確認してね。",
+        "face": "koishi_angry.png"
+      }
+    },
+    {
+      "id": 197,
+      "daily": {
+        "text": "ひと息ついたら、また画面を見てみようか。 画面は明るく、心はのんびり。",
+        "face": "koishi_angry.png"
+      },
+      "earthquake": {
+        "code": 561,
+        "text": "いまは遊びより安全を優先しようね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_smile.png"
+      }
+    },
+    {
+      "id": 198,
+      "daily": {
+        "text": "私はここで見張り……じゃなくて、見守ってるね。 またあとで会おうね。",
+        "face": "koishi_displeased.png"
+      },
+      "earthquake": {
+        "code": 9611,
+        "text": "火を使っていたら、無理のない範囲で確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_confident.png"
+      }
+    },
+    {
+      "id": 199,
+      "daily": {
+        "text": "何かあったら、すぐ知らせるよ。 たまには空を見上げるのもいいね。",
+        "face": "koishi_smile.png"
+      },
+      "earthquake": {
+        "code": 551,
+        "text": "警報が出たら、画面より避難を優先してね。 こいしちゃんとの約束だよ。",
+        "face": "koishi_surprised.png"
+      }
+    },
+    {
+      "id": 200,
+      "daily": {
+        "text": "ゆっくりでいいよ。大事なことは逃げないから。 今日もよろしくね。",
+        "face": "koishi_laugh.png"
+      },
+      "earthquake": {
+        "code": 552,
+        "text": "落ち着いて、出口や避難経路を確認しよう。 最新の防災情報を確認してね。",
+        "face": "koishi_cry.png"
+      }
+    }
+  ]
+}
